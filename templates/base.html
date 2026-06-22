@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Your premier online shopping destination{% endblock %}">
+    <title>{% block title %}ShopEase — Your Premier Online Store{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-inner">
+            <i class="fas fa-search" style="color:var(--text-muted);font-size:1.25rem;"></i>
+            <form action="#" method="GET" style="flex:1;display:flex;">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search products..."
+                    autocomplete="off"
+                    id="searchInput"
+                >
+            </form>
+            <button class="search-overlay-close" id="searchClose" aria-label="Close search">
+                <i class="fas fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-inner">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="{% url 'home' %}">
+                    <span class="logo-icon"><i class="fas fa-bag-shopping"></i></span>
+                    ShopEase
+                </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav" aria-label="Main navigation">
+                <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
+                <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
+                <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Categories</a>
+                <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Deals</a>
+            </nav>
+
+            <!-- Right -->
+            <div class="header-right">
+                <button class="search-toggle" id="searchToggle" aria-label="Open search">
+                    <i class="fas fa-search"></i>
+                </button>
+
+                <a href="#" class="header-icon" aria-label="Wishlist">
+                    <i class="far fa-heart"></i>
+                    {% if wishlist_count %}
+                        <span class="badge">{{ wishlist_count }}</span>
+                    {% endif %}
+                </a>
+
+                <a href="#" class="header-icon" aria-label="Shopping Cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    {% if cart_count %}
+                        <span class="badge">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+
+                {% if user.is_authenticated %}
+                    <a href="#" class="header-icon" aria-label="My Account">
+                        <i class="fas fa-user"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="header-icon" aria-label="Sign In">
+                        <i class="far fa-user"></i>
+                    </a>
+                {% endif %}
+
+                <!-- Hamburger -->
+                <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+        <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
+        <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
+        <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Categories</a>
+        <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Deals</a>
+
+        <div class="mobile-auth">
+            {% if user.is_authenticated %}
+                <a href="#">My Account</a>
+                <form method="post" action="{% url 'logout' %}" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none;border:none;padding:14px 0;font-size:1.125rem;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:inherit;display:block;width:100%;text-align:left;">Sign Out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Sign In</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-main">
+            <!-- Brand -->
+            <div class="footer-col footer-brand">
+                <div class="logo" style="margin-bottom:16px;">
+                    <a href="{% url 'home' %}">
+                        <span class="logo-icon"><i class="fas fa-bag-shopping"></i></span>
+                        ShopEase
+                    </a>
+                </div>
+                <p>Thoughtfully curated products delivered to your door. We believe in quality, simplicity, and exceptional service.</p>
+                <div class="footer-contact">
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Commerce St, New York, NY 10001</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                    <p><i class="fas fa-envelope"></i> hello@shopease.com</p>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="footer-col">
+                <h3>Explore</h3>
+                <ul class="footer-links">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Shipping</a></li>
+                    <li><a href="#">Returns</a></li>
+                </ul>
+            </div>
+
+            <!-- Support -->
+            <div class="footer-col">
+                <h3>Support</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Track Order</a></li>
+                    <li><a href="#">Size Guide</a></li>
+                    <li><a href="#">Payment</a></li>
+                    <li><a href="#">Privacy</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="footer-col">
+                <h3>Newsletter</h3>
+                <p>Subscribe for early access to new arrivals and 10% off your first order.</p>
+                <form class="newsletter-form" action="#" method="POST">
+                    {% csrf_token %}
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        aria-label="Email address"
+                        required
+                    >
+                    <button type="submit">Subscribe</button>
+                </form>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest-p"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} ShopEase. All rights reserved.</p>
+            <div class="payment-icons" aria-label="Accepted payment methods">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-cc-paypal"></i>
+                <i class="fab fa-apple-pay"></i>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

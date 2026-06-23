@@ -20,7 +20,7 @@ A Django-based e-commerce platform with a clean, minimal UI. Features user authe
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/E-commerce-Website.git
+git clone https://github.com/Musthak2004/E-commerce-Website.git
 cd E-commerce-Website
 
 # Create and activate virtual environment

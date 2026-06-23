@@ -51,9 +51,7 @@
 
             <nav class="desktop-nav" aria-label="Main navigation">
                 <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
-                <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
-                <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Collections</a>
-                <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Journal</a>
+                <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active"{% endif %}>Shop</a>
             </nav>
 
             <div class="header-right">
@@ -97,9 +95,7 @@
     <!-- Mobile Navigation -->
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
         <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
-        <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
-        <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Collections</a>
-        <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Journal</a>
+        <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active"{% endif %}>Shop</a>
 
         <div class="mobile-auth">
             {% if user.is_authenticated %}

@@ -1,7 +1,53 @@
-<h2>Add Product</h2>
+{% extends "base.html" %}
+{% load static %}
 
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %} {{ form.as_p }}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Product — ShopEase{% endblock %}
 
-  <button type="submit">Save</button>
-</form>
+{% block content %}
+
+<section class="form-page">
+    <div class="form-card">
+        <div class="form-card-header">
+            <a href="{% url 'products:product_list' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1>{% if form.instance.pk %}Edit Product{% else %}Add Product{% endif %}</h1>
+            <p>{% if form.instance.pk %}Update your product details.{% else %}List a new product for sale.{% endif %}</p>
+        </div>
+
+        <form class="styled-form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert-error">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="helptext">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <a href="{% url 'products:product_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i>
+                    {% if form.instance.pk %}Update Product{% else %}Create Product{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

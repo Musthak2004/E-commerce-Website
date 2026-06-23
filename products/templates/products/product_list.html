@@ -1,15 +1,68 @@
-<h2>Products</h2>
+{% extends "base.html" %}
+{% load static %}
 
-{% for product in products %}
+{% block title %}Products — ShopEase{% endblock %}
 
-<div>
-  <h3>{{ product.name }}</h3>
+{% block content %}
 
-  <p>{{ product.price }}</p>
+<section class="section">
+    <div class="section-header">
+        <div>
+            <h2>Products</h2>
+            <p>Browse our curated collection of premium essentials.</p>
+        </div>
+        {% if user.is_authenticated and user.user_type == "SELLER" %}
+            <a href="{% url 'products:product_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Product
+            </a>
+        {% endif %}
+    </div>
 
-  <a href="{% url 'products:product_detail' product.slug %}"> View </a>
-</div>
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                <a href="{% url 'products:product_detail' product.slug %}" class="product-card">
+                    <div class="product-card-img">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        {% else %}
+                            <i class="fas fa-image placeholder-icon"></i>
+                        {% endif %}
+                        {% if not product.is_available %}
+                            <span class="product-badge out">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-card-body">
+                        <span class="product-category">{{ product.category.name|default:"General" }}</span>
+                        <h3>{{ product.name }}</h3>
+                        <span class="product-price">${{ product.price }}</span>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
 
-<hr />
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                {% endif %}
+                <span class="pagination-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-secondary">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No products yet</h3>
+            <p>Check back soon for new arrivals.</p>
+        </div>
+    {% endif %}
+</section>
 
-{% endfor %}
+{% endblock %}

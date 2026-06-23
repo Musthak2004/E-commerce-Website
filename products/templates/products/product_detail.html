@@ -1,13 +1,81 @@
-<h2>{{ product.name }}</h2>
+{% extends "base.html" %}
+{% load static %}
 
-<p>{{ product.description }}</p>
+{% block title %}{{ product.name }} — ShopEase{% endblock %}
 
-<p>Price: {{ product.price }}</p>
+{% block content %}
 
-<p>Stock: {{ product.stock }}</p>
+<section class="product-detail-section">
+    <a href="{% url 'products:product_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Products
+    </a>
 
-{% for img in product.images.all %}
+    <div class="product-detail">
+        <div class="product-detail-gallery">
+            {% if product.image %}
+                <div class="product-detail-main-img">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                </div>
+            {% else %}
+                <div class="product-detail-main-img placeholder">
+                    <i class="fas fa-image"></i>
+                </div>
+            {% endif %}
+            {% if product.images.exists %}
+                <div class="product-thumbnails">
+                    {% for img in product.images.all %}
+                        <img src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
 
-<img src="{{ img.image.url }}" width="150" />
+        <div class="product-detail-info">
+            {% if product.category %}
+                <span class="product-category">{{ product.category.name }}</span>
+            {% endif %}
+            <h1>{{ product.name }}</h1>
+            <p class="product-detail-price">${{ product.price }}</p>
 
-{% endfor %}
+            <div class="product-detail-meta">
+                <div class="meta-item">
+                    <i class="fas fa-box"></i>
+                    <span>{% if product.stock > 0 %}In Stock ({{ product.stock }} available){% else %}Out of Stock{% endif %}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-store"></i>
+                    <span>Sold by {{ product.seller.email }}</span>
+                </div>
+            </div>
+
+            {% if product.description %}
+                <div class="product-description">
+                    <h3>Description</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+            {% endif %}
+
+            <div class="product-detail-actions">
+                <button class="btn btn-primary" {% if not product.is_available or product.stock == 0 %}disabled{% endif %}>
+                    <i class="fas fa-shopping-bag"></i> Add to Cart
+                </button>
+                <button class="btn btn-secondary">
+                    <i class="far fa-heart"></i> Wishlist
+                </button>
+            </div>
+
+            {% if user.is_authenticated and user == product.seller %}
+                <div class="product-seller-actions">
+                    <a href="{% url 'products:product_update' product.slug %}" class="btn btn-secondary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'products:product_delete' product.slug %}" class="btn btn-secondary delete-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

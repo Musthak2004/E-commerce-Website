@@ -5,16 +5,17 @@ A Django-based e-commerce platform with a clean, minimal UI. Features user authe
 ## Features
 
 - **User Authentication** — Login, signup, password reset (email-based auth with `CustomUser` model)
+- **Role-Based Access** — Customer and Seller roles with profile management; redirects for authenticated users
+- **Product Management** — Sellers can create, edit, and delete products; product listing with pagination and images
 - **Responsive Design** — Works on desktop, tablet, and mobile
 - **Clean UI** — Warm minimal aesthetic with gold accents, Playfair Display + Outfit fonts
-- **Account Types** — Customer and Seller roles with profile management
 
 ## Tech Stack
 
 - **Backend:** Django 6.0, Python 3.13
 - **Frontend:** HTML5, CSS3, vanilla JavaScript
 - **Database:** SQLite (default)
-- **Auth:** `django.contrib.auth` with custom `AbstractUser` model
+- **Auth:** `django.contrib.auth` with custom `AbstractUser` model (`USERNAME_FIELD = "email"`)
 
 ## Quick Start
 
@@ -42,6 +43,12 @@ python manage.py runserver
 
 Visit `http://127.0.0.1:8000/` to see the app.
 
+## Test Account
+
+| Email | Password | Role |
+|-------|----------|------|
+| testuser@gmail.com | test_2004 | Seller |
+
 ## Running Tests
 
 ```bash
@@ -57,22 +64,35 @@ python manage.py test pages --verbosity=2
 
 ```
 ├── accounts/            # User auth app (models, forms, views, admin)
-│   ├── models.py        # CustomUser, Profile
-│   ├── forms.py         # SignUpForm
-│   ├── views.py         # SignUpView
+│   ├── models.py        # CustomUser (email-based), Profile
+│   ├── forms.py         # SignUpForm with duplicate email validation
+│   ├── views.py         # SignUpView (redirects authenticated users)
 │   ├── tests.py         # 33 tests (models, forms, views, signals, URLs)
 │   └── signals.py       # Auto-create Profile on user signup
 ├── pages/               # Page routing app
 │   ├── views.py         # HomePageView
 │   ├── urls.py          # Root URL routing
 │   └── tests.py         # 4 tests (URLs, templates)
-├── django_project/      # Project settings and URLs
+├── products/            # Product management app
+│   ├── models.py        # Category, Product, ProductImage
+│   ├── forms.py         # ProductForm (price/stock validation)
+│   ├── views.py         # CRUD views with seller-only access
+│   ├── urls.py          # Product routes (list, detail, create, update, delete)
+│   ├── admin.py         # Admin config with inline images
+│   ├── tests.py         # Test suite
+│   └── templates/products/
+│       ├── product_list.html
+│       ├── product_detail.html
+│       ├── product_form.html
+│       └── product_confirm_delete.html
+├── django_project/      # Project settings and URLs (media serving in dev)
+├── media/products/      # Uploaded product images
 ├── static/
 │   ├── css/style.css    # Complete stylesheet
-│   └── js/main.js       # Frontend interactions
+│   └── js/main.js       # Frontend interactions (nav, search, password toggle, alerts)
 ├── templates/           # Django templates
-│   ├── base.html        # Base layout (header, footer, nav)
-│   ├── home.html        # Landing page
-│   └── registration/    # Auth templates (login, signup, password reset)
+│   ├── base.html        # Base layout (header with auth buttons, footer, nav)
+│   ├── home.html        # Landing page with role-aware CTAs
+│   └── registration/    # Auth templates (login, signup, password reset flow)
 └── manage.py
 ```

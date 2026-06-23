@@ -51,6 +51,14 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
+The project has **91 tests** across three apps:
+
+| App | Tests | Coverage |
+|-----|-------|----------|
+| accounts | 33 | Models, forms, views, signals, URLs, auth flow |
+| pages | 4 | URL resolution, template rendering |
+| products | 50 | Models, forms, permissions, CRUD workflow, URL routing |
+
 ```bash
 # Run all tests
 python manage.py test --verbosity=2
@@ -58,6 +66,7 @@ python manage.py test --verbosity=2
 # Run specific app tests
 python manage.py test accounts --verbosity=2
 python manage.py test pages --verbosity=2
+python manage.py test products --verbosity=2
 ```
 
 ## Project Structure
@@ -67,32 +76,32 @@ python manage.py test pages --verbosity=2
 │   ├── models.py        # CustomUser (email-based), Profile
 │   ├── forms.py         # SignUpForm with duplicate email validation
 │   ├── views.py         # SignUpView (redirects authenticated users)
-│   ├── tests.py         # 33 tests (models, forms, views, signals, URLs)
+│   ├── tests.py         # 33 tests
 │   └── signals.py       # Auto-create Profile on user signup
 ├── pages/               # Page routing app
 │   ├── views.py         # HomePageView
 │   ├── urls.py          # Root URL routing
-│   └── tests.py         # 4 tests (URLs, templates)
+│   └── tests.py         # 4 tests
 ├── products/            # Product management app
-│   ├── models.py        # Category, Product, ProductImage
-│   ├── forms.py         # ProductForm (price/stock validation)
-│   ├── views.py         # CRUD views with seller-only access
-│   ├── urls.py          # Product routes (list, detail, create, update, delete)
-│   ├── admin.py         # Admin config with inline images
-│   ├── tests.py         # Test suite
+│   ├── models.py        # Category, Product, ProductImage (indexed, ordered)
+│   ├── forms.py         # ProductForm (price > 0, stock >= 0 validation)
+│   ├── views.py         # CRUD with SellerRequiredMixin (owner-only edit/delete)
+│   ├── urls.py          # 5 routes: list, detail, create, update, delete
+│   ├── admin.py         # Inline images, list_editable, prepopulated slugs
+│   ├── tests.py         # 50 tests (models, permissions, CRUD workflow)
 │   └── templates/products/
-│       ├── product_list.html
-│       ├── product_detail.html
-│       ├── product_form.html
+│       ├── product_list.html    # Grid with pagination
+│       ├── product_detail.html  # Gallery + seller actions
+│       ├── product_form.html    # Styled create/edit form
 │       └── product_confirm_delete.html
-├── django_project/      # Project settings and URLs (media serving in dev)
+├── django_project/      # Settings, root URL config (media served in dev)
 ├── media/products/      # Uploaded product images
 ├── static/
 │   ├── css/style.css    # Complete stylesheet
-│   └── js/main.js       # Frontend interactions (nav, search, password toggle, alerts)
+│   └── js/main.js       # Nav, search, password toggle, alert dismiss
 ├── templates/           # Django templates
-│   ├── base.html        # Base layout (header with auth buttons, footer, nav)
-│   ├── home.html        # Landing page with role-aware CTAs
-│   └── registration/    # Auth templates (login, signup, password reset flow)
+│   ├── base.html        # Header (auth-aware nav buttons), footer
+│   ├── home.html        # Landing page with role-based CTAs
+│   └── registration/    # Login, signup, password reset (4 screens)
 └── manage.py
 ```

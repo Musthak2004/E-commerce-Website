@@ -45,7 +45,12 @@ Visit `http://127.0.0.1:8000/` to see the app.
 ## Running Tests
 
 ```bash
+# Run all tests
+python manage.py test --verbosity=2
+
+# Run specific app tests
 python manage.py test accounts --verbosity=2
+python manage.py test pages --verbosity=2
 ```
 
 ## Project Structure
@@ -57,6 +62,10 @@ python manage.py test accounts --verbosity=2
 │   ├── views.py         # SignUpView
 │   ├── tests.py         # 33 tests (models, forms, views, signals, URLs)
 │   └── signals.py       # Auto-create Profile on user signup
+├── pages/               # Page routing app
+│   ├── views.py         # HomePageView
+│   ├── urls.py          # Root URL routing
+│   └── tests.py         # 4 tests (URLs, templates)
 ├── django_project/      # Project settings and URLs
 ├── static/
 │   ├── css/style.css    # Complete stylesheet

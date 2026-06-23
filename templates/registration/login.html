@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign In — ShopEase{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-inner">
+            <div class="auth-card-header">
+                <span class="logo-mark">S</span>
+                <h1>Welcome back</h1>
+                <p>Sign in to your account to continue.</p>
+            </div>
+
+            <form class="auth-form" method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_username">Email</label>
+                    <input type="text" inputmode="email" name="username" id="id_username" placeholder="you@example.com"{% if form.username.errors %} class="error"{% endif %} required autofocus>
+                    {% if form.username.errors %}
+                        <ul class="errorlist">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" name="password" id="id_password" placeholder="Enter your password"{% if form.password.errors %} class="error"{% endif %} required>
+                        <button type="button" class="pw-toggle" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <ul class="errorlist">{% for error in form.password.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group forgot-pw">
+                    <a href="{% url 'password_reset' %}">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Sign In <i class="fas fa-arrow-right"></i></button>
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+
+            <div class="auth-card-footer">
+                <p>Don't have an account? <a href="{% url 'signup' %}">Create one</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

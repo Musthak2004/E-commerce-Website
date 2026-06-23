@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Create Account — ShopEase{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-card-inner">
+            <div class="auth-card-header">
+                <span class="logo-mark">S</span>
+                <h1>Join the inner circle</h1>
+                <p>Create your account and get 10% off your first order.</p>
+            </div>
+
+            <form class="auth-form" method="post" action="{% url 'signup' %}">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username" placeholder="Choose a username"{% if form.username.errors %} class="error"{% endif %} required autofocus value="{{ form.username.value|default:'' }}">
+                    {% if form.username.errors %}
+                        <ul class="errorlist">{% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    <input type="email" name="email" id="id_email" placeholder="you@example.com"{% if form.email.errors %} class="error"{% endif %} required value="{{ form.email.value|default:'' }}">
+                    {% if form.email.errors %}
+                        <ul class="errorlist">{% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="field-row">
+                    <div class="form-group">
+                        <label for="id_user_type">Account Type</label>
+                        <select name="user_type" id="id_user_type"{% if form.user_type.errors %} class="error"{% endif %}>
+                            <option value="CUSTOMER" {% if form.user_type.value == 'CUSTOMER' %}selected{% endif %}>Customer</option>
+                            <option value="SELLER" {% if form.user_type.value == 'SELLER' %}selected{% endif %}>Seller</option>
+                        </select>
+                        {% if form.user_type.errors %}
+                            <ul class="errorlist">{% for error in form.user_type.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone_number">Phone</label>
+                        <input type="text" name="phone_number" id="id_phone_number" placeholder="+1 (555) 000-0000"{% if form.phone_number.errors %} class="error"{% endif %} value="{{ form.phone_number.value|default:'' }}">
+                        {% if form.phone_number.errors %}
+                            <ul class="errorlist">{% for error in form.phone_number.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" name="password1" id="id_password1" placeholder="Create a password"{% if form.password1.errors %} class="error"{% endif %} required>
+                        <button type="button" class="pw-toggle" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.help_text %}
+                        <span class="helptext">{{ form.password1.help_text|safe }}</span>
+                    {% endif %}
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">{% for error in form.password1.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">Confirm Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" name="password2" id="id_password2" placeholder="Repeat your password"{% if form.password2.errors %} class="error"{% endif %} required>
+                        <button type="button" class="pw-toggle" aria-label="Toggle password visibility">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">{% for error in form.password2.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Create Account <i class="fas fa-arrow-right"></i></button>
+            </form>
+
+            <div class="auth-card-footer">
+                <p>Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}Your premier online shopping destination{% endblock %}">
-    <title>{% block title %}ShopEase — Your Premier Online Store{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}ShopEase — Thoughtfully curated products delivered to your door.{% endblock %}">
+    <title>{% block title %}ShopEase — Thoughtfully Curated{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
@@ -17,11 +17,14 @@
 </head>
 <body>
 
+    <!-- Grain Overlay -->
+    <div class="grain-overlay"></div>
+
     <!-- Search Overlay -->
     <div class="search-overlay" id="searchOverlay">
         <div class="search-overlay-inner">
-            <i class="fas fa-search" style="color:var(--text-muted);font-size:1.25rem;"></i>
-            <form action="#" method="GET" style="flex:1;display:flex;">
+            <i class="fas fa-search search-overlay-icon" aria-hidden="true"></i>
+            <form class="search-overlay-form" action="#" method="GET">
                 <input
                     type="text"
                     name="q"
@@ -39,53 +42,49 @@
     <!-- Header -->
     <header class="site-header">
         <div class="header-inner">
-            <!-- Logo -->
             <div class="logo">
                 <a href="{% url 'home' %}">
-                    <span class="logo-icon"><i class="fas fa-bag-shopping"></i></span>
+                    <span class="logo-mark">S</span>
                     ShopEase
                 </a>
             </div>
 
-            <!-- Desktop Navigation -->
             <nav class="desktop-nav" aria-label="Main navigation">
                 <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
                 <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
-                <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Categories</a>
-                <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Deals</a>
+                <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Collections</a>
+                <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Journal</a>
             </nav>
 
-            <!-- Right -->
             <div class="header-right">
                 <button class="search-toggle" id="searchToggle" aria-label="Open search">
                     <i class="fas fa-search"></i>
                 </button>
 
                 <a href="#" class="header-icon" aria-label="Wishlist">
-                    <i class="far fa-heart"></i>
+                    <i class="far fa-heart" aria-hidden="true"></i>
                     {% if wishlist_count %}
                         <span class="badge">{{ wishlist_count }}</span>
                     {% endif %}
                 </a>
 
                 <a href="#" class="header-icon" aria-label="Shopping Cart">
-                    <i class="fas fa-shopping-bag"></i>
+                    <i class="fas fa-shopping-bag" aria-hidden="true"></i>
                     {% if cart_count %}
                         <span class="badge">{{ cart_count }}</span>
                     {% endif %}
                 </a>
 
                 {% if user.is_authenticated %}
-                    <a href="#" class="header-icon" aria-label="My Account">
-                        <i class="fas fa-user"></i>
-                    </a>
+                    <form method="post" action="{% url 'logout' %}" class="header-logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-header-logout">Logout</button>
+                    </form>
                 {% else %}
-                    <a href="{% url 'login' %}" class="header-icon" aria-label="Sign In">
-                        <i class="far fa-user"></i>
-                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-header-outline">Login</a>
+                    <a href="{% url 'signup' %}" class="btn btn-header-solid">Sign Up</a>
                 {% endif %}
 
-                <!-- Hamburger -->
                 <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
                     <span></span>
                     <span></span>
@@ -99,18 +98,21 @@
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
         <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
         <a href="#" {% if request.resolver_match.url_name == 'shop' %}class="active"{% endif %}>Shop</a>
-        <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Categories</a>
-        <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Deals</a>
+        <a href="#" {% if request.resolver_match.url_name == 'categories' %}class="active"{% endif %}>Collections</a>
+        <a href="#" {% if request.resolver_match.url_name == 'deals' %}class="active"{% endif %}>Journal</a>
 
         <div class="mobile-auth">
             {% if user.is_authenticated %}
                 <a href="#">My Account</a>
-                <form method="post" action="{% url 'logout' %}" style="margin-top:8px;">
+                <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button type="submit" style="background:none;border:none;padding:14px 0;font-size:1.125rem;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:inherit;display:block;width:100%;text-align:left;">Sign Out</button>
+                    <button type="submit">Sign Out</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">Sign In</a>
+                <div class="mobile-auth-buttons">
+                    <a href="{% url 'login' %}" class="mobile-signin">Sign In</a>
+                    <a href="{% url 'signup' %}" class="mobile-signup">Create Account</a>
+                </div>
             {% endif %}
         </div>
     </nav>
@@ -122,6 +124,7 @@
             <div class="alert alert-{{ message.tags }}">
                 <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
                 {{ message }}
+                <button class="alert-dismiss" aria-label="Dismiss">&times;</button>
             </div>
         {% endfor %}
     </div>
@@ -135,11 +138,10 @@
     <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-main">
-            <!-- Brand -->
             <div class="footer-col footer-brand">
-                <div class="logo" style="margin-bottom:16px;">
+                <div class="logo">
                     <a href="{% url 'home' %}">
-                        <span class="logo-icon"><i class="fas fa-bag-shopping"></i></span>
+                        <span class="logo-mark">S</span>
                         ShopEase
                     </a>
                 </div>
@@ -151,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- Quick Links -->
             <div class="footer-col">
                 <h3>Explore</h3>
                 <ul class="footer-links">
@@ -163,7 +164,6 @@
                 </ul>
             </div>
 
-            <!-- Support -->
             <div class="footer-col">
                 <h3>Support</h3>
                 <ul class="footer-links">
@@ -175,11 +175,10 @@
                 </ul>
             </div>
 
-            <!-- Newsletter -->
             <div class="footer-col">
                 <h3>Newsletter</h3>
                 <p>Subscribe for early access to new arrivals and 10% off your first order.</p>
-                <form class="newsletter-form" action="#" method="POST">
+                <form class="newsletter-form" action="" method="POST">
                     {% csrf_token %}
                     <input
                         type="email"

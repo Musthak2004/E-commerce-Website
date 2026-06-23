@@ -1,1 +1,119 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block title %}ShopEase — Premium Essentials{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-tag">
+            <span class="dot"></span>
+            New Collection — Summer 2026
+        </div>
+        <h1>Essentials<br>re<span>defined</span></h1>
+        <p>Curated pieces that bring quiet luxury into your everyday rituals.</p>
+        <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="btn btn-primary">Explore the Collection <i class="fas fa-arrow-right"></i></a>
+            <a href="#" class="btn btn-secondary">Our Story</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <strong>12k+</strong>
+                <span>Happy Customers</span>
+            </div>
+            <div class="hero-stat">
+                <strong>500+</strong>
+                <span>Curated Products</span>
+            </div>
+            <div class="hero-stat">
+                <strong>99%</strong>
+                <span>Satisfaction Rate</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="section">
+    <div class="section-header">
+        <h2>Shop by mood</h2>
+        <p>From grounding neutrals to airy minimalism — find what resonates with you.</p>
+    </div>
+    <div class="categories-grid">
+        <div class="category-card">
+            <div class="category-img natural">
+                <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=600&q=80" alt="Natural" loading="lazy">
+            </div>
+            <div class="category-body">
+                <h3>Natural</h3>
+                <p>Earthy tones, organic materials, sustainably made.</p>
+                <a href="#" class="category-link">Explore <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="category-card">
+            <div class="category-img refined">
+                <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=600&q=80" alt="Refined" loading="lazy">
+            </div>
+            <div class="category-body">
+                <h3>Refined</h3>
+                <p>Polished, modern design for the discerning eye.</p>
+                <a href="#" class="category-link">Explore <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="category-card">
+            <div class="category-img light">
+                <img src="https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600&q=80" alt="Light" loading="lazy">
+            </div>
+            <div class="category-body">
+                <h3>Light</h3>
+                <p>Airy, breathable spaces. Simplicity at its finest.</p>
+                <a href="#" class="category-link">Explore <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured -->
+<section class="section">
+    <div class="section-header">
+        <h2>New arrivals</h2>
+        <p>Fresh from our curators — limited drops you won't want to miss.</p>
+    </div>
+    <div class="featured-grid">
+        <div class="featured-card">
+            <div class="featured-img">
+                <span class="badge-top new">New</span>
+                <img src="https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=600&q=80" alt="Artisan Ceramic Vase" loading="lazy">
+            </div>
+            <div class="featured-body">
+                <h3>Artisan Ceramic Vase</h3>
+                <p>Hand-thrown stoneware with a reactive matte glaze. Each piece is one of a kind.</p>
+                <span class="price">$89.00 <small>$120.00</small></span>
+            </div>
+        </div>
+        <div class="featured-card">
+            <div class="featured-img">
+                <span class="badge-top limited">Limited</span>
+                <img src="https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?w=600&q=80" alt="Linen Throw Blanket" loading="lazy">
+            </div>
+            <div class="featured-body">
+                <h3>Linen Throw Blanket</h3>
+                <p>Stonewashed European flax that only gets softer with time. Pre-shrunk and ready.</p>
+                <span class="price">$145.00</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="cta-inner">
+        <h2>Join the inner circle</h2>
+        <p>Subscribe and receive 10% off your first order, plus early access to every drop.</p>
+        <a href="{% url 'signup' %}" class="btn btn-primary">Create Free Account <i class="fas fa-arrow-right"></i></a>
+    </div>
+</section>
+
+{% endblock %}

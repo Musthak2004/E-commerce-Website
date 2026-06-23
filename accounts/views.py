@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -14,3 +16,10 @@ class SignUpView(CreateView):
     template_name = "registration/signup.html"
 
     success_url = reverse_lazy("login")
+
+    def dispatch(self, request, *args, **kwargs):
+
+        if request.user.is_authenticated:
+            return redirect("home")
+
+        return super().dispatch(request, *args, **kwargs)

@@ -15,8 +15,8 @@
         <h1>Essentials<br>re<span>defined</span></h1>
         <p>Curated pieces that bring quiet luxury into your everyday rituals.</p>
         <div class="hero-actions">
-            <a href="{% url 'signup' %}" class="btn btn-primary">Explore the Collection <i class="fas fa-arrow-right"></i></a>
-            <a href="#" class="btn btn-secondary">Our Story</a>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">{% if user.is_authenticated %}Browse Products{% else %}Explore the Collection{% endif %} <i class="fas fa-arrow-right"></i></a>
+            <a href="{% url 'products:product_list' %}" class="btn btn-secondary">Shop Now</a>
         </div>
         <div class="hero-stats">
             <div class="hero-stat">
@@ -110,9 +110,15 @@
 <!-- CTA -->
 <section class="cta-section">
     <div class="cta-inner">
-        <h2>Join the inner circle</h2>
-        <p>Subscribe and receive 10% off your first order, plus early access to every drop.</p>
-        <a href="{% url 'signup' %}" class="btn btn-primary">Create Free Account <i class="fas fa-arrow-right"></i></a>
+        {% if user.is_authenticated %}
+            <h2>Welcome back{% if user.user_type == "SELLER" %} Seller{% endif %}!</h2>
+            <p>{% if user.user_type == "SELLER" %}Manage your products or browse the latest listings.{% else %}Browse our latest arrivals and find something special.{% endif %}</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-primary">Browse Products <i class="fas fa-arrow-right"></i></a>
+        {% else %}
+            <h2>Join the inner circle</h2>
+            <p>Subscribe and receive 10% off your first order, plus early access to every drop.</p>
+            <a href="{% url 'signup' %}" class="btn btn-primary">Create Free Account <i class="fas fa-arrow-right"></i></a>
+        {% endif %}
     </div>
 </section>
 

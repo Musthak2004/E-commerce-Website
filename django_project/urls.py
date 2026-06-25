@@ -26,6 +26,7 @@ urlpatterns = [
     path("accounts/login/", auth_views.LoginView.as_view(redirect_authenticated_user=True), name="login"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("products/", include("products.urls")),
+    path("cart/", include("cart.urls")),
     path("", include("pages.urls")),
 ]
 

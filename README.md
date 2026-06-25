@@ -1,19 +1,20 @@
 # E-commerce Website
 
-A Django-based e-commerce platform with a clean, minimal UI. Features user authentication, product management, and a refined shopping experience.
+A Django-based e-commerce platform with a warm minimal UI. Features user authentication, product management, shopping cart, and a refined shopping experience with subtle animations.
 
 ## Features
 
 - **User Authentication** — Login, signup, password reset (email-based auth with `CustomUser` model)
 - **Role-Based Access** — Customer and Seller roles with profile management; redirects for authenticated users
 - **Product Management** — Sellers can create, edit, and delete products; product listing with pagination and images
+- **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header
 - **Responsive Design** — Works on desktop, tablet, and mobile
-- **Clean UI** — Warm minimal aesthetic with gold accents, Playfair Display + Outfit fonts
+- **Subtle Animations** — Fade-in/slide-up page entrances, staggered list reveals, image zoom on hover, button press micro-interactions (disabled for reduced-motion preference)
 
 ## Tech Stack
 
 - **Backend:** Django 6.0, Python 3.13
-- **Frontend:** HTML5, CSS3, vanilla JavaScript
+- **Frontend:** HTML5, CSS3 (custom properties, keyframe animations), vanilla JavaScript
 - **Database:** SQLite (default)
 - **Auth:** `django.contrib.auth` with custom `AbstractUser` model (`USERNAME_FIELD = "email"`)
 
@@ -78,6 +79,14 @@ python manage.py test products --verbosity=2
 │   ├── views.py         # SignUpView (redirects authenticated users)
 │   ├── tests.py         # 33 tests
 │   └── signals.py       # Auto-create Profile on user signup
+├── cart/                # Shopping cart app
+│   ├── models.py        # Cart, CartItem (UniqueConstraint, MinValueValidator)
+│   ├── views.py         # add, remove, update, detail (all @login_required)
+│   ├── urls.py          # 4 routes
+│   ├── context_processors.py  # cart_count / wishlist_count for all templates
+│   ├── admin.py         # CartAdmin + CartItemAdmin with search & filters
+│   └── templates/cart/
+│       └── cart_detail.html   # Staggered item list, order summary, empty state
 ├── pages/               # Page routing app
 │   ├── views.py         # HomePageView
 │   ├── urls.py          # Root URL routing
@@ -90,18 +99,18 @@ python manage.py test products --verbosity=2
 │   ├── admin.py         # Inline images, list_editable, prepopulated slugs
 │   ├── tests.py         # 50 tests (models, permissions, CRUD workflow)
 │   └── templates/products/
-│       ├── product_list.html    # Grid with pagination
-│       ├── product_detail.html  # Gallery + seller actions
-│       ├── product_form.html    # Styled create/edit form
+│       ├── product_list.html         # Grid with staggered card entrance
+│       ├── product_detail.html       # Gallery + info with fade-in sections
+│       ├── product_form.html         # Styled create/edit with staggered fields
 │       └── product_confirm_delete.html
 ├── django_project/      # Settings, root URL config (media served in dev)
 ├── media/products/      # Uploaded product images
 ├── static/
-│   ├── css/style.css    # Complete stylesheet
+│   ├── css/style.css    # Complete stylesheet (animations, responsive)
 │   └── js/main.js       # Nav, search, password toggle, alert dismiss
 ├── templates/           # Django templates
-│   ├── base.html        # Header (auth-aware nav buttons), footer
-│   ├── home.html        # Landing page with role-based CTAs
-│   └── registration/    # Login, signup, password reset (4 screens)
+│   ├── base.html        # Header (auth-aware nav, cart/wishlist badges), footer
+│   ├── home.html        # Landing page with staggered hero + category cards
+│   └── registration/    # Login, signup, password reset (4 screens, fade-in cards)
 └── manage.py
 ```

@@ -6,7 +6,7 @@
 {% block content %}
 
 <section class="section">
-    <div class="section-header">
+    <div class="section-header anim-up">
         <div>
             <h2>Products</h2>
             <p>Browse our curated collection of premium essentials.</p>
@@ -19,9 +19,9 @@
     </div>
 
     {% if products %}
-        <div class="product-grid">
+        <div class="product-grid stagger">
             {% for product in products %}
-                <a href="{% url 'products:product_detail' product.slug %}" class="product-card">
+                <a href="{% url 'products:product_detail' product.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
                     <div class="product-card-img">
                         {% if product.image %}
                             <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -42,7 +42,7 @@
         </div>
 
         {% if is_paginated %}
-            <div class="pagination">
+            <div class="pagination anim-fadein">
                 {% if page_obj.has_previous %}
                     <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-secondary">
                         <i class="fas fa-chevron-left"></i> Previous
@@ -57,7 +57,7 @@
             </div>
         {% endif %}
     {% else %}
-        <div class="empty-state">
+        <div class="empty-state anim-scale">
             <i class="fas fa-box-open"></i>
             <h3>No products yet</h3>
             <p>Check back soon for new arrivals.</p>

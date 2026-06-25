@@ -1,0 +1,771 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Shopping Cart — ShopEase{% endblock %}
+{% block meta_description %}Review your selections and proceed to checkout.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ═══════════════════════════════════════════════
+   CART PAGE — Enhanced UI/UX
+   ═══════════════════════════════════════════════ */
+
+/* ── Tokens ── */
+:root {
+  --cart-bg        : #f5f4f0;
+  --cart-surface   : #ffffff;
+  --cart-border    : #e8e5df;
+  --cart-accent    : #2563eb;
+  --cart-accent-dk : #1d4ed8;
+  --cart-danger    : #ef4444;
+  --cart-danger-lt : #fef2f2;
+  --cart-text-1    : #111827;
+  --cart-text-2    : #6b7280;
+  --cart-text-3    : #9ca3af;
+  --cart-green     : #16a34a;
+  --cart-radius    : 16px;
+  --cart-shadow    : 0 2px 12px rgba(0,0,0,.06);
+  --cart-shadow-lg : 0 8px 32px rgba(0,0,0,.10);
+  --transition     : .22s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Page shell ── */
+.cart-page {
+  min-height  : 100vh;
+  background  : var(--cart-bg);
+  padding     : 40px 16px 80px;
+}
+
+.cart-inner {
+  max-width : 1160px;
+  margin    : 0 auto;
+}
+
+/* ══════════════════════════════════
+   HEADER
+══════════════════════════════════ */
+.cart-header {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  margin-bottom   : 36px;
+  gap             : 16px;
+}
+
+.cart-header-center {
+  display     : flex;
+  align-items : center;
+  gap         : 12px;
+}
+
+.cart-header h1 {
+  font-size      : clamp(1.5rem, 3vw, 2rem);
+  font-weight    : 800;
+  letter-spacing : -.5px;
+  color          : var(--cart-text-1);
+  margin         : 0;
+}
+
+.cart-back {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 8px;
+  font-size       : .875rem;
+  font-weight     : 600;
+  color           : var(--cart-text-2);
+  text-decoration : none;
+  padding         : 8px 14px;
+  border-radius   : 50px;
+  background      : var(--cart-surface);
+  border          : 1px solid var(--cart-border);
+  transition      : var(--transition);
+  white-space     : nowrap;
+}
+
+.cart-back:hover {
+  color        : var(--cart-accent);
+  border-color : var(--cart-accent);
+  background   : #eff6ff;
+  transform    : translateX(-2px);
+}
+
+.cart-back i {
+  font-size : .8rem;
+}
+
+.cart-badge {
+  display        : inline-flex;
+  align-items    : center;
+  padding        : 4px 12px;
+  border-radius  : 50px;
+  background     : #eff6ff;
+  color          : var(--cart-accent);
+  font-size      : .8rem;
+  font-weight    : 700;
+  letter-spacing : .3px;
+}
+
+.cart-header-right {
+  width : 130px;
+}
+
+/* ══════════════════════════════════
+   LAYOUT  (items | summary)
+══════════════════════════════════ */
+.cart-content {
+  display               : grid;
+  grid-template-columns : 1fr 360px;
+  gap                   : 28px;
+  align-items           : start;
+}
+
+@media (max-width: 900px) {
+  .cart-content       { grid-template-columns: 1fr; }
+  .cart-header-right  { display: none; }
+}
+
+/* ══════════════════════════════════
+   CART ROWS
+══════════════════════════════════ */
+.cart-items {
+  display        : flex;
+  flex-direction : column;
+  gap            : 16px;
+}
+
+.cart-row {
+  display        : flex;
+  gap            : 20px;
+  background     : var(--cart-surface);
+  border-radius  : var(--cart-radius);
+  border         : 1px solid var(--cart-border);
+  padding        : 20px;
+  box-shadow     : var(--cart-shadow);
+  animation      : rowIn .35s ease both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+  transition     : box-shadow var(--transition), transform var(--transition);
+}
+
+.cart-row:hover {
+  box-shadow : var(--cart-shadow-lg);
+  transform  : translateY(-2px);
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Image ── */
+.cart-row-img {
+  flex-shrink     : 0;
+  width           : 100px;
+  height          : 100px;
+  border-radius   : 12px;
+  overflow        : hidden;
+  background      : var(--cart-bg);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  border          : 1px solid var(--cart-border);
+  text-decoration : none;
+  transition      : var(--transition);
+}
+
+.cart-row-img:hover          { opacity: .85; }
+
+.cart-row-img img {
+  width       : 100%;
+  height      : 100%;
+  object-fit  : cover;
+  transition  : transform var(--transition);
+}
+
+.cart-row-img:hover img { transform: scale(1.06); }
+
+.img-fallback {
+  font-size : 2rem;
+  color     : var(--cart-text-3);
+}
+
+/* ── Body ── */
+.cart-row-body {
+  flex           : 1;
+  display        : flex;
+  flex-direction : column;
+  gap            : 14px;
+  min-width      : 0;
+}
+
+.cart-row-top {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : flex-start;
+  gap             : 12px;
+}
+
+.cart-row-meta {
+  display        : flex;
+  flex-direction : column;
+  gap            : 4px;
+  min-width      : 0;
+}
+
+.cart-row-category {
+  font-size      : .72rem;
+  font-weight    : 700;
+  letter-spacing : .8px;
+  text-transform : uppercase;
+  color          : var(--cart-accent);
+  background     : #eff6ff;
+  padding        : 2px 8px;
+  border-radius  : 4px;
+  align-self     : flex-start;
+}
+
+.cart-row-name {
+  font-size      : 1rem;
+  font-weight    : 700;
+  color          : var(--cart-text-1);
+  text-decoration: none;
+  white-space    : nowrap;
+  overflow       : hidden;
+  text-overflow  : ellipsis;
+  transition     : color var(--transition);
+  display        : block;
+}
+
+.cart-row-name:hover { color: var(--cart-accent); }
+
+.cart-row-unit {
+  font-size   : .9rem;
+  font-weight : 600;
+  color       : var(--cart-text-2);
+  white-space : nowrap;
+}
+
+/* thin divider */
+.cart-row-divider {
+  height        : 1px;
+  background    : var(--cart-border);
+  border-radius : 1px;
+}
+
+/* ── Bottom controls ── */
+.cart-row-bottom {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  flex-wrap       : wrap;
+  gap             : 12px;
+}
+
+/* Qty selector */
+.qty-selector {
+  display       : flex;
+  align-items   : center;
+  gap           : 0;
+  background    : var(--cart-bg);
+  border-radius : 50px;
+  border        : 1px solid var(--cart-border);
+  overflow      : hidden;
+  width         : fit-content;
+}
+
+.qty-btn {
+  width           : 36px;
+  height          : 36px;
+  border          : none;
+  background      : transparent;
+  cursor          : pointer;
+  color           : var(--cart-text-1);
+  font-size       : .7rem;
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  transition      : background var(--transition), color var(--transition);
+}
+
+.qty-btn:hover:not(:disabled) {
+  background : var(--cart-accent);
+  color      : #fff;
+}
+
+.qty-btn:disabled {
+  color  : var(--cart-text-3);
+  cursor : not-allowed;
+}
+
+.qty-value {
+  min-width   : 32px;
+  text-align  : center;
+  font-size   : .9rem;
+  font-weight : 700;
+  color       : var(--cart-text-1);
+  user-select : none;
+}
+
+/* Right side: total + remove */
+.cart-row-right {
+  display     : flex;
+  align-items : center;
+  gap         : 20px;
+}
+
+.cart-row-total {
+  font-size   : 1.1rem;
+  font-weight : 800;
+  color       : var(--cart-text-1);
+}
+
+.cart-row-remove {
+  display     : inline-flex;
+  align-items : center;
+  gap         : 6px;
+  border      : none;
+  background  : transparent;
+  color       : var(--cart-text-3);
+  font-size   : .82rem;
+  font-weight : 600;
+  cursor      : pointer;
+  padding     : 6px 10px;
+  border-radius: 8px;
+  transition  : var(--transition);
+}
+
+.cart-row-remove:hover {
+  color      : var(--cart-danger);
+  background : var(--cart-danger-lt);
+}
+
+/* ══════════════════════════════════
+   ORDER SUMMARY
+══════════════════════════════════ */
+.cart-summary {
+  background    : var(--cart-surface);
+  border-radius : var(--cart-radius);
+  border        : 1px solid var(--cart-border);
+  box-shadow    : var(--cart-shadow);
+  padding       : 28px;
+  position      : sticky;
+  top           : 24px;
+  animation     : rowIn .4s .1s ease both;
+}
+
+.summary-heading {
+  font-size      : 1.1rem;
+  font-weight    : 800;
+  color          : var(--cart-text-1);
+  margin         : 0 0 20px;
+  letter-spacing : -.3px;
+}
+
+.summary-list {
+  margin         : 0;
+  padding        : 0;
+  display        : flex;
+  flex-direction : column;
+  gap            : 12px;
+}
+
+.summary-line {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : center;
+}
+
+.summary-line dt {
+  font-size  : .9rem;
+  color      : var(--cart-text-2);
+  font-weight: 500;
+}
+
+.summary-line dd {
+  font-size  : .9rem;
+  font-weight: 600;
+  color      : var(--cart-text-1);
+  margin     : 0;
+}
+
+.summary-line dd.summary-free {
+  color      : var(--cart-green);
+  display    : flex;
+  align-items: center;
+  gap        : 5px;
+}
+
+.summary-divider {
+  height        : 1px;
+  background    : var(--cart-border);
+  margin        : 20px 0;
+  border-radius : 1px;
+}
+
+.summary-total {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : baseline;
+  margin-bottom   : 24px;
+}
+
+.summary-total span {
+  font-size  : 1rem;
+  color      : var(--cart-text-1);
+  font-weight: 700;
+}
+
+.summary-total strong {
+  font-size      : 1.6rem;
+  font-weight    : 900;
+  color          : var(--cart-text-1);
+  letter-spacing : -.5px;
+}
+
+/* Checkout button */
+.btn-checkout {
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  gap             : 10px;
+  width           : 100%;
+  padding         : 15px 24px;
+  border-radius   : 12px;
+  background      : linear-gradient(135deg, var(--cart-accent), var(--cart-accent-dk));
+  color           : #fff;
+  font-size       : 1rem;
+  font-weight     : 700;
+  text-decoration : none;
+  box-shadow      : 0 4px 16px rgba(37,99,235,.35);
+  transition      : var(--transition);
+  letter-spacing  : .2px;
+}
+
+.btn-checkout:hover {
+  transform  : translateY(-2px);
+  box-shadow : 0 8px 24px rgba(37,99,235,.45);
+}
+
+.btn-checkout:active { transform: translateY(0); }
+
+/* Trust badges */
+.trust-badges {
+  list-style      : none;
+  margin          : 20px 0 0;
+  padding         : 0;
+  display         : flex;
+  justify-content : space-between;
+  gap             : 8px;
+}
+
+.trust-badges li {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  gap            : 6px;
+  font-size      : .72rem;
+  color          : var(--cart-text-2);
+  font-weight    : 600;
+  text-align     : center;
+  flex           : 1;
+  padding        : 10px 6px;
+  border-radius  : 10px;
+  background     : var(--cart-bg);
+  border         : 1px solid var(--cart-border);
+  transition     : var(--transition);
+}
+
+.trust-badges li:hover {
+  border-color : var(--cart-accent);
+  color        : var(--cart-accent);
+}
+
+.trust-badges li i {
+  font-size : 1rem;
+  color     : var(--cart-accent);
+}
+
+/* Continue shopping link */
+.summary-shop-link {
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  gap             : 6px;
+  margin-top      : 16px;
+  font-size       : .85rem;
+  font-weight     : 600;
+  color           : var(--cart-text-2);
+  text-decoration : none;
+  transition      : color var(--transition);
+}
+
+.summary-shop-link:hover { color: var(--cart-accent); }
+
+/* ══════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════ */
+.cart-empty {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  text-align     : center;
+  padding        : 80px 24px;
+  animation      : rowIn .4s ease both;
+}
+
+.cart-empty-blob {
+  width           : 120px;
+  height          : 120px;
+  border-radius   : 50%;
+  background      : linear-gradient(135deg, #eff6ff, #dbeafe);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  margin-bottom   : 28px;
+  box-shadow      : 0 8px 32px rgba(37,99,235,.15);
+  animation       : pulse 2.4s ease-in-out infinite;
+}
+
+.cart-empty-blob i {
+  font-size : 2.8rem;
+  color     : var(--cart-accent);
+}
+
+@keyframes pulse {
+  0%,100% { transform: scale(1);    box-shadow: 0 8px 32px rgba(37,99,235,.15); }
+  50%     { transform: scale(1.06); box-shadow: 0 12px 40px rgba(37,99,235,.25); }
+}
+
+.cart-empty h2 {
+  font-size   : 1.75rem;
+  font-weight : 800;
+  color       : var(--cart-text-1);
+  margin      : 0 0 12px;
+}
+
+.cart-empty p {
+  font-size   : 1rem;
+  color       : var(--cart-text-2);
+  max-width   : 380px;
+  line-height : 1.7;
+  margin      : 0 0 32px;
+}
+
+.btn-start-shopping {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 10px;
+  padding         : 14px 32px;
+  border-radius   : 12px;
+  background      : linear-gradient(135deg, var(--cart-accent), var(--cart-accent-dk));
+  color           : #fff;
+  font-size       : .95rem;
+  font-weight     : 700;
+  text-decoration : none;
+  box-shadow      : 0 4px 16px rgba(37,99,235,.35);
+  transition      : var(--transition);
+}
+
+.btn-start-shopping:hover {
+  transform  : translateY(-2px);
+  box-shadow : 0 8px 24px rgba(37,99,235,.45);
+}
+
+/* ══════════════════════════════════
+   RESPONSIVE TWEAKS
+══════════════════════════════════ */
+@media (max-width: 600px) {
+
+  .cart-header {
+    flex-wrap     : wrap;
+    margin-bottom : 24px;
+  }
+
+  .cart-row           { flex-direction: column; }
+
+  .cart-row-img {
+    width  : 100%;
+    height : 180px;
+  }
+
+  .cart-row-img img   { object-position: top; }
+  .cart-row-top       { flex-direction: column; }
+
+  .cart-row-unit {
+    font-size : 1rem;
+    color     : var(--cart-text-1);
+  }
+
+  .trust-badges       { flex-direction: column; }
+  .summary-total strong { font-size: 1.4rem; }
+}
+</style>
+
+<div class="cart-page">
+  <div class="cart-inner">
+
+    <!-- ── Header ── -->
+    <header class="cart-header">
+      <a href="{% url 'products:product_list' %}" class="cart-back">
+        <i class="fas fa-arrow-left"></i>
+        <span>Continue Shopping</span>
+      </a>
+      <div class="cart-header-center">
+        <h1>Shopping Cart</h1>
+        {% if cart and cart.items.exists %}
+          <span class="cart-badge">{{ cart.items.count }} item{{ cart.items.count|pluralize }}</span>
+        {% endif %}
+      </div>
+      <div class="cart-header-right"></div>
+    </header>
+
+    {% if cart and cart.items.exists %}
+
+      <div class="cart-content">
+
+        <!-- ── Items ── -->
+        <section class="cart-items" aria-label="Cart items">
+          {% for item in cart.items.all %}
+          <article class="cart-row" style="--i:{{ forloop.counter }}">
+
+            <!-- Image -->
+            <a href="{% url 'products:product_detail' item.product.slug %}" class="cart-row-img">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+              {% else %}
+                <span class="img-fallback"><i class="fas fa-box"></i></span>
+              {% endif %}
+            </a>
+
+            <!-- Body -->
+            <div class="cart-row-body">
+
+              <!-- Top row: meta + unit price -->
+              <div class="cart-row-top">
+                <div class="cart-row-meta">
+                  {% if item.product.category %}
+                    <span class="cart-row-category">{{ item.product.category.name }}</span>
+                  {% endif %}
+                  <a href="{% url 'products:product_detail' item.product.slug %}" class="cart-row-name">
+                    {{ item.product.name }}
+                  </a>
+                </div>
+                <span class="cart-row-unit">${{ item.product.price }}</span>
+              </div>
+
+              <!-- Divider -->
+              <div class="cart-row-divider"></div>
+
+              <!-- Bottom row: qty + line total + remove -->
+              <div class="cart-row-bottom">
+
+                <form method="post"
+                      action="{% url 'cart:update_quantity' item.id %}"
+                      class="qty-selector">
+                  {% csrf_token %}
+                  <button type="submit"
+                          name="quantity"
+                          value="{{ item.quantity|add:-1 }}"
+                          class="qty-btn"
+                          {% if item.quantity <= 1 %}disabled{% endif %}
+                          aria-label="Decrease quantity">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <span class="qty-value">{{ item.quantity }}</span>
+                  <button type="submit"
+                          name="quantity"
+                          value="{{ item.quantity|add:1 }}"
+                          class="qty-btn"
+                          aria-label="Increase quantity">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </form>
+
+                <div class="cart-row-right">
+                  <span class="cart-row-total">${{ item.total_price }}</span>
+                  <form method="post" action="{% url 'cart:remove_from_cart' item.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="cart-row-remove" aria-label="Remove item">
+                      <i class="fas fa-trash-can"></i>
+                      <span>Remove</span>
+                    </button>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+
+          </article>
+          {% endfor %}
+        </section>
+
+        <!-- ── Summary ── -->
+        <aside class="cart-summary" aria-label="Order summary">
+
+          <h2 class="summary-heading">Order Summary</h2>
+
+          <dl class="summary-list">
+            <div class="summary-line">
+              <dt>Subtotal</dt>
+              <dd>${{ cart.total_price }}</dd>
+            </div>
+            <div class="summary-line">
+              <dt>Shipping</dt>
+              <dd class="summary-free">
+                <i class="fas fa-truck"></i> Free
+              </dd>
+            </div>
+            <div class="summary-line">
+              <dt>Tax</dt>
+              <dd>Calculated at checkout</dd>
+            </div>
+          </dl>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total">
+            <span>Total</span>
+            <strong>${{ cart.total_price }}</strong>
+          </div>
+
+          <a href="#" class="btn-checkout">
+            <i class="fas fa-lock"></i>
+            Proceed to Checkout
+            <i class="fas fa-arrow-right"></i>
+          </a>
+
+          <!-- Trust badges -->
+          <ul class="trust-badges">
+            <li><i class="fas fa-shield-halved"></i> Secure Checkout</li>
+            <li><i class="fas fa-rotate-left"></i> Easy Returns</li>
+            <li><i class="fas fa-headset"></i> 24/7 Support</li>
+          </ul>
+
+          <a href="{% url 'products:product_list' %}" class="summary-shop-link">
+            <i class="fas fa-arrow-left"></i> Continue Shopping
+          </a>
+
+        </aside>
+
+      </div>
+
+    {% else %}
+
+      <!-- ── Empty State ── -->
+      <div class="cart-empty">
+        <div class="cart-empty-blob">
+          <i class="fas fa-bag-shopping"></i>
+        </div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven&rsquo;t added anything yet.<br>Browse our collection and find something you love.</p>
+        <a href="{% url 'products:product_list' %}" class="btn-start-shopping">
+          Start Shopping <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

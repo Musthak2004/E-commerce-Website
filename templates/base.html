@@ -66,7 +66,7 @@
                     {% endif %}
                 </a>
 
-                <a href="#" class="header-icon" aria-label="Shopping Cart">
+                <a href="{% url 'cart:cart_detail' %}" class="header-icon" aria-label="Shopping Cart">
                     <i class="fas fa-shopping-bag" aria-hidden="true"></i>
                     {% if cart_count %}
                         <span class="badge">{{ cart_count }}</span>
@@ -115,7 +115,7 @@
 
     <!-- Messages -->
     {% if messages %}
-    <div class="messages">
+    <div class="messages anim-slideDown">
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">
                 <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
@@ -127,7 +127,7 @@
     {% endif %}
 
     <!-- Content -->
-    <main>
+    <main class="anim-fadein">
         {% block content %}{% endblock %}
     </main>
 

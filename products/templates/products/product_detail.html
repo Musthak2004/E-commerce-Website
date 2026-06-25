@@ -6,12 +6,12 @@
 {% block content %}
 
 <section class="product-detail-section">
-    <a href="{% url 'products:product_list' %}" class="back-link">
+    <a href="{% url 'products:product_list' %}" class="back-link anim-fadein">
         <i class="fas fa-arrow-left"></i> Back to Products
     </a>
 
     <div class="product-detail">
-        <div class="product-detail-gallery">
+        <div class="product-detail-gallery anim-up anim-delay-1">
             {% if product.image %}
                 <div class="product-detail-main-img">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}">
@@ -30,7 +30,7 @@
             {% endif %}
         </div>
 
-        <div class="product-detail-info">
+        <div class="product-detail-info anim-up anim-delay-2">
             {% if product.category %}
                 <span class="product-category">{{ product.category.name }}</span>
             {% endif %}
@@ -56,9 +56,12 @@
             {% endif %}
 
             <div class="product-detail-actions">
-                <button class="btn btn-primary" {% if not product.is_available or product.stock == 0 %}disabled{% endif %}>
-                    <i class="fas fa-shopping-bag"></i> Add to Cart
-                </button>
+                <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary" {% if not product.is_available or product.stock == 0 %}disabled{% endif %}>
+                        <i class="fas fa-shopping-bag"></i> Add to Cart
+                    </button>
+                </form>
                 <button class="btn btn-secondary">
                     <i class="far fa-heart"></i> Wishlist
                 </button>

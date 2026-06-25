@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Orders — ShopEase{% endblock %}
+{% block meta_description %}View your order history.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ═══════════════════════════════════════════════
+   ORDERS PAGE
+   ═══════════════════════════════════════════════ */
+
+.orders-page {
+  min-height : 100vh;
+  padding    : 40px 16px 80px;
+}
+
+.orders-inner {
+  max-width : 920px;
+  margin    : 0 auto;
+}
+
+/* ── Header ── */
+.orders-header {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  gap             : 16px;
+  margin-bottom   : 36px;
+}
+
+.orders-header h1 {
+  font-size      : clamp(1.4rem, 3vw, 1.8rem);
+  font-weight    : 800;
+  letter-spacing : -.4px;
+  color          : var(--text);
+  margin         : 0;
+}
+
+.orders-count {
+  font-size    : .85rem;
+  font-weight  : 600;
+  color        : var(--text-muted);
+  background   : var(--bg-subtle);
+  padding      : 4px 14px;
+  border-radius: 50px;
+  white-space  : nowrap;
+}
+
+/* ── Back link ── */
+.orders-back {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 8px;
+  font-size       : .875rem;
+  font-weight     : 600;
+  color           : var(--text-secondary);
+  text-decoration : none;
+  padding         : 8px 14px;
+  border-radius   : 50px;
+  background      : var(--bg-card);
+  border          : 1px solid var(--border);
+  transition      : var(--transition);
+}
+
+.orders-back:hover {
+  color        : var(--accent);
+  border-color : var(--accent);
+  background   : var(--accent-light);
+  transform    : translateX(-2px);
+}
+
+/* ── Order card ── */
+.order-card {
+  display         : block;
+  text-decoration : none;
+  background      : var(--bg-card);
+  border          : 1px solid var(--border);
+  border-radius   : var(--radius-lg);
+  padding         : 24px;
+  margin-bottom   : 14px;
+  transition      : var(--transition);
+  animation       : orderIn .4s ease both;
+  animation-delay : calc(var(--i, 0) * 60ms);
+}
+
+.order-card:hover {
+  box-shadow : var(--shadow-lg);
+  transform  : translateY(-2px);
+  border-color: transparent;
+}
+
+@keyframes orderIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card top row */
+.order-card-top {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : flex-start;
+  gap             : 12px;
+  margin-bottom   : 12px;
+}
+
+.order-card-id {
+  font-size   : 1.05rem;
+  font-weight : 700;
+  color       : var(--text);
+}
+
+.order-card-date {
+  font-size  : .85rem;
+  color      : var(--text-muted);
+  margin-top : 2px;
+}
+
+/* ── Status badge ── */
+.order-status {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 5px;
+  padding         : 4px 14px;
+  border-radius   : 50px;
+  font-size       : .75rem;
+  font-weight     : 700;
+  letter-spacing  : .3px;
+  text-transform  : uppercase;
+  white-space     : nowrap;
+}
+
+.order-status i { font-size: .65rem; }
+
+.order-status-PENDING    { background: #fef3c7; color: #92400e; }
+.order-status-CONFIRMED  { background: #dbeafe; color: #1e40af; }
+.order-status-SHIPPED    { background: #ede9fe; color: #5b21b6; }
+.order-status-DELIVERED  { background: #d1fae5; color: #065f46; }
+.order-status-CANCELLED  { background: #fee2e2; color: #991b1b; }
+
+/* Card bottom row */
+.order-card-bottom {
+  display         : flex;
+  justify-content : space-between;
+  align-items     : center;
+  gap             : 12px;
+  flex-wrap       : wrap;
+}
+
+.order-card-items {
+  font-size  : .85rem;
+  color      : var(--text-secondary);
+}
+
+.order-card-total {
+  font-size   : 1.15rem;
+  font-weight : 800;
+  color       : var(--text);
+}
+
+.order-card-arrow {
+  color       : var(--text-muted);
+  font-size   : .85rem;
+  transition  : transform var(--transition);
+}
+
+.order-card:hover .order-card-arrow {
+  transform: translateX(4px);
+  color     : var(--accent);
+}
+
+/* ── Divider ── */
+.order-card-divider {
+  height        : 1px;
+  background    : var(--border);
+  margin        : 14px 0;
+  border-radius : 1px;
+}
+
+/* ── Empty state ── */
+.orders-empty {
+  display         : flex;
+  flex-direction  : column;
+  align-items     : center;
+  text-align      : center;
+  padding         : 80px 24px;
+  animation       : orderIn .4s ease both;
+}
+
+.orders-empty-blob {
+  width           : 100px;
+  height          : 100px;
+  border-radius   : 50%;
+  background      : var(--accent-subtle);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  margin-bottom   : 24px;
+}
+
+.orders-empty-blob i {
+  font-size : 2.4rem;
+  color     : var(--accent);
+}
+
+.orders-empty h2 {
+  font-size   : 1.5rem;
+  font-weight : 800;
+  color       : var(--text);
+  margin      : 0 0 10px;
+}
+
+.orders-empty p {
+  font-size   : .95rem;
+  color       : var(--text-secondary);
+  max-width   : 360px;
+  line-height : 1.7;
+  margin      : 0 0 28px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .orders-header       { flex-wrap: wrap; }
+  .order-card          { padding: 18px; }
+  .order-card-top,
+  .order-card-bottom   { flex-direction: column; }
+  .order-status        { align-self: flex-start; }
+}
+</style>
+
+<div class="orders-page">
+  <div class="orders-inner">
+
+    <header class="orders-header">
+      <a href="{% url 'products:product_list' %}" class="orders-back">
+        <i class="fas fa-arrow-left"></i> Continue Shopping
+      </a>
+      <div>
+        <h1>My Orders</h1>
+        {% if orders %}
+          <span class="orders-count">{{ orders|length }} order{{ orders|length|pluralize }}</span>
+        {% endif %}
+      </div>
+    </header>
+
+    {% if orders %}
+
+      {% for order in orders %}
+        <a href="{% url 'orders:order_detail' order.id %}" class="order-card" style="--i:{{ forloop.counter0 }}">
+
+          <div class="order-card-top">
+            <div>
+              <div class="order-card-id">Order #{{ order.id }}</div>
+              <div class="order-card-date">{{ order.created_at|date:"M j, Y · g:i A" }}</div>
+            </div>
+            <span class="order-status order-status-{{ order.status }}">
+              <i class="fas fa-{% if order.status == 'PENDING' %}clock{% elif order.status == 'CONFIRMED' %}check{% elif order.status == 'SHIPPED' %}truck{% elif order.status == 'DELIVERED' %}circle-check{% elif order.status == 'CANCELLED' %}ban{% endif %}"></i>
+              {{ order.get_status_display }}
+            </span>
+          </div>
+
+          <div class="order-card-divider"></div>
+
+          <div class="order-card-bottom">
+            <span class="order-card-items">{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+            <span class="order-card-total">${{ order.total_price }}</span>
+            <span class="order-card-arrow"><i class="fas fa-chevron-right"></i></span>
+          </div>
+
+        </a>
+      {% endfor %}
+
+    {% else %}
+
+      <div class="orders-empty">
+        <div class="orders-empty-blob">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <h2>No orders yet</h2>
+        <p>You haven&rsquo;t placed any orders yet.<br>Browse our collection and find something you love.</p>
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary">Start Shopping <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

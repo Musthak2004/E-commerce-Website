@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us — ShopEase{% endblock %}
+{% block meta_description %}Learn about ShopEase — our mission, values, and the team behind the brand.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ═══════════════════════════════════════════════
+   ABOUT PAGE
+   ═══════════════════════════════════════════════ */
+
+.about-page {
+  padding : 48px 16px 100px;
+}
+
+.about-inner {
+  max-width : 1080px;
+  margin    : 0 auto;
+}
+
+/* ── Shared section ── */
+.about-section {
+  margin-bottom : 80px;
+}
+
+.about-section:last-child {
+  margin-bottom : 0;
+}
+
+/* ── Hero ── */
+.about-hero {
+  text-align    : center;
+  padding       : 40px 0;
+  animation     : fadeInUp 0.5s ease both;
+}
+
+.about-hero .logo-mark {
+  display         : inline-flex;
+  width           : 64px;
+  height          : 64px;
+  font-size       : 1.8rem;
+  margin-bottom   : 20px;
+}
+
+.about-hero h1 {
+  font-size      : clamp(2rem, 4.5vw, 2.8rem);
+  font-weight    : 800;
+  letter-spacing : -.5px;
+  color          : var(--text);
+  margin         : 0 0 16px;
+}
+
+.about-hero p {
+  font-size   : 1.1rem;
+  color       : var(--text-secondary);
+  max-width   : 600px;
+  margin      : 0 auto;
+  line-height : 1.7;
+}
+
+/* ── Story / Mission ── */
+.about-story {
+  display               : grid;
+  grid-template-columns : 1fr 1fr;
+  gap                   : 48px;
+  align-items           : center;
+  animation             : fadeInUp 0.5s 0.1s ease both;
+}
+
+.about-story-text h2 {
+  font-size      : 1.6rem;
+  font-weight    : 800;
+  color          : var(--text);
+  margin         : 0 0 16px;
+  letter-spacing : -.3px;
+}
+
+.about-story-text p {
+  font-size   : .95rem;
+  color       : var(--text-secondary);
+  line-height : 1.8;
+  margin      : 0 0 14px;
+}
+
+.about-story-text p:last-child {
+  margin-bottom : 0;
+}
+
+.about-story-visual {
+  background    : var(--accent-subtle);
+  border-radius : var(--radius-lg);
+  padding       : 40px;
+  display       : flex;
+  align-items   : center;
+  justify-content : center;
+  min-height    : 300px;
+  border        : 1px solid var(--border);
+}
+
+.about-story-visual i {
+  font-size : 5rem;
+  color     : var(--accent);
+  opacity   : 0.6;
+}
+
+/* ── Stats ── */
+.about-stats {
+  display               : grid;
+  grid-template-columns : repeat(4, 1fr);
+  gap                   : 20px;
+  animation             : fadeInUp 0.5s 0.15s ease both;
+}
+
+.about-stat {
+  text-align    : center;
+  background    : var(--bg-card);
+  border        : 1px solid var(--border);
+  border-radius : var(--radius);
+  padding       : 32px 20px;
+  transition    : var(--transition);
+}
+
+.about-stat:hover {
+  box-shadow  : var(--shadow);
+  transform   : translateY(-3px);
+  border-color: transparent;
+}
+
+.about-stat strong {
+  display       : block;
+  font-size     : 1.8rem;
+  font-weight   : 900;
+  color         : var(--accent);
+  margin-bottom : 6px;
+  letter-spacing : -.3px;
+}
+
+.about-stat span {
+  font-size   : .85rem;
+  color       : var(--text-secondary);
+  font-weight : 500;
+}
+
+/* ── Values ── */
+.section-label {
+  font-size      : .75rem;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : 1px;
+  color          : var(--text-muted);
+  margin-bottom  : 12px;
+}
+
+.about-values-grid {
+  display               : grid;
+  grid-template-columns : repeat(3, 1fr);
+  gap                   : 24px;
+  animation             : fadeInUp 0.5s 0.2s ease both;
+}
+
+.about-value {
+  background    : var(--bg-card);
+  border        : 1px solid var(--border);
+  border-radius : var(--radius);
+  padding       : 32px 24px;
+  transition    : var(--transition);
+}
+
+.about-value:hover {
+  box-shadow  : var(--shadow);
+  transform   : translateY(-3px);
+  border-color: transparent;
+}
+
+.about-value-icon {
+  width           : 48px;
+  height          : 48px;
+  border-radius   : var(--radius-sm);
+  background      : var(--accent-subtle);
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  margin-bottom   : 18px;
+  color           : var(--accent);
+  font-size       : 1.2rem;
+}
+
+.about-value h3 {
+  font-size   : 1.05rem;
+  font-weight : 700;
+  color       : var(--text);
+  margin      : 0 0 8px;
+}
+
+.about-value p {
+  font-size   : .88rem;
+  color       : var(--text-secondary);
+  line-height : 1.7;
+  margin      : 0;
+}
+
+/* ── Team ── */
+.about-team-grid {
+  display               : grid;
+  grid-template-columns : repeat(3, 1fr);
+  gap                   : 24px;
+  animation             : fadeInUp 0.5s 0.25s ease both;
+}
+
+.about-team-card {
+  text-align    : center;
+  background    : var(--bg-card);
+  border        : 1px solid var(--border);
+  border-radius : var(--radius);
+  padding       : 36px 24px 28px;
+  transition    : var(--transition);
+}
+
+.about-team-card:hover {
+  box-shadow  : var(--shadow);
+  transform   : translateY(-3px);
+  border-color: transparent;
+}
+
+.about-team-avatar {
+  width           : 80px;
+  height          : 80px;
+  border-radius   : 50%;
+  background      : var(--accent-subtle);
+  display         : inline-flex;
+  align-items     : center;
+  justify-content : center;
+  margin-bottom   : 16px;
+  color           : var(--accent);
+  font-size       : 2rem;
+}
+
+.about-team-card h3 {
+  font-size   : 1rem;
+  font-weight : 700;
+  color       : var(--text);
+  margin      : 0 0 4px;
+}
+
+.about-team-card .team-role {
+  font-size      : .78rem;
+  font-weight    : 600;
+  color          : var(--accent);
+  margin-bottom  : 10px;
+}
+
+.about-team-card p {
+  font-size   : .85rem;
+  color       : var(--text-secondary);
+  line-height : 1.6;
+  margin      : 0;
+}
+
+/* ── CTA ── */
+.about-cta {
+  text-align    : center;
+  background    : var(--accent-subtle);
+  border        : 1px solid var(--border);
+  border-radius : var(--radius-lg);
+  padding       : 56px 32px;
+  animation     : fadeInUp 0.5s 0.3s ease both;
+}
+
+.about-cta h2 {
+  font-size      : 1.5rem;
+  font-weight    : 800;
+  color          : var(--text);
+  margin         : 0 0 12px;
+}
+
+.about-cta p {
+  font-size   : .95rem;
+  color       : var(--text-secondary);
+  max-width   : 480px;
+  margin      : 0 auto 28px;
+  line-height : 1.7;
+}
+
+.about-cta .btn {
+  font-size : .9rem;
+  padding   : 14px 36px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 800px) {
+  .about-story          { grid-template-columns: 1fr; }
+  .about-stats          { grid-template-columns: repeat(2, 1fr); }
+  .about-values-grid    { grid-template-columns: 1fr; }
+  .about-team-grid      { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  .about-stats { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="about-page">
+  <div class="about-inner">
+
+    <!-- ── Hero ── -->
+    <div class="about-hero">
+      <span class="logo-mark">S</span>
+      <h1>Our story</h1>
+      <p>We believe the things you surround yourself with should bring you joy. ShopEase is a curated marketplace built around quality, simplicity, and intention.</p>
+    </div>
+
+    <!-- ── Story / Mission ── -->
+    <div class="about-section">
+      <div class="about-story">
+        <div class="about-story-text">
+          <h2>Thoughtfully curated,<br>delivered with care.</h2>
+          <p>ShopEase was born from a simple idea: shopping for your home and lifestyle should feel effortless and inspiring, not overwhelming. We source every product with intention — partnering with makers and brands who share our commitment to craftsmanship, sustainability, and timeless design.</p>
+          <p>From hand-thrown ceramics to stonewashed linens, every item on our platform is chosen to bring warmth and character into your everyday rituals. We handle the curation so you can focus on what matters: creating a space that feels like home.</p>
+        </div>
+        <div class="about-story-visual">
+          <i class="fas fa-leaf"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Stats ── -->
+    <div class="about-section">
+      <div class="about-stats">
+        <div class="about-stat">
+          <strong>500+</strong>
+          <span>Curated Products</span>
+        </div>
+        <div class="about-stat">
+          <strong>12k+</strong>
+          <span>Happy Customers</span>
+        </div>
+        <div class="about-stat">
+          <strong>50+</strong>
+          <span>Partner Makers</span>
+        </div>
+        <div class="about-stat">
+          <strong>99%</strong>
+          <span>Satisfaction Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Values ── -->
+    <div class="about-section">
+      <div class="section-label">Our Values</div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--text);margin:0 0 24px;letter-spacing:-.3px;">What we stand for</h2>
+      <div class="about-values-grid">
+        <div class="about-value">
+          <div class="about-value-icon"><i class="fas fa-hand-holding-heart"></i></div>
+          <h3>Quality First</h3>
+          <p>Every product is vetted for durability, design, and materials. We never compromise on the quality of what we put our name behind.</p>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon"><i class="fas fa-recycle"></i></div>
+          <h3>Sustainability</h3>
+          <p>We prioritize eco-friendly packaging, ethical sourcing, and partners who share our commitment to reducing environmental impact.</p>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon"><i class="fas fa-star"></i></div>
+          <h3>Exceptional Service</h3>
+          <p>From easy returns to 24/7 support, we&rsquo;re here to make sure every experience with ShopEase is as seamless as it is delightful.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Team ── -->
+    <div class="about-section">
+      <div class="section-label">Behind the Brand</div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--text);margin:0 0 24px;letter-spacing:-.3px;">Meet the team</h2>
+      <div class="about-team-grid">
+        <div class="about-team-card">
+          <div class="about-team-avatar"><i class="fas fa-user"></i></div>
+          <h3>Alex Morgan</h3>
+          <div class="team-role">Founder &amp; CEO</div>
+          <p>Visionary leader with a passion for great design and building meaningful customer experiences.</p>
+        </div>
+        <div class="about-team-card">
+          <div class="about-team-avatar"><i class="fas fa-user"></i></div>
+          <h3>Jordan Lee</h3>
+          <div class="team-role">Head of Curation</div>
+          <p>Scours the globe for unique, high-quality products that align with our aesthetic and values.</p>
+        </div>
+        <div class="about-team-card">
+          <div class="about-team-avatar"><i class="fas fa-user"></i></div>
+          <h3>Taylor Reed</h3>
+          <div class="team-role">Customer Experience</div>
+          <p>Ensures every interaction with ShopEase is warm, helpful, and stress-free.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="about-section">
+      <div class="about-cta">
+        <h2>Ready to explore?</h2>
+        <p>Browse our curated collection and find something that speaks to you.</p>
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+          Start Shopping <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

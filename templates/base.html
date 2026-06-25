@@ -52,6 +52,8 @@
             <nav class="desktop-nav" aria-label="Main navigation">
                 <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
                 <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active"{% endif %}>Shop</a>
+                <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a>
+                <a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a>
             </nav>
 
             <div class="header-right">
@@ -95,6 +97,8 @@
     <nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
         <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
         <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active"{% endif %}>Shop</a>
+        <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a>
+        <a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a>
 
         <div class="mobile-auth">
             {% if user.is_authenticated %}
@@ -151,8 +155,8 @@
             <div class="footer-col">
                 <h3>Explore</h3>
                 <ul class="footer-links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
                     <li><a href="#">FAQs</a></li>
                     <li><a href="#">Shipping</a></li>
                     <li><a href="#">Returns</a></li>

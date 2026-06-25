@@ -728,11 +728,14 @@
             <strong>${{ cart.total_price }}</strong>
           </div>
 
-          <a href="#" class="btn-checkout">
-            <i class="fas fa-lock"></i>
-            Proceed to Checkout
-            <i class="fas fa-arrow-right"></i>
-          </a>
+          <form method="post" action="{% url 'orders:create_order' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-checkout">
+              <i class="fas fa-lock"></i>
+              Proceed to Checkout
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </form>
 
           <!-- Trust badges -->
           <ul class="trust-badges">

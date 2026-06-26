@@ -421,7 +421,16 @@
       <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Back to Orders
       </a>
-      <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+      {% if not order.payment %}
+        <a href="{% url 'payments:payment_create' order.id %}" class="btn btn-primary">
+          <i class="fas fa-lock"></i> Proceed to Payment
+        </a>
+      {% else %}
+        <a href="{% url 'payments:payment_detail' order.payment.id %}" class="btn btn-primary">
+          <i class="fas fa-receipt"></i> View Payment
+        </a>
+      {% endif %}
+      <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
         Shop Again <i class="fas fa-arrow-right"></i>
       </a>
     </div>

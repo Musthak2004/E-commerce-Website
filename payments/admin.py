@@ -22,7 +22,19 @@ class PaymentAdmin(admin.ModelAdmin):
 
     search_fields = (
         "transaction_id",
+        "order__id",
     )
+
+    list_select_related = (
+        "order",
+    )
+
+    readonly_fields = (
+        "transaction_id",
+        "paid_at",
+    )
+
+    date_hierarchy = "created_at"
 
     ordering = (
         "-created_at",

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from orders.models import Order
@@ -62,5 +63,19 @@ class Payment(models.Model):
         auto_now=True
     )
 
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "Payment"
+        verbose_name_plural = "Payments"
+
     def __str__(self):
-        return f"Payment #{self.id}"
+        return f"Payment #{self.id} — Order #{self.order_id} ({self.get_status_display()})"
+
+    def clean(self):
+        if self.transaction_id == "":
+            self.transaction_id = None
+
+    def save(self, *args, **kwargs):
+        if self.transaction_id == "":
+            self.transaction_id = None
+        super().save(*args, **kwargs)

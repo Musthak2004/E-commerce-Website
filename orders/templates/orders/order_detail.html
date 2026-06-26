@@ -143,8 +143,8 @@
 .order-detail-items-header,
 .order-detail-item {
   display               : grid;
-  grid-template-columns : 1fr 80px 100px 100px;
-  gap                   : 16px;
+  grid-template-columns : 1fr 80px 100px 100px 110px;
+  gap                   : 12px;
   align-items           : center;
   padding               : 14px 20px;
 }
@@ -213,6 +213,27 @@
 }
 
 .order-detail-item-name:hover { color: var(--accent); }
+
+.order-detail-item-review {
+  font-size      : .78rem;
+  font-weight    : 600;
+  color          : var(--accent);
+  text-decoration: none;
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 4px;
+  padding        : 4px 10px;
+  border-radius  : 50px;
+  border         : 1px solid var(--accent);
+  transition     : var(--transition);
+  white-space    : nowrap;
+  justify-self   : end;
+}
+
+.order-detail-item-review:hover {
+  background : var(--accent);
+  color      : #fff;
+}
 
 .order-detail-item-cell {
   font-size   : .9rem;
@@ -303,10 +324,11 @@
 
   .order-detail-items-header,
   .order-detail-item {
-    grid-template-columns : 1fr 70px 80px;
+    grid-template-columns : 1fr 70px 80px 90px;
   }
 
-  .order-detail-items-header .item-col-qty {
+  .order-detail-items-header .item-col-qty,
+  .order-detail-items-header span:last-child {
     display: none;
   }
 
@@ -321,7 +343,7 @@
 
 @media (max-width: 500px) {
   .order-detail-item {
-    grid-template-columns : 1fr 70px;
+    grid-template-columns : 1fr 70px 80px;
   }
 
   .order-detail-item .order-detail-item-cell:last-child {
@@ -369,6 +391,7 @@
         <span class="item-col-qty">Qty</span>
         <span>Price</span>
         <span>Total</span>
+        <span>Review</span>
       </div>
 
       {% for item in order.items.all %}
@@ -388,6 +411,9 @@
           <span class="order-detail-item-cell muted item-col-qty">{{ item.quantity }}</span>
           <span class="order-detail-item-cell muted">${{ item.price }}</span>
           <span class="order-detail-item-cell">${{ item.total_price }}</span>
+          <a href="{% url 'reviews:review_create' item.product.id %}" class="order-detail-item-review">
+            <i class="fas fa-star"></i> Review
+          </a>
         </div>
       {% endfor %}
     </div>

@@ -77,6 +77,12 @@
                     </a>
                 </div>
             {% endif %}
+
+            <div class="product-review-links">
+                <a href="{% url 'reviews:review_create' product.id %}" class="btn btn-secondary">
+                    <i class="fas fa-star"></i> Write a Review
+                </a>
+            </div>
         </div>
     </div>
 </section>

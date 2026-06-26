@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from accounts.models import CustomUser
@@ -27,10 +28,14 @@ class Review(models.Model):
     )
 
     rating = models.PositiveSmallIntegerField(
-        choices=RATING_CHOICES
+        choices=RATING_CHOICES,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
 
-    comment = models.TextField()
+    comment = models.TextField(
+        blank=True,
+        default=""
+    )
 
     created_at = models.DateTimeField(
         auto_now_add=True
@@ -41,19 +46,15 @@ class Review(models.Model):
     )
 
     class Meta:
-
-        unique_together = (
-            "user",
-            "product",
-        )
-
-        ordering = [
-            "-created_at",
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "product"],
+                name="unique_user_product_review"
+            )
         ]
+        ordering = ["-created_at"]
+        verbose_name = "Review"
+        verbose_name_plural = "Reviews"
 
     def __str__(self):
-
-        return (
-            f"{self.user.username} - "
-            f"{self.product.name}"
-        )
+        return f"{self.user.email} - {self.product.name} ({self.rating}★)"

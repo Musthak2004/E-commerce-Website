@@ -16,13 +16,25 @@ class ReviewAdmin(admin.ModelAdmin):
 
     list_filter = (
         "rating",
-        "created_at",
+        "product",
     )
 
     search_fields = (
-        "user__username",
+        "user__email",
         "product__name",
     )
+
+    list_select_related = (
+        "user",
+        "product",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "updated_at",
+    )
+
+    date_hierarchy = "created_at"
 
     ordering = (
         "-created_at",

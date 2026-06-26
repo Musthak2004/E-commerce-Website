@@ -28,13 +28,14 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`cart/`** — shopping cart; 54 tests
 - **`orders/`** — order processing with stock validation; 41 tests
 - **`payments/`** — payment processing (OneToOne to Order); no tests yet
+- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); no tests yet
 - **`templates/`** — project-level templates (`base.html`, registration templates)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 222 lines); uses Font Awesome 6.5.1
 
 ## Template patterns
 
-- All 19 templates extend `base.html`. Inline `<style>` blocks per page (no global CSS for page-specific styles). Font Awesome icons everywhere.
-- URL namespace pattern: `products:product_list`, `cart:cart_detail`, `orders:order_list`, `payments:payment_create`.
+- All 22 templates extend `base.html`. Inline `<style>` blocks per page (no global CSS for page-specific styles). Font Awesome icons everywhere.
+- URL namespace pattern: `products:product_list`, `cart:cart_detail`, `orders:order_list`, `payments:payment_create`, `reviews:review_create`.
 - Back navigation: `<a href="..." class="back-link"><i class="fas fa-arrow-left"></i> Label</a>`.
 - Buttons use pill shape (`border-radius: 100px`). Gold accent via CSS custom properties (`--accent`, `--border`, `--bg-card`, etc.).
 - Form pattern: `.form-page > .form-card > .styled-form` with `.form-group` per field.
@@ -46,6 +47,7 @@ No linters, formatters, or pre-commit hooks are configured.
 - **Media**: Uploaded images go to `media/products/`; dev server serves media only when `DEBUG=True`.
 - **Frontend**: Gold/warm theme via CSS custom properties. No CSS framework (Bootstrap/Tailwind). Vanilla JS only, IIFE pattern in `main.js`.
 - **Payment flow**: Cart → Create order (stock validation, atomic) → Order detail → Payment create → Payment detail.
+- **Review flow**: Product detail (Write a Review) or Order detail (per-item Review) → Review form → Review detail.
 - **Database**: SQLite (`db.sqlite3`) — pre-seeded with test data and a test account.
 
 ## Test accounts

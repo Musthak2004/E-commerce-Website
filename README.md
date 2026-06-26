@@ -1,6 +1,6 @@
 # E-commerce Website
 
-A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, payment handling, and a refined shopping experience with subtle animations.
+A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, payment handling, product reviews, and a refined shopping experience with subtle animations.
 
 ## Features
 
@@ -10,6 +10,7 @@ A Django-based e-commerce platform with a warm gold-themed UI. Features user aut
 - **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header; inline quantity controls
 - **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled)
 - **Payment Processing** — Record payments against orders with multiple payment methods and status tracking
+- **Product Reviews** — Customers can review products with ratings; duplicate-review prevention, linked from product detail and order detail pages
 - **About & Contact Pages** — Static information pages linked in header and footer
 - **Responsive Design** — Works on desktop, tablet, and mobile
 - **Subtle Animations** — Fade-in/slide-up page entrances, staggered list reveals, image zoom on hover, button press micro-interactions (disabled for reduced-motion preference)
@@ -56,7 +57,7 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
-The project has **182 tests** across six apps:
+The project has **182 tests** across seven apps:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
@@ -66,6 +67,7 @@ The project has **182 tests** across six apps:
 | cart | 54 | Models, URL resolution, add/remove/update views, cart detail, context processor |
 | orders | 41 | Models, URL resolution, create order (stock validation, atomicity), order detail, order list |
 | payments | 0 | No tests yet |
+| reviews | 0 | No tests yet |
 
 ```bash
 # Run all tests
@@ -78,6 +80,7 @@ python manage.py test products --verbosity=2
 python manage.py test cart --verbosity=2
 python manage.py test orders --verbosity=2
 python manage.py test payments --verbosity=2
+python manage.py test reviews --verbosity=2
 ```
 
 ## Project Structure
@@ -118,6 +121,16 @@ python manage.py test payments --verbosity=2
 │   └── templates/payments/
 │       ├── payment_form.html    # Checkout with order summary and payment method selection
 │       └── payment_detail.html  # Payment receipt with status badge and info cards
+├── reviews/                # Product reviews app
+│   ├── models.py           # Review (ForeignKey to User + Product, UniqueConstraint, rating validators)
+│   ├── forms.py            # ReviewForm with rating/comment validation
+│   ├── views.py            # ReviewCreateView (duplicate-check), ReviewDetailView
+│   ├── urls.py             # 2 routes
+│   ├── admin.py            # ReviewAdmin with user email search
+│   ├── tests.py            # 0 tests (pending)
+│   └── templates/reviews/
+│       ├── review_form.html      # Product summary card with styled rating selector
+│       └── review_detail.html    # Rating badge, 2-col meta grid, comment card
 ├── pages/                  # Static page routing app
 │   ├── views.py            # HomePageView, AboutPageView, ContactPageView
 │   ├── urls.py             # Root + /about/ + /contact/

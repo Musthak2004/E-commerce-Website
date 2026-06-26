@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Review — {{ review.product.name }} — ShopEase{% endblock %}
+{% block meta_description %}Review for {{ review.product.name }}.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ── Review Detail ── */
+.review-header {
+  display        : flex;
+  align-items    : flex-start;
+  justify-content: space-between;
+  gap            : 12px;
+  flex-wrap      : wrap;
+}
+
+.review-rating-badge {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 6px;
+  background      : var(--accent);
+  color           : #fff;
+  font-size       : .85rem;
+  font-weight     : 700;
+  padding         : 6px 14px;
+  border-radius   : 100px;
+  white-space     : nowrap;
+}
+
+.review-rating-badge i {
+  color     : #fff;
+  font-size : .8rem;
+}
+
+.review-meta-grid {
+  display               : grid;
+  grid-template-columns : 1fr 1fr;
+  gap                   : 16px;
+  margin-bottom         : 28px;
+  animation             : fadeInUp .35s ease both;
+  animation-delay       : .1s;
+}
+
+.review-meta-item {
+  background     : var(--bg-card);
+  border         : 1px solid var(--border);
+  border-radius  : var(--radius);
+  padding        : 14px 18px;
+}
+
+.review-meta-item-label {
+  font-size   : .75rem;
+  font-weight : 600;
+  color       : var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 4px;
+}
+
+.review-meta-item-value {
+  font-size   : .95rem;
+  font-weight : 500;
+  color       : var(--text);
+}
+
+.review-comment-card {
+  background     : var(--bg-card);
+  border         : 1px solid var(--border);
+  border-radius  : var(--radius);
+  padding        : 20px 24px;
+  margin-bottom  : 28px;
+  animation      : fadeInUp .35s ease both;
+  animation-delay: .15s;
+}
+
+.review-comment-card h3 {
+  font-size     : .85rem;
+  font-weight   : 600;
+  color         : var(--text-muted);
+  margin        : 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.review-comment-card p {
+  font-size   : .95rem;
+  color       : var(--text);
+  line-height : 1.65;
+  margin      : 0;
+}
+</style>
+
+<section class="form-page">
+  <div class="form-card anim-up">
+    <div class="form-card-header">
+      <a href="{% url 'products:product_detail' review.product.slug %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to {{ review.product.name }}
+      </a>
+      <div class="review-header">
+        <div>
+          <h1>Review</h1>
+          <p style="margin-top:4px;color:var(--text-secondary);font-size:.9rem;">
+            for <strong>{{ review.product.name }}</strong>
+          </p>
+        </div>
+        <span class="review-rating-badge">
+          <i class="fas fa-star"></i> {{ review.rating }}/5
+        </span>
+      </div>
+    </div>
+
+    <div class="review-meta-grid">
+      <div class="review-meta-item">
+        <div class="review-meta-item-label">
+          <i class="fas fa-user"></i> Reviewed by
+        </div>
+        <div class="review-meta-item-value">{{ review.user.email }}</div>
+      </div>
+      <div class="review-meta-item">
+        <div class="review-meta-item-label">
+          <i class="fas fa-calendar-alt"></i> Date
+        </div>
+        <div class="review-meta-item-value">{{ review.created_at|date:"F j, Y" }}</div>
+      </div>
+    </div>
+
+    {% if review.comment %}
+      <div class="review-comment-card">
+        <h3><i class="fas fa-comment-alt"></i> Comment</h3>
+        <p>{{ review.comment }}</p>
+      </div>
+    {% endif %}
+
+    <div class="form-actions">
+      <a href="{% url 'products:product_detail' review.product.slug %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Product
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

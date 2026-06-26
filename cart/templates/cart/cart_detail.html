@@ -502,6 +502,107 @@
 .summary-shop-link:hover { color: var(--cart-accent); }
 
 /* ══════════════════════════════════
+   COUPON
+══════════════════════════════════ */
+.cart-coupon {
+  margin-bottom : 20px;
+}
+
+.coupon-form {
+  display   : flex;
+  gap       : 8px;
+}
+
+.coupon-input {
+  flex            : 1;
+  padding         : 10px 14px;
+  border          : 1.5px solid var(--border);
+  border-radius   : 50px;
+  font-family     : 'Outfit', sans-serif;
+  font-size       : .85rem;
+  color           : var(--text);
+  background      : var(--white);
+  outline         : none;
+  transition      : border-color var(--transition);
+  min-width       : 0;
+}
+
+.coupon-input:focus {
+  border-color : var(--accent);
+  box-shadow   : 0 0 0 3px var(--accent-subtle);
+}
+
+.coupon-btn {
+  padding         : 10px 20px;
+  border-radius   : 50px;
+  background      : var(--accent);
+  color           : #fff;
+  font-size       : .82rem;
+  font-weight     : 700;
+  font-family     : 'Outfit', sans-serif;
+  border          : none;
+  cursor          : pointer;
+  white-space     : nowrap;
+  transition      : var(--transition);
+}
+
+.coupon-btn:hover {
+  background : var(--accent-hover);
+  transform  : translateY(-1px);
+}
+
+.coupon-applied {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  background      : #f0fdf4;
+  border          : 1px solid #86efac;
+  border-radius   : 12px;
+  padding         : 10px 14px;
+  gap             : 8px;
+}
+
+.coupon-applied-info {
+  display     : flex;
+  align-items : center;
+  gap         : 8px;
+  font-size   : .85rem;
+  color       : #166534;
+  min-width   : 0;
+}
+
+.coupon-applied-info i {
+  font-size : 1rem;
+  color     : #16a34a;
+}
+
+.coupon-applied-info span {
+  white-space  : nowrap;
+  overflow     : hidden;
+  text-overflow: ellipsis;
+}
+
+.coupon-remove {
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  width           : 28px;
+  height          : 28px;
+  border-radius   : 50%;
+  border          : none;
+  background      : transparent;
+  color           : #991b1b;
+  cursor          : pointer;
+  font-size       : .8rem;
+  transition      : var(--transition);
+  flex-shrink     : 0;
+}
+
+.coupon-remove:hover {
+  background : #fee2e2;
+}
+
+/* ══════════════════════════════════
    EMPTY STATE
 ══════════════════════════════════ */
 .cart-empty {
@@ -720,6 +821,36 @@
               <dd>Calculated at checkout</dd>
             </div>
           </dl>
+
+          <!-- ── Coupon ── -->
+          <div class="cart-coupon">
+            {% if coupon %}
+              <div class="coupon-applied">
+                <div class="coupon-applied-info">
+                  <i class="fas fa-tag"></i>
+                  <span><strong>{{ coupon.code }}</strong>
+                    {% if coupon.discount_type == "PERCENTAGE" %}
+                      — {{ coupon.discount_value }}% off
+                    {% else %}
+                      — ${{ coupon.discount_value }} off
+                    {% endif %}
+                  </span>
+                </div>
+                <form method="post" action="{% url 'coupons:remove_coupon' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="coupon-remove" aria-label="Remove coupon">
+                    <i class="fas fa-xmark"></i>
+                  </button>
+                </form>
+              </div>
+            {% else %}
+              <form method="post" action="{% url 'coupons:apply_coupon' %}" class="coupon-form">
+                {% csrf_token %}
+                <input type="text" name="code" placeholder="Enter coupon code" class="coupon-input" maxlength="50">
+                <button type="submit" class="coupon-btn">Apply</button>
+              </form>
+            {% endif %}
+          </div>
 
           <div class="summary-divider"></div>
 

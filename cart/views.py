@@ -12,6 +12,8 @@ from django.views.decorators.http import (
     require_POST,
 )
 
+from coupons.models import Coupon
+
 from .models import (
     Cart,
     CartItem,
@@ -140,10 +142,24 @@ def cart_detail(
         user=request.user
     ).first()
 
+    coupon = None
+
+    coupon_id = request.session.get("coupon_id")
+
+    if coupon_id:
+        try:
+            coupon = Coupon.objects.get(
+                id=coupon_id,
+                is_active=True,
+            )
+        except Coupon.DoesNotExist:
+            del request.session["coupon_id"]
+
     return render(
         request,
         "cart/cart_detail.html",
         {
-            "cart": cart
+            "cart": cart,
+            "coupon": coupon,
         }
     )

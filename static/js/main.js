@@ -162,4 +162,61 @@
         });
     });
 
+    // ── Prompt Assistant ──
+    var promptAssistant = document.getElementById('promptAssistant');
+    if (promptAssistant) {
+        var suggestions = promptAssistant.querySelectorAll('.prompt-suggestion');
+        var textarea = promptAssistant.querySelector('.prompt-input-wrap textarea');
+        var sendBtn = promptAssistant.querySelector('.prompt-input-btn');
+        var response = promptAssistant.querySelector('.prompt-response');
+
+        // Click suggestion → populate textarea
+        suggestions.forEach(function (suggestion) {
+            suggestion.addEventListener('click', function () {
+                var text = this.getAttribute('data-prompt') || this.textContent.trim();
+                if (textarea) {
+                    textarea.value = text;
+                    textarea.focus();
+                    // Trigger input event to update send button state
+                    var evt = document.createEvent('Event');
+                    evt.initEvent('input', true, true);
+                    textarea.dispatchEvent(evt);
+                }
+                // Hide previous response
+                if (response) {
+                    response.classList.remove('is-visible');
+                }
+            });
+        });
+
+        // Send button
+        if (sendBtn && textarea) {
+            sendBtn.addEventListener('click', function () {
+                var text = textarea.value.trim();
+                if (!text) return;
+
+                if (response) {
+                    response.innerHTML = '<strong>You searched:</strong> ' + escapeHtml(text);
+                    response.classList.add('is-visible');
+                }
+
+                textarea.value = '';
+                sendBtn.disabled = true;
+                textarea.focus();
+            });
+
+            // Toggle send button disabled state
+            textarea.addEventListener('input', function () {
+                sendBtn.disabled = !this.value.trim();
+            });
+        }
+
+        // Simple escape for demo output
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+    }
+
 })();

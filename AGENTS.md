@@ -12,8 +12,10 @@ python manage.py runserver
 | Action | Command |
 |--------|---------|
 | Run dev server | `python manage.py runserver` |
-| Run all tests | `python manage.py test --verbosity=2` |
+| Run all tests | `python manage.test test --verbosity=2` |
 | Test single app | `python manage.py test accounts --verbosity=2` |
+| Test cart | `python manage.py test cart --verbosity=2` |
+| Test orders | `python manage.py test orders --verbosity=2` |
 | Migrate | `python manage.py migrate` |
 | Superuser | `python manage.py createsuperuser` |
 
@@ -25,8 +27,8 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`
 - **`pages/`** — static pages (home, about, contact)
 - **`products/`** — product CRUD with seller-ownership enforcement
-- **`cart/`** — shopping cart; tests are placeholder-only
-- **`orders/`** — order processing with stock validation; tests are placeholder-only
+- **`cart/`** — shopping cart; 52 tests (models, views, URL routing, context processor)
+- **`orders/`** — order processing with stock validation; 43 tests (models, views, URL routing, stock validation, ownership isolation)
 - **`templates/`** — project-level templates (`base.html`, registration templates)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2300 lines) and JS (`js/main.js`); uses Font Awesome 6.5.1
 

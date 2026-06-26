@@ -55,15 +55,15 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
-The project has **87 tests** across three apps (cart and orders have placeholder test files):
+The project has **182 tests** across all five apps:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
 | accounts | 33 | Models, forms, views, signals, URLs, auth flow |
 | pages | 4 | URL resolution, template rendering |
 | products | 50 | Models, forms, permissions, CRUD workflow, URL routing |
-| cart | — | Placeholder (no tests yet) |
-| orders | — | Placeholder (no tests yet) |
+| cart | 52 | Models, URL resolution, add/remove/update views, cart detail, context processor |
+| orders | 43 | Models, URL resolution, create order (stock validation, atomicity), order detail, order list |
 
 ```bash
 # Run all tests
@@ -73,6 +73,8 @@ python manage.py test --verbosity=2
 python manage.py test accounts --verbosity=2
 python manage.py test pages --verbosity=2
 python manage.py test products --verbosity=2
+python manage.py test cart --verbosity=2
+python manage.py test orders --verbosity=2
 ```
 
 ## Project Structure
@@ -91,6 +93,7 @@ python manage.py test products --verbosity=2
 │   ├── urls.py             # 4 routes
 │   ├── admin.py            # CartAdmin, CartItemAdmin with search & filters
 │   ├── context_processors.py   # cart_count / wishlist_count for nav badge
+│   ├── tests.py            # 52 tests
 │   └── templates/cart/
 │       └── cart_detail.html    # Items with qty controls, order summary, trust badges, empty state
 ├── orders/                 # Order management app
@@ -98,6 +101,7 @@ python manage.py test products --verbosity=2
 │   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail
 │   ├── urls.py             # 3 routes
 │   ├── admin.py            # OrderAdmin with OrderItemInline
+│   ├── tests.py            # 43 tests
 │   └── templates/orders/
 │       ├── order_list.html      # Card-based history with status badges
 │       └── order_detail.html    # Contact card, items table, summary panel

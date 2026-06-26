@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment #{{ payment.id }} — ShopEase{% endblock %}
+{% block meta_description %}Payment details and status.{% endblock %}
+
+{% block content %}
+
+<style>
+/* ═══════════════════════════════════════════════
+   PAYMENT DETAIL PAGE
+   ═══════════════════════════════════════════════ */
+
+.payment-detail-page {
+  min-height : 100vh;
+  padding    : 40px 16px 80px;
+}
+
+.payment-detail-inner {
+  max-width : 800px;
+  margin    : 0 auto;
+}
+
+/* ── Header ── */
+.payment-detail-header {
+  display         : flex;
+  align-items     : center;
+  justify-content : space-between;
+  gap             : 16px;
+  margin-bottom   : 32px;
+  flex-wrap       : wrap;
+}
+
+.payment-detail-header-left {
+  display     : flex;
+  align-items : center;
+  gap         : 16px;
+}
+
+.payment-detail-header h1 {
+  font-size   : clamp(1.2rem, 2.5vw, 1.5rem);
+  font-weight : 800;
+  color       : var(--text);
+  margin      : 0;
+}
+
+.payment-detail-back {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 8px;
+  font-size       : .875rem;
+  font-weight     : 600;
+  color           : var(--text-secondary);
+  text-decoration : none;
+  padding         : 8px 14px;
+  border-radius   : 50px;
+  background      : var(--bg-card);
+  border          : 1px solid var(--border);
+  transition      : var(--transition);
+}
+
+.payment-detail-back:hover {
+  color        : var(--accent);
+  border-color : var(--accent);
+  background   : var(--accent-light);
+  transform    : translateX(-2px);
+}
+
+/* ── Payment Status badge ── */
+.payment-status {
+  display         : inline-flex;
+  align-items     : center;
+  gap             : 6px;
+  padding         : 6px 18px;
+  border-radius   : 50px;
+  font-size       : .8rem;
+  font-weight     : 700;
+  letter-spacing  : .4px;
+  text-transform  : uppercase;
+}
+
+.payment-status i { font-size: .7rem; }
+
+.payment-status.PENDING    { background: #fef3c7; color: #92400e; }
+.payment-status.PROCESSING { background: #dbeafe; color: #1e40af; }
+.payment-status.COMPLETED  { background: #d1fae5; color: #065f46; }
+.payment-status.FAILED     { background: #fee2e2; color: #991b1b; }
+.payment-status.REFUNDED   { background: #ede9fe; color: #5b21b6; }
+
+/* ── Info grid ── */
+.payment-detail-info {
+  display               : grid;
+  grid-template-columns : 1fr 1fr;
+  gap                   : 16px;
+  margin-bottom         : 32px;
+  animation             : payIn .4s ease both;
+}
+
+@keyframes payIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.payment-detail-card {
+  background    : var(--bg-card);
+  border        : 1px solid var(--border);
+  border-radius : var(--radius);
+  padding       : 20px;
+}
+
+.payment-detail-card h3 {
+  font-size      : .8rem;
+  font-weight    : 700;
+  text-transform : uppercase;
+  letter-spacing : .6px;
+  color          : var(--text-muted);
+  margin         : 0 0 8px;
+}
+
+.payment-detail-card p {
+  font-size   : .95rem;
+  color       : var(--text);
+  line-height : 1.6;
+  margin      : 0;
+}
+
+.payment-detail-card .amount-large {
+  font-size      : 1.6rem;
+  font-weight    : 900;
+  color          : var(--text);
+  letter-spacing : -.5px;
+}
+
+.payment-detail-card .method-label {
+  display        : inline-flex;
+  align-items    : center;
+  gap            : 6px;
+  font-size      : .9rem;
+  font-weight    : 600;
+  color          : var(--text);
+}
+
+.payment-detail-card .transaction-id {
+  font-size      : .85rem;
+  font-weight    : 500;
+  color          : var(--text-secondary);
+  font-family    : 'Courier New', monospace;
+  word-break     : break-all;
+}
+
+/* ── Actions ── */
+.payment-detail-actions {
+  display         : flex;
+  justify-content : center;
+  gap             : 12px;
+  flex-wrap       : wrap;
+  animation       : payIn .4s .15s ease both;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .payment-detail-info {
+    grid-template-columns : 1fr;
+  }
+}
+</style>
+
+<div class="payment-detail-page">
+  <div class="payment-detail-inner">
+
+    <!-- ── Header ── -->
+    <header class="payment-detail-header">
+      <div class="payment-detail-header-left">
+        <a href="{% url 'orders:order_detail' payment.order.id %}" class="payment-detail-back">
+          <i class="fas fa-arrow-left"></i> Order #{{ payment.order.id }}
+        </a>
+        <div>
+          <h1>Payment #{{ payment.id }}</h1>
+        </div>
+      </div>
+      <span class="payment-status {{ payment.status }}">
+        <i class="fas fa-{% if payment.status == 'PENDING' %}clock{% elif payment.status == 'PROCESSING' %}gear{% elif payment.status == 'COMPLETED' %}circle-check{% elif payment.status == 'FAILED' %}times-circle{% elif payment.status == 'REFUNDED' %}rotate-left{% endif %}"></i>
+        {{ payment.get_status_display }}
+      </span>
+    </header>
+
+    <!-- ── Info cards ── -->
+    <div class="payment-detail-info">
+      <div class="payment-detail-card">
+        <h3><i class="fas fa-dollar-sign"></i> Amount</h3>
+        <p class="amount-large">${{ payment.amount }}</p>
+      </div>
+      <div class="payment-detail-card">
+        <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
+        <p class="method-label">
+          <i class="fas fa-{% if payment.payment_method == 'PAYPAL' %}paypal{% elif payment.payment_method == 'CARD' %}credit-card{% elif payment.payment_method == 'BANK_TRANSFER' %}university{% elif payment.payment_method == 'CASH_ON_DELIVERY' %}money-bill-wave{% endif %}"></i>
+          {{ payment.get_payment_method_display }}
+        </p>
+      </div>
+      <div class="payment-detail-card">
+        <h3><i class="fas fa-hashtag"></i> Transaction ID</h3>
+        <p>
+          {% if payment.transaction_id %}
+            <span class="transaction-id">{{ payment.transaction_id }}</span>
+          {% else %}
+            <span style="color:var(--text-muted);font-style:italic;">Not available</span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="payment-detail-card">
+        <h3><i class="fas fa-calendar"></i>
+          {% if payment.paid_at %}Paid on{% else %}Created{% endif %}
+        </h3>
+        <p>
+          {% if payment.paid_at %}
+            {{ payment.paid_at|date:"F j, Y · g:i A" }}
+          {% else %}
+            {{ payment.created_at|date:"F j, Y · g:i A" }}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Actions ── -->
+    <div class="payment-detail-actions">
+      <a href="{% url 'orders:order_detail' payment.order.id %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Order
+      </a>
+      <a href="{% url 'products:product_list' %}" class="btn btn-primary">
+        Continue Shopping <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

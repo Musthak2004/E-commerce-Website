@@ -1,6 +1,6 @@
 # E-commerce Website
 
-A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, and a refined shopping experience with subtle animations.
+A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, payment handling, and a refined shopping experience with subtle animations.
 
 ## Features
 
@@ -9,6 +9,7 @@ A Django-based e-commerce platform with a warm gold-themed UI. Features user aut
 - **Product Management** — Sellers can create, edit, and delete products; product listing with pagination and images
 - **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header; inline quantity controls
 - **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled)
+- **Payment Processing** — Record payments against orders with multiple payment methods and status tracking
 - **About & Contact Pages** — Static information pages linked in header and footer
 - **Responsive Design** — Works on desktop, tablet, and mobile
 - **Subtle Animations** — Fade-in/slide-up page entrances, staggered list reveals, image zoom on hover, button press micro-interactions (disabled for reduced-motion preference)
@@ -55,15 +56,16 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
-The project has **182 tests** across all five apps:
+The project has **182 tests** across six apps:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
 | accounts | 33 | Models, forms, views, signals, URLs, auth flow |
 | pages | 4 | URL resolution, template rendering |
 | products | 50 | Models, forms, permissions, CRUD workflow, URL routing |
-| cart | 52 | Models, URL resolution, add/remove/update views, cart detail, context processor |
-| orders | 43 | Models, URL resolution, create order (stock validation, atomicity), order detail, order list |
+| cart | 54 | Models, URL resolution, add/remove/update views, cart detail, context processor |
+| orders | 41 | Models, URL resolution, create order (stock validation, atomicity), order detail, order list |
+| payments | 0 | No tests yet |
 
 ```bash
 # Run all tests
@@ -75,6 +77,7 @@ python manage.py test pages --verbosity=2
 python manage.py test products --verbosity=2
 python manage.py test cart --verbosity=2
 python manage.py test orders --verbosity=2
+python manage.py test payments --verbosity=2
 ```
 
 ## Project Structure
@@ -93,7 +96,7 @@ python manage.py test orders --verbosity=2
 │   ├── urls.py             # 4 routes
 │   ├── admin.py            # CartAdmin, CartItemAdmin with search & filters
 │   ├── context_processors.py   # cart_count / wishlist_count for nav badge
-│   ├── tests.py            # 52 tests
+│   ├── tests.py            # 54 tests
 │   └── templates/cart/
 │       └── cart_detail.html    # Items with qty controls, order summary, trust badges, empty state
 ├── orders/                 # Order management app
@@ -101,10 +104,20 @@ python manage.py test orders --verbosity=2
 │   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail
 │   ├── urls.py             # 3 routes
 │   ├── admin.py            # OrderAdmin with OrderItemInline
-│   ├── tests.py            # 43 tests
+│   ├── tests.py            # 41 tests
 │   └── templates/orders/
 │       ├── order_list.html      # Card-based history with status badges
 │       └── order_detail.html    # Contact card, items table, summary panel
+├── payments/               # Payment processing app
+│   ├── models.py           # Payment (OneToOneField to Order, status/method tracking)
+│   ├── forms.py            # PaymentForm with duplicate-payment validation
+│   ├── views.py            # PaymentCreateView, PaymentDetailView (ownership enforced)
+│   ├── urls.py             # 2 routes
+│   ├── admin.py            # PaymentAdmin with list filters
+│   ├── tests.py            # 0 tests (pending)
+│   └── templates/payments/
+│       ├── payment_form.html    # Checkout with order summary and payment method selection
+│       └── payment_detail.html  # Payment receipt with status badge and info cards
 ├── pages/                  # Static page routing app
 │   ├── views.py            # HomePageView, AboutPageView, ContactPageView
 │   ├── urls.py             # Root + /about/ + /contact/
@@ -126,13 +139,13 @@ python manage.py test orders --verbosity=2
 │   └── urls.py             # Root URLConf (includes all apps)
 ├── templates/              # Project-level templates
 │   ├── base.html           # Layout: header (auth-aware nav, badges), search overlay, footer
-│   ├── home.html           # Hero, featured categories, stats, newsletter CTA
+│   ├── home.html           # Hero, featured categories, stats, prompt assistant, CTA
 │   ├── about.html          # About page
 │   ├── contact.html        # Contact page with form
 │   └── registration/       # Login, signup, password reset (6 templates)
 ├── static/
-│   ├── css/style.css       # Complete stylesheet (animations, responsive, cart, auth)
-│   └── js/main.js          # Nav, search, password toggle, alert dismiss
+│   ├── css/style.css       # Complete stylesheet (~2500 lines, animations, responsive)
+│   └── js/main.js          # Nav, search, password toggle, alert dismiss, prompt assistant
 ├── media/products/         # Uploaded product images
 └── manage.py
 ```

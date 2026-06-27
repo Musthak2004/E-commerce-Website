@@ -16,6 +16,18 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+class Tag(models.Model):
+
+    name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True)
+
+    class Meta:
+        ordering = ("name",)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
 
     seller = models.ForeignKey(
@@ -28,6 +40,12 @@ class Product(models.Model):
         Category,
         on_delete=models.SET_NULL,
         null=True,
+        related_name="products"
+    )
+
+    tags = models.ManyToManyField(
+        Tag,
+        blank=True,
         related_name="products"
     )
 

@@ -2625,6 +2625,74 @@ main { min-height: 60vh; }
   color: var(--accent);
 }
 
+/* ── Product card tags ── */
+.product-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.product-card-tag {
+  font-size: .7rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Tags ── */
+.product-tags {
+  margin-bottom: 20px;
+}
+
+.product-tags h3 {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.tag-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.shop-tags {
+  margin-top: -12px;
+}
+
+.chip-tag {
+  font-size: .78rem;
+  padding: 4px 14px;
+}
+
+.chip-tag i {
+  font-size: .7rem;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .prompt-assistant {

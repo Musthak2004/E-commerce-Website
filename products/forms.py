@@ -12,6 +12,7 @@ class ProductForm(forms.ModelForm):
 
         fields = (
             "category",
+            "tags",
             "name",
             "slug",
             "description",
@@ -20,6 +21,10 @@ class ProductForm(forms.ModelForm):
             "image",
             "is_available",
         )
+
+        widgets = {
+            "tags": forms.CheckboxSelectMultiple,
+        }
 
     def clean_price(self):
 

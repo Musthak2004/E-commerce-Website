@@ -74,6 +74,17 @@
                 </div>
             {% endif %}
 
+            {% if product.tags.exists %}
+                <div class="product-tags">
+                    <h3>Tags</h3>
+                    <div class="tags-list">
+                        {% for tag in product.tags.all %}
+                            <a href="{% url 'products:product_list' %}?tag={{ tag.slug }}" class="tag-chip"><i class="fas fa-tag"></i> {{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
             <div class="product-detail-actions">
                 <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
                     {% csrf_token %}

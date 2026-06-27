@@ -28,7 +28,7 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`django_project/`** — project config (`settings.py`, root `urls.py`)
 - **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`, email verification
 - **`pages/`** — static pages + contact form + newsletter signup (models/forms/views)
-- **`products/`** — product CRUD with seller-ownership enforcement, category filtering, sorting, search
+- **`products/`** — product CRUD with seller-ownership enforcement, category filtering, sorting, search, tags (M2M)
 - **`cart/`** — shopping cart + wishlist; 59 tests
 - **`orders/`** — order processing with stock validation, user cancellation; 48 tests
 - **`coupons/`** — coupon management (code, discount, dates, usage limit); 31 tests

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, ProductImage
+from .models import Category, Product, ProductImage, Tag
 
 
 class ProductImageInline(admin.TabularInline):
@@ -57,4 +57,17 @@ class ProductAdmin(admin.ModelAdmin):
         "slug": ("name",)
     }
 
+    filter_horizontal = ("tags",)
     inlines = [ProductImageInline]
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+
+    list_display = ("id", "name", "slug")
+
+    search_fields = ("name",)
+
+    prepopulated_fields = {
+        "slug": ("name",)
+    }

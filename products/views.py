@@ -13,7 +13,7 @@ from django.urls import reverse_lazy
 
 from django.shortcuts import get_object_or_404
 
-from .models import Category, Product
+from .models import Category, Product, Tag
 from .forms import ProductForm
 
 
@@ -57,6 +57,10 @@ class ProductListView(ListView):
         if category_slug:
             qs = qs.filter(category__slug=category_slug)
 
+        tag_slug = self.request.GET.get("tag", "").strip()
+        if tag_slug:
+            qs = qs.filter(tags__slug=tag_slug)
+
         sort = self.request.GET.get("sort", "").strip()
         if sort == "price_asc":
             qs = qs.order_by("price")
@@ -75,8 +79,12 @@ class ProductListView(ListView):
         context = super().get_context_data(**kwargs)
         context["query"] = self.request.GET.get("q", "").strip()
         context["current_category"] = self.request.GET.get("category", "").strip()
+        context["current_tag"] = self.request.GET.get("tag", "").strip()
         context["current_sort"] = self.request.GET.get("sort", "").strip()
         context["categories"] = Category.objects.filter(
+            products__is_available=True
+        ).distinct()
+        context["tags"] = Tag.objects.filter(
             products__is_available=True
         ).distinct()
         return context
@@ -104,14 +112,16 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = self.object
         context["extra_images"] = product.images.all()
-        context["related_products"] = Product.objects.filter(
-            category=product.category,
+        related = Product.objects.filter(
             is_available=True,
         ).exclude(
             pk=product.pk
-        ).select_related(
+        ).filter(
+            Q(category=product.category) | Q(tags__in=product.tags.all())
+        ).distinct().select_related(
             "seller", "category"
         )[:4]
+        context["related_products"] = related
         return context
 
 

@@ -98,8 +98,10 @@ def create_order(request):
             recipient_list=[order.user.email],
             fail_silently=True,
         )
-    except Exception:
-        pass
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning("Failed to send order confirmation email: %s", e)
 
     messages.success(request, "Order placed successfully!")
     return redirect("orders:order_detail", order.id)
@@ -123,3 +125,29 @@ def order_list(request):
     orders = Order.objects.filter(user=request.user).prefetch_related("items__product")
 
     return render(request, "orders/order_list.html", {"orders": orders})
+
+
+@require_POST
+@login_required
+def cancel_order(request, order_id):
+
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+
+    if order.status != "PENDING":
+        messages.error(request, "Only pending orders can be cancelled.")
+        return redirect("orders:order_detail", order_id=order.id)
+
+    if hasattr(order, "payment") and order.payment.status == "COMPLETED":
+        messages.error(request, "Cannot cancel an order that has already been paid.")
+        return redirect("orders:order_detail", order_id=order.id)
+
+    with transaction.atomic():
+        for item in order.items.select_related("product").all():
+            product = item.product
+            product.stock += item.quantity
+            product.save(update_fields=["stock"])
+        order.status = "CANCELLED"
+        order.save(update_fields=["status"])
+
+    messages.success(request, f"Order #{order.id} has been cancelled.")
+    return redirect("orders:order_detail", order_id=order.id)

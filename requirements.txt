@@ -1,7 +1,8 @@
-Django==5.2.15
+Django==6.0.6
 django-cleanup==9.0.0
+djangorestframework==3.17.1
 gunicorn==25.1.0
-pillow==12.1.1
+pillow==12.2.0
 python-decouple==3.8
 stripe==15.3.0
 whitenoise==6.12.0

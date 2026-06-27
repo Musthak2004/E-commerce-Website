@@ -3,31 +3,40 @@
 
 {% block title %}{{ product.name }} — ShopEase{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><a href="{% url 'products:product_list' %}">Products</a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>{{ product.name }}</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 
 <section class="product-detail-section">
-    <a href="{% url 'products:product_list' %}" class="back-link anim-fadein">
-        <i class="fas fa-arrow-left"></i> Back to Products
-    </a>
-
     <div class="product-detail">
         <div class="product-detail-gallery anim-up anim-delay-1">
             {% if product.image %}
-                <div class="product-detail-main-img">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <div class="product-detail-main-img" id="mainImageContainer">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainProductImage">
                 </div>
             {% else %}
                 <div class="product-detail-main-img placeholder">
                     <i class="fas fa-image"></i>
                 </div>
             {% endif %}
-            {% if product.images.exists %}
-                <div class="product-thumbnails">
-                    {% for img in product.images.all %}
-                        <img src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy">
-                    {% endfor %}
-                </div>
-            {% endif %}
+            {% with images=extra_images %}
+                {% if images %}
+                    <div class="product-thumbnails" id="productThumbnails">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="thumb active" data-full="{{ product.image.url }}" loading="lazy">
+                        {% for img in images %}
+                            <img src="{{ img.image.url }}" alt="{{ product.name }}" class="thumb" data-full="{{ img.image.url }}" loading="lazy">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
         </div>
 
         <div class="product-detail-info anim-up anim-delay-2">
@@ -101,5 +110,52 @@
         </div>
     </div>
 </section>
+
+{% if related_products %}
+<section class="section related-section">
+    <div class="section-header anim-up">
+        <div>
+            <h2>Related Products</h2>
+            <p>You might also like these.</p>
+        </div>
+    </div>
+    <div class="product-grid stagger">
+        {% for related in related_products %}
+            <a href="{% url 'products:product_detail' related.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
+                <div class="product-card-img">
+                    {% if related.image %}
+                        <img src="{{ related.image.url }}" alt="{{ related.name }}" loading="lazy">
+                    {% else %}
+                        <i class="fas fa-image placeholder-icon"></i>
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    <span class="product-category">{{ related.category.name|default:"General" }}</span>
+                    <h3>{{ related.name }}</h3>
+                    <span class="product-price">${{ related.price }}</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var thumbs = document.querySelectorAll('#productThumbnails .thumb');
+    var mainImg = document.getElementById('mainProductImage');
+    if (thumbs.length && mainImg) {
+        thumbs.forEach(function(thumb) {
+            thumb.addEventListener('click', function() {
+                thumbs.forEach(function(t) { t.classList.remove('active'); });
+                this.classList.add('active');
+                mainImg.src = this.getAttribute('data-full');
+            });
+        });
+    }
+})();
+</script>
+{% endblock %}
 
 {% endblock %}

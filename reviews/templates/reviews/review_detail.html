@@ -4,6 +4,16 @@
 {% block title %}Review — {{ review.product.name }} — ShopEase{% endblock %}
 {% block meta_description %}Review for {{ review.product.name }}.{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><a href="{% url 'products:product_list' %}">Products</a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Review</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 
 <style>

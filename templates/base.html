@@ -70,6 +70,13 @@
                 </a>
                 {% endif %}
 
+                <a href="{% url 'products:product_list' %}" class="header-icon" aria-label="Wishlist">
+                    <i class="fas fa-heart" aria-hidden="true"></i>
+                    {% if wishlist_count %}
+                        <span class="badge">{{ wishlist_count }}</span>
+                    {% endif %}
+                </a>
+
                 <a href="{% url 'cart:cart_detail' %}" class="header-icon" aria-label="Shopping Cart">
                     <i class="fas fa-shopping-bag" aria-hidden="true"></i>
                     {% if cart_count %}
@@ -133,6 +140,9 @@
     </div>
     {% endif %}
 
+    <!-- Breadcrumbs -->
+    {% block breadcrumbs %}{% endblock %}
+
     <!-- Content -->
     <main class="anim-fadein">
         {% block content %}{% endblock %}
@@ -181,7 +191,7 @@
             <div class="footer-col">
                 <h3>Newsletter</h3>
                 <p>Subscribe for early access to new arrivals and 10% off your first order.</p>
-                <form class="newsletter-form" action="" method="POST">
+                <form class="newsletter-form" action="{% url 'newsletter_signup' %}" method="POST">
                     {% csrf_token %}
                     <input
                         type="email"

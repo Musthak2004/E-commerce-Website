@@ -4,6 +4,16 @@
 {% block title %}Write a Review — ShopEase{% endblock %}
 {% block meta_description %}Share your thoughts about this product.{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><a href="{% url 'products:product_list' %}">Products</a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Write a Review</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 
 <style>

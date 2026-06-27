@@ -40,11 +40,7 @@ def payment_create(request, order_id):
         if payment.stripe_session_id:
             return redirect("payments:payment_detail", pk=payment.id)
 
-    subtotal = float(order.total_price + order.discount_amount)
-    if order.discount_amount:
-        total_cents = int(float(order.total_price) * 100)
-    else:
-        total_cents = int(float(order.total_price) * 100)
+    total_cents = int(float(order.total_price) * 100)
 
     if total_cents < 50:
         messages.error(request, "Order total must be at least $0.50.")
@@ -137,8 +133,8 @@ def payment_success(request, order_id):
                     fail_silently=True,
                 )
                 messages.success(request, "Payment completed successfully!")
-        except stripe.error.StripeError:
-            pass
+        except stripe.error.StripeError as e:
+            messages.error(request, f"Could not verify payment with Stripe: {e.user_message or 'try again later.'}")
 
     return redirect("payments:payment_detail", pk=payment.id)
 

@@ -13,7 +13,7 @@ from django.urls import reverse_lazy
 
 from django.shortcuts import get_object_or_404
 
-from .models import Product
+from .models import Category, Product
 from .forms import ProductForm
 
 
@@ -53,11 +53,32 @@ class ProductListView(ListView):
                 Q(name__icontains=query) | Q(description__icontains=query)
             )
 
+        category_slug = self.request.GET.get("category", "").strip()
+        if category_slug:
+            qs = qs.filter(category__slug=category_slug)
+
+        sort = self.request.GET.get("sort", "").strip()
+        if sort == "price_asc":
+            qs = qs.order_by("price")
+        elif sort == "price_desc":
+            qs = qs.order_by("-price")
+        elif sort == "name":
+            qs = qs.order_by("name")
+        elif sort == "oldest":
+            qs = qs.order_by("created_at")
+        else:
+            qs = qs.order_by("-created_at")
+
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["query"] = self.request.GET.get("q", "").strip()
+        context["current_category"] = self.request.GET.get("category", "").strip()
+        context["current_sort"] = self.request.GET.get("sort", "").strip()
+        context["categories"] = Category.objects.filter(
+            products__is_available=True
+        ).distinct()
         return context
 
 
@@ -78,6 +99,20 @@ class ProductDetailView(DetailView):
         )
 
         return product
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        context["extra_images"] = product.images.all()
+        context["related_products"] = Product.objects.filter(
+            category=product.category,
+            is_available=True,
+        ).exclude(
+            pk=product.pk
+        ).select_related(
+            "seller", "category"
+        )[:4]
+        return context
 
 
 class ProductCreateView(

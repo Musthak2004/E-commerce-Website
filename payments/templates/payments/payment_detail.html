@@ -4,6 +4,16 @@
 {% block title %}Payment #{{ payment.id }} — ShopEase{% endblock %}
 {% block meta_description %}Payment details and status.{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><a href="{% url 'orders:order_list' %}">My Orders</a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Payment #{{ payment.id }}</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 
 <style>

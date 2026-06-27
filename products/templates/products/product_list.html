@@ -3,8 +3,16 @@
 
 {% block title %}{% if query %}Search: {{ query }} — {% endif %}Products — ShopEase{% endblock %}
 
-{% block content %}
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Products</span></li>
+  </ol>
+</nav>
+{% endblock %}
 
+{% block content %}
 <section class="section">
     <div class="section-header anim-up">
         <div>
@@ -19,6 +27,24 @@
     </div>
 
     {% if products %}
+        <div class="shop-toolbar anim-up">
+            <div class="shop-filters">
+                <a href="{% url 'products:product_list' %}{% if query %}?q={{ query }}{% endif %}" class="shop-filter-chip {% if not current_category %}active{% endif %}">All</a>
+                {% for cat in categories %}
+                    <a href="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}category={{ cat.slug }}{% if current_sort %}&sort={{ current_sort }}{% endif %}" class="shop-filter-chip {% if current_category == cat.slug %}active{% endif %}">{{ cat.name }}</a>
+                {% endfor %}
+            </div>
+            <div class="shop-sort">
+                <label for="sortSelect" class="shop-sort-label"><i class="fas fa-arrow-down-wide-short"></i></label>
+                <select id="sortSelect" class="shop-sort-select" onchange="window.location.href=this.value">
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=newest">Newest</option>
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                </select>
+            </div>
+        </div>
         <div class="product-grid stagger">
             {% for product in products %}
                 <a href="{% url 'products:product_detail' product.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">

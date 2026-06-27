@@ -4,6 +4,15 @@
 {% block title %}Shopping Cart — ShopEase{% endblock %}
 {% block meta_description %}Review your selections and proceed to checkout.{% endblock %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Cart</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
 {% block content %}
 
 <style>

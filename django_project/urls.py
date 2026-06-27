@@ -20,8 +20,11 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
+from pages.admin_dashboard import admin_dashboard
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("admin/dashboard/", admin_dashboard, name="admin_dashboard"),
     path("accounts/", include("accounts.urls")),
     path("accounts/login/", auth_views.LoginView.as_view(redirect_authenticated_user=True), name="login"),
     path("accounts/", include("django.contrib.auth.urls")),
@@ -31,6 +34,7 @@ urlpatterns = [
     path("payments/", include("payments.urls")),
     path("reviews/", include("reviews.urls")),
     path("coupons/", include("coupons.urls")),
+    path("api/", include("api.urls")),
     path("", include("pages.urls")),
 ]
 

@@ -152,7 +152,7 @@ python manage.py test reviews --verbosity=2
 │       ├── review_form.html      # Product summary card with styled rating selector
 │       └── review_detail.html    # Rating badge, 2-col meta grid, comment card
 ├── api/                    # REST API
-│   ├── serializers.py      # ProductListSerializer, CategorySerializer
+│   ├── serializers.py      # ProductListSerializer, CategorySerializer, TagSerializer
 │   ├── views.py            # ProductViewSet (ReadOnlyModelViewSet)
 │   └── urls.py             # Router with /products/ endpoint
 ├── pages/                  # Static page routing app
@@ -164,12 +164,12 @@ python manage.py test reviews --verbosity=2
 │   ├── admin_dashboard.py  # admin_dashboard view (staff-only stats)
 │   └── tests.py            # 4 tests
 ├── products/               # Product management app
-│   ├── models.py           # Category, Product, ProductImage (indexed, ordered)
-│   ├── forms.py            # ProductForm (price > 0, stock >= 0 validation)
-│   ├── views.py            # CRUD with SellerRequiredMixin (owner-only edit/delete)
+│   ├── models.py           # Category, Tag, Product (tags M2M), ProductImage (indexed, ordered)
+│   ├── forms.py            # ProductForm (price > 0, stock >= 0 validation, tags field)
+│   ├── views.py            # CRUD with SellerRequiredMixin, category/tag filtering, sort, search
 │   ├── urls.py             # 5 routes
-│   ├── admin.py            # Inline images, list_editable, prepopulated slugs
-│   ├── tests.py            # 50 tests
+│   ├── admin.py            # Inline images, list_editable, prepopulated slugs, TagAdmin
+│   ├── tests.py            # 55 tests
 │   └── templates/products/
 │       ├── product_list.html          # Grid with staggered card entrance
 │       ├── product_detail.html        # Gallery + info with fade-in sections

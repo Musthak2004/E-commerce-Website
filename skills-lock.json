@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "fix-types": {
+      "source": "saaspegasus/django-skills",
+      "sourceType": "github",
+      "skillPath": "skills/fix-types/SKILL.md",
+      "computedHash": "9e3d4fdbc186c6987f5b4aca9a9fec24f1e9b4e90ec50d9746f1e769ea0db470"
+    },
+    "upgrade-js-deps": {
+      "source": "saaspegasus/django-skills",
+      "sourceType": "github",
+      "skillPath": "skills/upgrade-js-deps/SKILL.md",
+      "computedHash": "71a3e0dc916a33a054fc1fe245f444118b6b629a34603f9e63d9055437e40aad"
+    },
+    "upgrade-python-deps": {
+      "source": "saaspegasus/django-skills",
+      "sourceType": "github",
+      "skillPath": "skills/upgrade-python-deps/SKILL.md",
+      "computedHash": "2bc2f952057e4035083dcb9661a82e84fde6f08d968b317ecec1568cc138a137"
+    }
+  }
+}

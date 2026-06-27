@@ -117,9 +117,58 @@ LOGOUT_REDIRECT_URL = "home"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+ADMINS = [("Admin", config("ADMIN_EMAIL", default="admin@shopease.com"))]
+SERVER_EMAIL = config("SERVER_EMAIL", default="server@shopease.com")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "logs" / "django.log",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": "WARNING",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console", "file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
+
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", default="http://localhost", cast=Csv())
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="http://localhost,https://*.pythonanywhere.com",
+    cast=Csv(),
+)
+
+CONN_MAX_AGE = config("CONN_MAX_AGE", default=60, cast=int)
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5_242_880  # 5 MB
 
 STRIPE_PUBLISHABLE_KEY = config("STRIPE_PUBLISHABLE_KEY", default="")
 STRIPE_SECRET_KEY = config("STRIPE_SECRET_KEY", default="")

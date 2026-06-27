@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Server Error — ShopEase{% endblock %}
+{% block content %}
+<div class="error-page">
+    <div class="error-card anim-up">
+        <span class="error-code">500</span>
+        <h1>Server Error</h1>
+        <p>Something went wrong on our end. Please try again later.</p>
+        <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    </div>
+</div>
+{% endblock %}

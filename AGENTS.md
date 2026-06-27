@@ -27,8 +27,9 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`products/`** — product CRUD with seller-ownership enforcement
 - **`cart/`** — shopping cart; 54 tests
 - **`orders/`** — order processing with stock validation; 41 tests
-- **`payments/`** — payment processing (OneToOne to Order); no tests yet
-- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); no tests yet
+- **`payments/`** — payment processing (OneToOne to Order); 33 tests
+- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 19 tests
+- **`coupons/`** — coupon management (code, discount, dates, usage limit); 18 tests
 - **`templates/`** — project-level templates (`base.html`, registration templates)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 222 lines); uses Font Awesome 6.5.1
 

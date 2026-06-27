@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.views.generic import (
     ListView,
@@ -25,7 +26,6 @@ class SellerRequiredMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         if not self.request.user.is_authenticated:
             return super().handle_no_permission()
-        from django.core.exceptions import PermissionDenied
         raise PermissionDenied
 
 

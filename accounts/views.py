@@ -1,7 +1,8 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -12,6 +13,8 @@ from django.views.generic.base import TemplateView
 
 from .forms import ProfileForm, SignUpForm
 from .models import CustomUser, Profile
+
+logger = logging.getLogger(__name__)
 
 
 class SignUpView(CreateView):
@@ -36,20 +39,22 @@ class SignUpView(CreateView):
         user = self.object
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        current_site = get_current_site(self.request)
-        verify_url = f"http://{current_site.domain}/accounts/verify/{uid}/{token}/"
-        send_mail(
-            subject="Verify your email — ShopEase",
-            message=(
-                f"Hi {user.email},\n\n"
-                f"Please verify your email address by clicking the link below:\n\n"
-                f"{verify_url}\n\n"
-                f"Thank you for joining ShopEase!"
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=True,
-        )
+        verify_url = self.request.build_absolute_uri(f"/accounts/verify/{uid}/{token}/")
+        try:
+            send_mail(
+                subject="Verify your email — ShopEase",
+                message=(
+                    f"Hi {user.email},\n\n"
+                    f"Please verify your email address by clicking the link below:\n\n"
+                    f"{verify_url}\n\n"
+                    f"Thank you for joining ShopEase!"
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            logger.warning("Failed to send verification email to %s: %s", user.email, e)
         return response
 
 

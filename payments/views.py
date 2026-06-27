@@ -1,3 +1,5 @@
+import logging
+
 import stripe
 from django.conf import settings
 from django.contrib import messages
@@ -15,8 +17,38 @@ from orders.models import Order
 
 from .models import Payment
 
+logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def _complete_payment(payment, transaction_id):
+    payment.status = "COMPLETED"
+    payment.transaction_id = transaction_id
+    payment.paid_at = timezone.now()
+    payment.save(update_fields=["status", "transaction_id", "paid_at"])
+
+    order = payment.order
+    order.status = "CONFIRMED"
+    order.save(update_fields=["status"])
+
+    try:
+        send_mail(
+            subject=f"Payment Received — Order #{order.id}",
+            message=(
+                f"Hi {order.user.email},\n\n"
+                f"Payment for order #{order.id} has been received.\n"
+                f"Amount: ${payment.amount}\n"
+                f"Transaction: {payment.transaction_id}\n\n"
+                f"Your order is now being processed.\n"
+                f"Thank you for shopping with ShopEase!"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[order.user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        logger.warning("Failed to send payment confirmation email: %s", e)
 
 
 @login_required
@@ -40,7 +72,7 @@ def payment_create(request, order_id):
         if payment.stripe_session_id:
             return redirect("payments:payment_detail", pk=payment.id)
 
-    total_cents = int(float(order.total_price) * 100)
+    total_cents = int(order.total_price * 100)
 
     if total_cents < 50:
         messages.error(request, "Order total must be at least $0.50.")
@@ -108,30 +140,11 @@ def payment_success(request, order_id):
         messages.error(request, "No payment found for this order.")
         return redirect("orders:order_detail", order_id=order.id)
 
-    if payment.stripe_session_id:
+    if payment.stripe_session_id and payment.status != "COMPLETED":
         try:
             session = stripe.checkout.Session.retrieve(payment.stripe_session_id)
-            if session.payment_status == "paid" and payment.status != "COMPLETED":
-                payment.status = "COMPLETED"
-                payment.transaction_id = session.payment_intent
-                payment.paid_at = timezone.now()
-                payment.save(update_fields=["status", "transaction_id", "paid_at"])
-                order.status = "CONFIRMED"
-                order.save(update_fields=["status"])
-                send_mail(
-                    subject=f"Payment Received — Order #{order.id}",
-                    message=(
-                        f"Hi {order.user.email},\n\n"
-                        f"Payment for order #{order.id} has been received.\n"
-                        f"Amount: ${payment.amount}\n"
-                        f"Transaction: {payment.transaction_id}\n\n"
-                        f"Your order is now being processed.\n"
-                        f"Thank you for shopping with ShopEase!"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[order.user.email],
-                    fail_silently=True,
-                )
+            if session.payment_status == "paid":
+                _complete_payment(payment, session.payment_intent)
                 messages.success(request, "Payment completed successfully!")
         except stripe.error.StripeError as e:
             messages.error(request, f"Could not verify payment with Stripe: {e.user_message or 'try again later.'}")
@@ -179,29 +192,7 @@ def stripe_webhook(request):
                     stripe_session_id=session["id"],
                 )
                 if payment.status != "COMPLETED":
-                    payment.status = "COMPLETED"
-                    payment.transaction_id = session.get("payment_intent")
-                    payment.paid_at = timezone.now()
-                    payment.save(update_fields=["status", "transaction_id", "paid_at"])
-
-                    order = payment.order
-                    order.status = "CONFIRMED"
-                    order.save(update_fields=["status"])
-
-                    send_mail(
-                        subject=f"Payment Received — Order #{order.id}",
-                        message=(
-                            f"Hi {order.user.email},\n\n"
-                            f"Payment for order #{order.id} has been received.\n"
-                            f"Amount: ${payment.amount}\n"
-                            f"Transaction: {payment.transaction_id}\n\n"
-                            f"Your order is now being processed.\n"
-                            f"Thank you for shopping with ShopEase!"
-                        ),
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[order.user.email],
-                        fail_silently=True,
-                    )
+                    _complete_payment(payment, session.get("payment_intent"))
             except Payment.DoesNotExist:
                 pass
 

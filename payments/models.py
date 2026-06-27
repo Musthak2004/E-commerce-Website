@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from orders.models import Order
@@ -77,10 +76,6 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment #{self.id} — Order #{self.order_id} ({self.get_status_display()})"
-
-    def clean(self):
-        if self.transaction_id == "":
-            self.transaction_id = None
 
     def save(self, *args, **kwargs):
         if self.transaction_id == "":

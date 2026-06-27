@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 
 from django.conf import settings
@@ -10,7 +11,10 @@ from django.views.decorators.http import require_POST
 
 from cart.models import Cart
 from coupons.models import Coupon
+from payments.models import Payment
 from .models import Order, OrderItem
+
+logger = logging.getLogger(__name__)
 
 
 @require_POST
@@ -96,11 +100,9 @@ def create_order(request):
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[order.user.email],
-            fail_silently=True,
+            fail_silently=False,
         )
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.warning("Failed to send order confirmation email: %s", e)
 
     messages.success(request, "Order placed successfully!")
@@ -137,7 +139,11 @@ def cancel_order(request, order_id):
         messages.error(request, "Only pending orders can be cancelled.")
         return redirect("orders:order_detail", order_id=order.id)
 
-    if hasattr(order, "payment") and order.payment.status == "COMPLETED":
+    try:
+        payment = order.payment
+    except Payment.DoesNotExist:
+        payment = None
+    if payment and payment.status == "COMPLETED":
         messages.error(request, "Cannot cancel an order that has already been paid.")
         return redirect("orders:order_detail", order_id=order.id)
 

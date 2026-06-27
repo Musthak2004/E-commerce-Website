@@ -1,28 +1,37 @@
 # E-commerce Website
 
-A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, payment handling, product reviews, and a refined shopping experience with subtle animations.
+A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, Stripe payment integration, coupon discounts, product reviews, wishlist, email verification, and a refined shopping experience with subtle animations.
 
 ## Features
 
-- **User Authentication** — Login, signup, password reset (email-based auth with `CustomUser` model)
+- **User Authentication** — Login, signup, password reset, email verification (token-based, `CustomUser` model with `is_email_verified` field)
 - **Role-Based Access** — Customer and Seller roles with profile management; redirects for authenticated users
-- **Product Management** — Sellers can create, edit, and delete products; product listing with pagination and images
+- **Product Management** — Sellers can create, edit, and delete products; product listing with pagination, images, and search
 - **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header; inline quantity controls
-- **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled)
-- **Payment Processing** — Record payments against orders with multiple payment methods and status tracking
+- **Wishlist** — Toggle products on/off wishlist; wishlist count badge in header
+- **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled), user-initiated cancellation
+- **Payment Processing** — Record payments against orders with Stripe Checkout integration, webhook confirmation, and status tracking
 - **Coupon System** — Discount coupons with fixed/percentage types, usage limits, validity dates; applied at checkout
 - **Product Reviews** — Customers can review products with ratings; duplicate-review prevention, linked from product detail and order detail pages
-- **About & Contact Pages** — Static information pages linked in header and footer
+- **Image Gallery** — Multiple product images with click-to-swap thumbnails
+- **Related Products** — Same-category product suggestions on detail page
+- **Category Filtering & Sorting** — Filter by category, sort by price/name/date on product list
+- **Contact Form** — Working contact form with DB storage and email notification
+- **Newsletter Signup** — Email capture with DB storage
+- **REST API** — Read-only API for products (Django REST Framework)
+- **Admin Dashboard** — Stats overview at `/admin/dashboard/`
 - **Responsive Design** — Works on desktop, tablet, and mobile
 - **Subtle Animations** — Fade-in/slide-up page entrances, staggered list reveals, image zoom on hover, button press micro-interactions (disabled for reduced-motion preference)
 
 ## Tech Stack
 
-- **Backend:** Django 6.0.6, Python 3.13
+- **Backend:** Django 6.0.6, Python 3.13, Django REST Framework 3.17.1
 - **Frontend:** HTML5, CSS3 (custom properties, keyframe animations), vanilla JavaScript, Font Awesome 6.5.1
 - **Fonts:** Playfair Display (headings), Outfit (body) — via Google Fonts
 - **Database:** SQLite (default)
 - **Auth:** `django.contrib.auth` with custom `AbstractUser` model (`USERNAME_FIELD = "email"`)
+- **Payments:** Stripe Checkout Sessions + Webhooks
+- **CI:** GitHub Actions
 
 ## Quick Start
 
@@ -36,7 +45,7 @@ python -m venv .venv
 .venv\Scripts\activate
 
 # Install dependencies
-pip install django pillow stripe
+pip install -r requirements.txt
 
 # Run migrations
 python manage.py migrate
@@ -89,12 +98,13 @@ python manage.py test reviews --verbosity=2
 
 ```
 ├── accounts/               # User auth app
-│   ├── models.py           # CustomUser (email-based), Profile
+│   ├── models.py           # CustomUser (email-based, is_email_verified), Profile
 │   ├── forms.py            # SignUpForm with duplicate email validation
-│   ├── views.py            # SignUpView (redirects authenticated users)
+│   ├── views.py            # SignUpView (sends verification email), VerifyEmailView, ProfileUpdateView
+│   ├── urls.py             # signup, profile, verify/<uidb64>/<token>/
 │   ├── admin.py            # CustomUserAdmin, ProfileAdmin
 │   ├── signals.py          # Auto-create Profile on user signup
-│   └── tests.py            # 33 tests
+│   └── tests.py            # 38 tests
 ├── cart/                   # Shopping cart app
 │   ├── models.py           # Cart, CartItem (UniqueConstraint, MinValueValidator)
 │   ├── views.py            # add_to_cart, remove_from_cart, update_quantity, cart_detail
@@ -106,8 +116,8 @@ python manage.py test reviews --verbosity=2
 │       └── cart_detail.html    # Items with qty controls, order summary, trust badges, empty state
 ├── orders/                 # Order management app
 │   ├── models.py           # Order (5 statuses), OrderItem (with total_price property)
-│   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail
-│   ├── urls.py             # 3 routes
+│   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail, cancel_order
+│   ├── urls.py             # 4 routes (includes cancel)
 │   ├── admin.py            # OrderAdmin with OrderItemInline
 │   ├── tests.py            # 41 tests
 │   └── templates/orders/
@@ -141,9 +151,17 @@ python manage.py test reviews --verbosity=2
 │   └── templates/reviews/
 │       ├── review_form.html      # Product summary card with styled rating selector
 │       └── review_detail.html    # Rating badge, 2-col meta grid, comment card
+├── api/                    # REST API
+│   ├── serializers.py      # ProductListSerializer, CategorySerializer
+│   ├── views.py            # ProductViewSet (ReadOnlyModelViewSet)
+│   └── urls.py             # Router with /products/ endpoint
 ├── pages/                  # Static page routing app
-│   ├── views.py            # HomePageView, AboutPageView, ContactPageView
-│   ├── urls.py             # Root + /about/ + /contact/
+│   ├── models.py           # ContactMessage, NewsletterSubscriber
+│   ├── forms.py            # ContactForm
+│   ├── views.py            # Home/About/ContactPageView, newsletter_signup
+│   ├── urls.py             # Root + /about/ + /contact/ + /newsletter/
+│   ├── admin.py            # ContactMessageAdmin, NewsletterSubscriberAdmin
+│   ├── admin_dashboard.py  # admin_dashboard view (staff-only stats)
 │   └── tests.py            # 4 tests
 ├── products/               # Product management app
 │   ├── models.py           # Category, Product, ProductImage (indexed, ordered)
@@ -160,12 +178,18 @@ python manage.py test reviews --verbosity=2
 ├── django_project/         # Project configuration
 │   ├── settings.py         # Installed apps, templates, auth, media config
 │   └── urls.py             # Root URLConf (includes all apps)
+├── .github/workflows/      # CI/CD
+│   └── ci.yml              # GitHub Actions: test on push/PR
 ├── templates/              # Project-level templates
 │   ├── base.html           # Layout: header (auth-aware nav, badges), search overlay, footer
 │   ├── home.html           # Hero, featured categories, stats, prompt assistant, CTA
 │   ├── about.html          # About page
-│   ├── contact.html        # Contact page with form
-│   └── registration/       # Login, signup, password reset (6 templates)
+│   ├── contact.html        # Contact page with working form
+│   ├── admin/
+│   │   └── dashboard.html  # Admin dashboard with stats cards
+│   ├── includes/
+│   │   └── breadcrumbs.html    # Reusable breadcrumb nav
+│   └── registration/       # Login, signup, password reset, email verified (7 templates)
 ├── static/
 │   ├── css/style.css       # Complete stylesheet (~2500 lines, animations, responsive)
 │   └── js/main.js          # Nav, search, password toggle, alert dismiss, prompt assistant

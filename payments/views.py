@@ -64,13 +64,15 @@ def payment_create(request, order_id):
         messages.error(request, "This order is not available for payment.")
         return redirect("orders:order_detail", order_id=order.id)
 
-    if hasattr(order, "payment"):
+    try:
         payment = order.payment
         if payment.status == "COMPLETED":
             messages.info(request, "This order has already been paid.")
             return redirect("payments:payment_detail", pk=payment.id)
         if payment.stripe_session_id:
             return redirect("payments:payment_detail", pk=payment.id)
+    except Payment.DoesNotExist:
+        pass
 
     total_cents = int(order.total_price * 100)
 

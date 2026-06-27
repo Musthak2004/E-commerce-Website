@@ -54,11 +54,11 @@ class Cart(models.Model):
 
     @property
     def total_price(self):
-
-        return sum(
-            item.total_price
-            for item in self.items.all()
+        from django.db.models import Sum, F
+        result = self.items.aggregate(
+            total=Sum(F("product__price") * F("quantity"))
         )
+        return result["total"] or 0
 
 
 class CartItem(models.Model):

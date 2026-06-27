@@ -28,7 +28,11 @@ class PaymentForm(forms.ModelForm):
         if self.order and self.order.total_price <= 0:
             raise ValidationError("Cannot process payment for a zero-value order.")
 
-        if self.order and hasattr(self.order, "payment"):
-            raise ValidationError("This order already has a payment record.")
+        if self.order:
+            try:
+                self.order.payment
+                raise ValidationError("This order already has a payment record.")
+            except Payment.DoesNotExist:
+                pass
 
         return method

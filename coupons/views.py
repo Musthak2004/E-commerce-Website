@@ -14,44 +14,22 @@ def apply_coupon(request):
     form = CouponApplyForm(request.POST)
 
     if form.is_valid():
-
         code = form.cleaned_data["code"]
 
         try:
-
-            coupon = Coupon.objects.get(
-                code__iexact=code,
-            )
-
+            coupon = Coupon.objects.get(code__iexact=code)
             if coupon.is_valid:
-
                 request.session["coupon_id"] = coupon.id
-
                 messages.success(
                     request,
                     f'Coupon "{coupon.code}" applied successfully.'
                 )
-
             else:
-
-                messages.error(
-                    request,
-                    "Coupon is invalid or expired."
-                )
-
+                messages.error(request, "Coupon is invalid or expired.")
         except Coupon.DoesNotExist:
-
-            messages.error(
-                request,
-                "Coupon not found."
-            )
-
+            messages.error(request, "Coupon not found.")
     else:
-
-        messages.error(
-            request,
-            "Please enter a valid coupon code."
-        )
+        messages.error(request, "Please enter a valid coupon code.")
 
     return redirect("cart:cart_detail")
 

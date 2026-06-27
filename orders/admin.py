@@ -24,6 +24,13 @@ class OrderAdmin(admin.ModelAdmin):
         "created_at",
     )
 
+    search_fields = (
+        "id",
+        "user__email",
+    )
+
+    list_select_related = ("user", "coupon")
+
     inlines = [
         OrderItemInline
     ]

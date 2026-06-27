@@ -52,7 +52,7 @@ class Review(models.Model):
                 name="unique_user_product_review"
             )
         ]
-        ordering = ["-created_at"]
+        ordering = ("-created_at",)
         verbose_name = "Review"
         verbose_name_plural = "Reviews"
 

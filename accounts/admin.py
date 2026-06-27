@@ -1,8 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser
-from .models import Profile
+from .models import CustomUser, Profile
 
 
 @admin.register(CustomUser)

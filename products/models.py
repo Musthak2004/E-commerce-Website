@@ -99,10 +99,16 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="images"
+        related_name="images",
+        db_index=True,
     )
 
     image = models.ImageField(upload_to="product_images/")
+
+    class Meta:
+        ordering = ("id",)
+        verbose_name = "Product Image"
+        verbose_name_plural = "Product Images"
 
     def __str__(self):
         return f"Image of {self.product.name}"

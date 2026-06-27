@@ -54,7 +54,7 @@ class Order(models.Model):
     )
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ("-created_at",)
         verbose_name = "Order"
         verbose_name_plural = "Orders"
 
@@ -86,7 +86,7 @@ class OrderItem(models.Model):
     )
 
     class Meta:
-        ordering = ["id"]
+        ordering = ("id",)
         verbose_name = "Order Item"
         verbose_name_plural = "Order Items"
 

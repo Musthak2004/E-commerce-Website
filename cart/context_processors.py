@@ -11,7 +11,7 @@ def cart_counts(request):
 
     cart = Cart.objects.filter(
         user=request.user
-    ).prefetch_related("items").first()
+    ).first()
 
     wishlist_count = 0
     try:

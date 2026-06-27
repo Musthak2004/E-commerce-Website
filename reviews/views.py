@@ -24,19 +24,19 @@ class ReviewCreateView(
 
     template_name = "reviews/review_form.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["product"] = get_object_or_404(
+    def get_product(self):
+        return get_object_or_404(
             Product,
             pk=self.kwargs["product_id"],
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["product"] = self.get_product()
         return context
 
     def form_valid(self, form):
-        product = get_object_or_404(
-            Product,
-            pk=self.kwargs["product_id"],
-        )
+        product = self.get_product()
 
         if Review.objects.filter(
             user=self.request.user,

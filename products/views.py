@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.views.generic import (
     ListView,
     DetailView,
@@ -21,6 +22,12 @@ class SellerRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.user_type == "SELLER"
 
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        from django.core.exceptions import PermissionDenied
+        raise PermissionDenied
+
 
 class ProductListView(ListView):
 
@@ -34,11 +41,24 @@ class ProductListView(ListView):
 
     def get_queryset(self):
 
-        return Product.objects.filter(
+        qs = Product.objects.filter(
             is_available=True
         ).select_related(
             "seller", "category"
         )
+
+        query = self.request.GET.get("q", "").strip()
+        if query:
+            qs = qs.filter(
+                Q(name__icontains=query) | Q(description__icontains=query)
+            )
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["query"] = self.request.GET.get("q", "").strip()
+        return context
 
 
 class ProductDetailView(DetailView):

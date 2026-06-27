@@ -8,6 +8,9 @@ from products.models import Category, Product
 from cart.models import Cart, CartItem
 from .models import Order, OrderItem
 from .views import create_order, order_detail, order_list
+from datetime import timedelta
+from django.utils import timezone
+from coupons.models import Coupon
 
 User = get_user_model()
 
@@ -226,6 +229,122 @@ class CreateOrderViewTests(TestCase):
         order = Order.objects.first()
         self.assertEqual(order.items.count(), 2)
         self.assertEqual(order.total_price, Decimal("55.00"))
+
+    def test_create_order_decrements_stock(self):
+        self.client.login(username="cust@example.com", password="pass123")
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=2)
+        self.client.post(reverse("orders:create_order"))
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 8)
+
+    def test_create_order_decrements_stock_for_multiple_items(self):
+        self.client.login(username="cust@example.com", password="pass123")
+        p2 = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Second", slug="second",
+            price=10, stock=20, is_available=True
+        )
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=2)
+        CartItem.objects.create(cart=self.cart, product=p2, quantity=3)
+        self.client.post(reverse("orders:create_order"))
+        self.product.refresh_from_db()
+        p2.refresh_from_db()
+        self.assertEqual(self.product.stock, 8)
+        self.assertEqual(p2.stock, 17)
+
+    def test_create_order_atomic_stock_check(self):
+        self.client.login(username="cust@example.com", password="pass123")
+        p2 = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Low Stock", slug="low-stock-2",
+            price=10, stock=2, is_available=True
+        )
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=2)
+        CartItem.objects.create(cart=self.cart, product=p2, quantity=5)
+        resp = self.client.post(reverse("orders:create_order"))
+        self.product.refresh_from_db()
+        p2.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
+        self.assertEqual(p2.stock, 2)
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_create_order_with_percentage_coupon(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="PCT20",
+            discount_type="PERCENTAGE",
+            discount_value=20,
+            valid_from=now - timedelta(days=1),
+            valid_to=now + timedelta(days=30),
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=2)
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        resp = self.client.post(reverse("orders:create_order"))
+        self.assertEqual(Order.objects.count(), 1)
+        order = Order.objects.first()
+        self.assertEqual(order.discount_amount, Decimal("10.00"))
+        self.assertEqual(order.total_price, Decimal("40.00"))
+        self.assertEqual(order.coupon, coupon)
+
+    def test_create_order_with_fixed_coupon(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="FIXED5",
+            discount_type="FIXED",
+            discount_value=5,
+            valid_from=now - timedelta(days=1),
+            valid_to=now + timedelta(days=30),
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=2)
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        resp = self.client.post(reverse("orders:create_order"))
+        order = Order.objects.first()
+        self.assertEqual(order.discount_amount, Decimal("5.00"))
+        self.assertEqual(order.total_price, Decimal("45.00"))
+        self.assertEqual(order.coupon, coupon)
+
+    def test_create_order_coupon_used_count_incremented(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="USEME",
+            discount_type="PERCENTAGE",
+            discount_value=10,
+            valid_from=now - timedelta(days=1),
+            valid_to=now + timedelta(days=30),
+            usage_limit=10,
+            used_count=0,
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=1)
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        self.client.post(reverse("orders:create_order"))
+        coupon.refresh_from_db()
+        self.assertEqual(coupon.used_count, 1)
+
+    def test_create_order_coupon_cleared_from_session(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="CLEARME",
+            discount_type="PERCENTAGE",
+            discount_value=10,
+            valid_from=now - timedelta(days=1),
+            valid_to=now + timedelta(days=30),
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        CartItem.objects.create(cart=self.cart, product=self.product, quantity=1)
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        self.client.post(reverse("orders:create_order"))
+        self.assertNotIn("coupon_id", self.client.session)
 
 
 class OrderDetailViewTests(TestCase):

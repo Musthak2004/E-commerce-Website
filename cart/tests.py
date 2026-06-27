@@ -3,7 +3,7 @@ from django.urls import reverse, resolve
 from django.contrib.auth import get_user_model
 
 from products.models import Category, Product
-from .models import Cart, CartItem
+from .models import Cart, CartItem, Wishlist
 from .views import add_to_cart, remove_from_cart, update_quantity, cart_detail
 from .context_processors import cart_counts
 
@@ -423,7 +423,7 @@ class CartContextProcessorTests(TestCase):
         request = type("Request", (), {"user": self.user})()
         result = cart_counts(request)
         self.assertEqual(result["cart_count"], 0)
-        self.assertIsNone(result["wishlist_count"])
+        self.assertEqual(result["wishlist_count"], 0)
 
     def test_authenticated_user_with_cart_items(self):
         cart = Cart.objects.create(user=self.user)
@@ -431,11 +431,66 @@ class CartContextProcessorTests(TestCase):
         request = type("Request", (), {"user": self.user})()
         result = cart_counts(request)
         self.assertEqual(result["cart_count"], 1)
-        self.assertIsNone(result["wishlist_count"])
+        self.assertEqual(result["wishlist_count"], 0)
 
     def test_authenticated_user_with_empty_cart(self):
         Cart.objects.create(user=self.user)
         request = type("Request", (), {"user": self.user})()
         result = cart_counts(request)
         self.assertEqual(result["cart_count"], 0)
-        self.assertIsNone(result["wishlist_count"])
+        self.assertEqual(result["wishlist_count"], 0)
+
+    def test_wishlist_count_in_context_processor(self):
+        wishlist = Wishlist.objects.create(user=self.user)
+        wishlist.products.add(self.product)
+        request = type("Request", (), {"user": self.user})()
+        result = cart_counts(request)
+        self.assertEqual(result["wishlist_count"], 1)
+
+
+class WishlistViewTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_w", email="seller_w@example.com",
+            password="pass123", user_type="SELLER"
+        )
+        self.cat = Category.objects.create(name="Test", slug="test")
+        self.product = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Wishlist Product", slug="wishlist-product",
+            price=25.00, stock=10, is_available=True
+        )
+        self.unavailable = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Gone", slug="gone",
+            price=10, stock=0, is_available=False
+        )
+        self.user = User.objects.create_user(
+            username="cust_w", email="cust_w@example.com", password="pass123"
+        )
+
+    def test_toggle_adds_to_wishlist(self):
+        self.client.login(username="cust_w@example.com", password="pass123")
+        resp = self.client.post(reverse("cart:toggle_wishlist", args=[self.product.id]))
+        self.assertRedirects(resp, reverse("products:product_list"))
+        wishlist = Wishlist.objects.get(user=self.user)
+        self.assertIn(self.product, wishlist.products.all())
+
+    def test_toggle_removes_from_wishlist(self):
+        self.client.login(username="cust_w@example.com", password="pass123")
+        wishlist = Wishlist.objects.create(user=self.user)
+        wishlist.products.add(self.product)
+        self.client.post(reverse("cart:toggle_wishlist", args=[self.product.id]))
+        wishlist.refresh_from_db()
+        self.assertNotIn(self.product, wishlist.products.all())
+
+    def test_toggle_redirects_anonymous(self):
+        resp = self.client.post(reverse("cart:toggle_wishlist", args=[self.product.id]))
+        self.assertRedirects(
+            resp, f"{reverse('login')}?next={reverse('cart:toggle_wishlist', args=[self.product.id])}"
+        )
+
+    def test_toggle_unavailable_product_returns_404(self):
+        self.client.login(username="cust_w@example.com", password="pass123")
+        resp = self.client.post(reverse("cart:toggle_wishlist", args=[self.unavailable.id]))
+        self.assertEqual(resp.status_code, 404)

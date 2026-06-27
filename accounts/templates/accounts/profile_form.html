@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile — ShopEase{% endblock %}
+
+{% block content %}
+<style>
+.profile-page {
+  min-height : 100vh;
+  padding    : 40px 16px 80px;
+}
+
+.profile-inner {
+  max-width : 640px;
+  margin    : 0 auto;
+}
+
+.profile-header {
+  margin-bottom : 32px;
+}
+
+.profile-header h1 {
+  font-size      : clamp(1.4rem, 3vw, 1.8rem);
+  font-weight    : 800;
+  letter-spacing : -.4px;
+  color          : var(--text);
+  margin         : 0 0 4px;
+}
+
+.profile-header p {
+  font-size : .9rem;
+  color     : var(--text-secondary);
+  margin    : 0;
+}
+</style>
+
+<div class="profile-page">
+  <div class="profile-inner">
+    <div class="profile-header">
+      <h1>My Profile</h1>
+      <p>Update your personal information and shipping address.</p>
+    </div>
+
+    <div class="form-card">
+      <form class="styled-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="id_full_name">Full Name</label>
+          <input type="text" name="full_name" id="id_full_name" placeholder="Your full name"{% if form.full_name.errors %} class="error"{% endif %} value="{{ form.full_name.value|default:'' }}">
+          {% if form.full_name.errors %}
+            <ul class="errorlist">{% for error in form.full_name.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="id_address">Address</label>
+          <textarea name="address" id="id_address" placeholder="Street address" rows="3"{% if form.address.errors %} class="error"{% endif %}>{{ form.address.value|default:'' }}</textarea>
+          {% if form.address.errors %}
+            <ul class="errorlist">{% for error in form.address.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+
+        <div class="field-row">
+          <div class="form-group">
+            <label for="id_city">City</label>
+            <input type="text" name="city" id="id_city" placeholder="City"{% if form.city.errors %} class="error"{% endif %} value="{{ form.city.value|default:'' }}">
+            {% if form.city.errors %}
+              <ul class="errorlist">{% for error in form.city.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_country">Country</label>
+            <input type="text" name="country" id="id_country" placeholder="Country"{% if form.country.errors %} class="error"{% endif %} value="{{ form.country.value|default:'' }}">
+            {% if form.country.errors %}
+              <ul class="errorlist">{% for error in form.country.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_postal_code">Postal Code</label>
+            <input type="text" name="postal_code" id="id_postal_code" placeholder="Postal code"{% if form.postal_code.errors %} class="error"{% endif %} value="{{ form.postal_code.value|default:'' }}">
+            {% if form.postal_code.errors %}
+              <ul class="errorlist">{% for error in form.postal_code.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="id_profile_picture">Profile Picture</label>
+          <input type="file" name="profile_picture" id="id_profile_picture" accept="image/*"{% if form.profile_picture.errors %} class="error"{% endif %}>
+          {% if form.profile_picture.errors %}
+            <ul class="errorlist">{% for error in form.profile_picture.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes <i class="fas fa-check"></i></button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

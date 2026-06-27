@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 
 from .models import Profile
 from .forms import SignUpForm
-from .views import SignUpView
+from .views import ProfileUpdateView, SignUpView
 
 User = get_user_model()
 
@@ -301,3 +301,50 @@ class AuthURLTests(TestCase):
         self.client.login(username="logout@example.com", password="pass123")
         response = self.client.post(reverse("logout"))
         self.assertEqual(response.status_code, 302)
+
+
+class ProfileUpdateViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="profileuser",
+            email="profile@example.com",
+            password="pass123"
+        )
+
+    def test_profile_get_redirects_anonymous(self):
+        resp = self.client.get(reverse("profile"))
+        self.assertRedirects(
+            resp, f"{reverse('login')}?next={reverse('profile')}"
+        )
+
+    def test_profile_get_status_code(self):
+        self.client.login(username="profile@example.com", password="pass123")
+        resp = self.client.get(reverse("profile"))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_profile_get_uses_correct_template(self):
+        self.client.login(username="profile@example.com", password="pass123")
+        resp = self.client.get(reverse("profile"))
+        self.assertTemplateUsed(resp, "accounts/profile_form.html")
+
+    def test_profile_update(self):
+        self.client.login(username="profile@example.com", password="pass123")
+        resp = self.client.post(reverse("profile"), {
+            "full_name": "John Doe",
+            "address": "123 Main St",
+            "city": "New York",
+            "country": "USA",
+            "postal_code": "10001",
+        })
+        self.assertRedirects(resp, reverse("home"))
+        self.user.profile.refresh_from_db()
+        self.assertEqual(self.user.profile.full_name, "John Doe")
+        self.assertEqual(self.user.profile.city, "New York")
+
+    def test_profile_auto_created(self):
+        self.client.login(username="profile@example.com", password="pass123")
+        Profile.objects.filter(user=self.user).delete()
+        self.assertFalse(Profile.objects.filter(user=self.user).exists())
+        resp = self.client.get(reverse("profile"))
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(Profile.objects.filter(user=self.user).exists())

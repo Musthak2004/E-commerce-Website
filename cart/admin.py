@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import (
     Cart,
     CartItem,
+    Wishlist,
 )
 
 
@@ -70,3 +71,24 @@ class CartItemAdmin(
     list_filter = ("product",)
 
     readonly_fields = ("total_price",)
+
+
+@admin.register(Wishlist)
+class WishlistAdmin(
+    admin.ModelAdmin
+):
+
+    list_display = (
+        "user",
+        "item_count",
+    )
+
+    list_select_related = ("user",)
+
+    search_fields = ("user__email",)
+
+    filter_horizontal = ("products",)
+
+    @admin.display(description="Items")
+    def item_count(self, obj):
+        return obj.products.count()

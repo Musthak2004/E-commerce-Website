@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -142,6 +143,50 @@ class CouponModelTests(TestCase):
         )
         with self.assertRaises(Exception):
             coupon.save()
+
+    def test_get_discount_percentage(self):
+        coupon = Coupon.objects.create(
+            code="PCT20", discount_type="PERCENTAGE", discount_value=20,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("100.00")), Decimal("20.00"))
+
+    def test_get_discount_fixed(self):
+        coupon = Coupon.objects.create(
+            code="FIXED5", discount_type="FIXED", discount_value=5,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("100.00")), Decimal("5.00"))
+
+    def test_get_discount_percentage_with_max(self):
+        coupon = Coupon.objects.create(
+            code="PCT50MAX30", discount_type="PERCENTAGE", discount_value=50,
+            maximum_discount=30,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("100.00")), Decimal("30.00"))
+
+    def test_get_discount_fixed_does_not_exceed_total(self):
+        coupon = Coupon.objects.create(
+            code="FIXED10", discount_type="FIXED", discount_value=10,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("5.00")), Decimal("5.00"))
+
+    def test_get_discount_below_minimum(self):
+        coupon = Coupon.objects.create(
+            code="MIN50", discount_type="PERCENTAGE", discount_value=20,
+            minimum_order_amount=50,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("30.00")), Decimal("0.00"))
+
+    def test_get_discount_percentage_over_100_capped(self):
+        coupon = Coupon.objects.create(
+            code="PCT100", discount_type="PERCENTAGE", discount_value=100,
+            valid_from=self.now - timedelta(days=1), valid_to=self.now + timedelta(days=30),
+        )
+        self.assertEqual(coupon.get_discount(Decimal("100.00")), Decimal("100.00"))
 
 
 class CouponApplyFormTests(TestCase):

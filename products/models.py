@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 
 from accounts.models import CustomUser
 
@@ -65,6 +66,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def average_rating(self):
+        result = self.reviews.aggregate(avg=Avg("rating"))
+        return result["avg"]
+
+    @property
+    def review_count(self):
+        return self.reviews.count()
 
 class ProductImage(models.Model):
 

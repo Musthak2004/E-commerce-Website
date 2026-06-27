@@ -233,6 +233,38 @@ class ProductListViewTests(TestCase):
         resp = self.client.get(reverse("products:product_list"))
         self.assertEqual(resp.context["object_list"].count(), 1)
 
+    def test_search_by_name(self):
+        p = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Test Product", slug="test-product",
+            price=15, stock=3, is_available=True,
+        )
+        resp = self.client.get(reverse("products:product_list"), {"q": "Test"})
+        self.assertIn(p, resp.context["products"])
+
+    def test_search_by_description(self):
+        p = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Searchable", slug="searchable",
+            price=10, stock=5, is_available=True,
+            description="This product has a keyword in the description.",
+        )
+        resp = self.client.get(reverse("products:product_list"), {"q": "keyword"})
+        self.assertIn(p, resp.context["products"])
+
+    def test_search_no_results(self):
+        resp = self.client.get(reverse("products:product_list"), {"q": "xyzzy"})
+        self.assertEqual(resp.context["products"].count(), 0)
+
+    def test_search_empty_query(self):
+        resp = self.client.get(reverse("products:product_list"), {"q": ""})
+        self.assertEqual(resp.context["products"].count(), 1)
+        self.assertIn(self.p1, resp.context["products"])
+
+    def test_search_context_has_query(self):
+        resp = self.client.get(reverse("products:product_list"), {"q": "Available"})
+        self.assertEqual(resp.context["query"], "Available")
+
 
 class ProductDetailViewTests(TestCase):
     def setUp(self):

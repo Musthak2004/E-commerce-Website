@@ -1,10 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView
 
-from .forms import SignUpForm
-from .models import CustomUser
+from .forms import ProfileForm, SignUpForm
+from .models import CustomUser, Profile
 
 
 class SignUpView(CreateView):
@@ -23,3 +23,19 @@ class SignUpView(CreateView):
             return redirect("home")
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+
+    model = Profile
+
+    form_class = ProfileForm
+
+    template_name = "accounts/profile_form.html"
+
+    def get_object(self, queryset=None):
+        profile, _ = Profile.objects.get_or_create(user=self.request.user)
+        return profile
+
+    def get_success_url(self):
+        return reverse_lazy("home")

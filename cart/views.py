@@ -17,6 +17,7 @@ from coupons.models import Coupon
 from .models import (
     Cart,
     CartItem,
+    Wishlist,
 )
 
 from products.models import Product
@@ -143,17 +144,24 @@ def cart_detail(
     ).first()
 
     coupon = None
+    discount_amount = 0
+    total_after_discount = 0
 
-    coupon_id = request.session.get("coupon_id")
+    if cart:
+        coupon_id = request.session.get("coupon_id")
 
-    if coupon_id:
-        try:
-            coupon = Coupon.objects.get(
-                id=coupon_id,
-                is_active=True,
-            )
-        except Coupon.DoesNotExist:
-            del request.session["coupon_id"]
+        if coupon_id:
+            try:
+                coupon = Coupon.objects.get(
+                    id=coupon_id,
+                    is_active=True,
+                )
+                if coupon.is_valid:
+                    discount_amount = coupon.get_discount(cart.total_price)
+            except Coupon.DoesNotExist:
+                del request.session["coupon_id"]
+
+        total_after_discount = max(cart.total_price - discount_amount, 0)
 
     return render(
         request,
@@ -161,5 +169,24 @@ def cart_detail(
         {
             "cart": cart,
             "coupon": coupon,
+            "discount_amount": discount_amount,
+            "total_after_discount": total_after_discount,
         }
     )
+
+
+@require_POST
+@login_required
+def toggle_wishlist(request, product_id):
+
+    product = get_object_or_404(Product, id=product_id, is_available=True)
+    wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+
+    if wishlist.products.filter(id=product_id).exists():
+        wishlist.products.remove(product)
+        messages.success(request, f"{product.name} removed from your wishlist.")
+    else:
+        wishlist.products.add(product)
+        messages.success(request, f"{product.name} added to your wishlist.")
+
+    return redirect(request.META.get("HTTP_REFERER", "products:product_list"))

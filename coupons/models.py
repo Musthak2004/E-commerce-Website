@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -80,6 +82,18 @@ class Coupon(models.Model):
             and self.valid_from <= now <= self.valid_to
             and self.used_count < self.usage_limit
         )
+
+    def get_discount(self, total):
+        if total < self.minimum_order_amount:
+            return Decimal("0.00")
+        if self.discount_type == "PERCENTAGE":
+            discount = total * (self.discount_value / Decimal("100"))
+            if self.maximum_discount is not None:
+                discount = min(discount, self.maximum_discount)
+            return discount
+        elif self.discount_type == "FIXED":
+            return min(self.discount_value, total)
+        return Decimal("0.00")
 
     def clean(self):
         if self.valid_from and self.valid_to and self.valid_from >= self.valid_to:

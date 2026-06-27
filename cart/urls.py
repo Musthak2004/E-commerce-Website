@@ -2,9 +2,10 @@ from django.urls import path
 
 from .views import (
     add_to_cart,
-    remove_from_cart,
-    update_quantity,
     cart_detail,
+    remove_from_cart,
+    toggle_wishlist,
+    update_quantity,
 )
 
 app_name = "cart"
@@ -33,5 +34,11 @@ urlpatterns = [
         "update/<int:item_id>/",
         update_quantity,
         name="update_quantity"
+    ),
+
+    path(
+        "wishlist/toggle/<int:product_id>/",
+        toggle_wishlist,
+        name="toggle_wishlist"
     ),
 ]

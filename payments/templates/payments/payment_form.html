@@ -2,142 +2,24 @@
 {% load static %}
 
 {% block title %}Checkout — ShopEase{% endblock %}
-{% block meta_description %}Complete your payment securely.{% endblock %}
 
 {% block content %}
-
-<style>
-/* ── Payment Form ── */
-.payment-summary {
-  background    : var(--bg-card);
-  border        : 1px solid var(--border);
-  border-radius : var(--radius);
-  padding       : 20px;
-  margin-bottom : 24px;
-  animation     : fadeInUp .35s ease both;
-}
-
-.payment-summary h3 {
-  font-size      : .8rem;
-  font-weight    : 700;
-  text-transform : uppercase;
-  letter-spacing : .6px;
-  color          : var(--text-muted);
-  margin         : 0 0 12px;
-}
-
-.payment-summary-row {
-  display         : flex;
-  justify-content : space-between;
-  align-items     : center;
-  padding         : 8px 0;
-}
-
-.payment-summary-row + .payment-summary-row {
-  border-top : 1px solid var(--border-light);
-}
-
-.payment-summary-row dt {
-  font-size   : .85rem;
-  color       : var(--text-secondary);
-  font-weight : 500;
-}
-
-.payment-summary-row dd {
-  font-size   : .9rem;
-  font-weight : 600;
-  color       : var(--text);
-  margin      : 0;
-}
-
-.payment-summary-total {
-  padding-top : 12px;
-}
-
-.payment-summary-total dt {
-  font-size   : 1rem;
-  font-weight : 700;
-  color       : var(--text);
-}
-
-.payment-summary-total dd {
-  font-size   : 1.25rem;
-  font-weight : 900;
-  color       : var(--accent);
-}
-</style>
-
 <section class="form-page">
-  <div class="form-card anim-up">
-    <div class="form-card-header">
-      <a href="{% url 'orders:order_detail' order.id %}" class="back-link">
-        <i class="fas fa-arrow-left"></i> Back to Order
-      </a>
-      <h1>Checkout</h1>
-      <p>Complete your payment securely.</p>
+  <div class="form-card anim-up" style="text-align:center;padding:48px 32px;">
+    <div style="font-size:3rem;color:var(--accent);margin-bottom:20px;">
+      <i class="fas fa-lock"></i>
     </div>
-
-    {% if messages %}
-      {% for message in messages %}
-        <div class="{% if message.tags == 'error' %}alert-error{% else %}alert-{{ message.tags }}{% endif %}" style="margin-bottom:20px;padding:12px 16px;border-radius:10px;font-size:0.85rem;">
-          <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
-          {{ message }}
-        </div>
-      {% endfor %}
-    {% endif %}
-
-    <div class="payment-summary">
-      <h3><i class="fas fa-receipt"></i> Order Summary</h3>
-      <dl>
-        <div class="payment-summary-row">
-          <dt>Order</dt>
-          <dd>#{{ order.id }}</dd>
-        </div>
-        <div class="payment-summary-row">
-          <dt>Items</dt>
-          <dd>{{ order.items.count }} item{{ order.items.count|pluralize }}</dd>
-        </div>
-        <div class="payment-summary-row payment-summary-total">
-          <dt>Total</dt>
-          <dd>${{ order.total_price }}</dd>
-        </div>
-      </dl>
-    </div>
-
-    <form class="styled-form" method="post">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-        <div class="alert-error">
-          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
-        </div>
-      {% endif %}
-
-      {% for field in form %}
-        <div class="form-group anim-fadein" style="--i:{{ forloop.counter0 }}; animation-delay: calc(0.1s + var(--i, 0) * 40ms);">
-          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field }}
-          {% if field.help_text %}
-            <span class="helptext">{{ field.help_text }}</span>
-          {% endif %}
-          {% if field.errors %}
-            <ul class="errorlist">
-              {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
-            </ul>
-          {% endif %}
-        </div>
-      {% endfor %}
-
-      <div class="form-actions">
-        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-secondary">
-          Cancel
-        </a>
-        <button type="submit" class="btn btn-primary">
-          <i class="fas fa-lock"></i> Pay Now
-        </button>
-      </div>
-    </form>
+    <h1 style="margin:0 0 8px;">Redirecting to Checkout</h1>
+    <p style="color:var(--text-secondary);margin:0 0 32px;font-size:1rem;">
+      You'll be redirected to Stripe's secure checkout to complete your payment.
+    </p>
+    <div class="spinner" style="width:40px;height:40px;margin:0 auto 24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;"></div>
+    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Order
+    </a>
   </div>
 </section>
-
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
 {% endblock %}

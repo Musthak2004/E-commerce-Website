@@ -1,5 +1,7 @@
 from decimal import Decimal
+from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -120,12 +122,6 @@ class PaymentFormTests(TestCase):
 class PaymentCreateViewTests(TestCase):
 
     def setUp(self):
-        self.seller = User.objects.create_user(
-            username="pay_create_seller",
-            email="pay_create_seller@example.com",
-            password="pass123",
-            user_type="SELLER",
-        )
         self.user = User.objects.create_user(
             username="pay_create_cust",
             email="pay_create_cust@example.com",
@@ -152,39 +148,53 @@ class PaymentCreateViewTests(TestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
 
-    def test_get_uses_correct_template(self):
-        self.client.login(username="pay_create_cust@example.com", password="pass123")
-        url = reverse("payments:payment_create", args=[self.order.id])
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertTemplateUsed(resp, "payments/payment_form.html")
-
-    def test_context_contains_order(self):
-        self.client.login(username="pay_create_cust@example.com", password="pass123")
-        url = reverse("payments:payment_create", args=[self.order.id])
-        resp = self.client.get(url)
-        self.assertEqual(resp.context["order"], self.order)
-
-    def test_successful_payment_creation(self):
-        self.client.login(username="pay_create_cust@example.com", password="pass123")
-        url = reverse("payments:payment_create", args=[self.order.id])
-        resp = self.client.post(url, {"payment_method": "CARD"})
-        self.assertRedirects(resp, reverse("payments:payment_detail", args=[Payment.objects.first().pk]))
-        self.assertTrue(Payment.objects.filter(order=self.order).exists())
-
-    def test_duplicate_payment_redirects(self):
-        self.client.login(username="pay_create_cust@example.com", password="pass123")
-        url = reverse("payments:payment_create", args=[self.order.id])
-        Payment.objects.create(order=self.order, amount=Decimal("50.00"), payment_method="CARD")
-        resp = self.client.post(url, {"payment_method": "PAYPAL"})
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn("already has a payment record", resp.content.decode())
-
     def test_nonexistent_order_returns_404(self):
         self.client.login(username="pay_create_cust@example.com", password="pass123")
         url = reverse("payments:payment_create", args=[9999])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
+
+    def test_redirects_to_stripe_checkout(self):
+        self.client.login(username="pay_create_cust@example.com", password="pass123")
+        url = reverse("payments:payment_create", args=[self.order.id])
+        with patch("stripe.checkout.Session.create") as mock_session:
+            mock_session.return_value.id = "cs_test_123"
+            mock_session.return_value.url = "https://checkout.stripe.com/test"
+            resp = self.client.get(url, follow=False)
+            self.assertEqual(resp.status_code, 302)
+            self.assertTrue(resp.url.startswith("https://checkout.stripe.com/"))
+
+    def test_creates_payment_record(self):
+        self.client.login(username="pay_create_cust@example.com", password="pass123")
+        url = reverse("payments:payment_create", args=[self.order.id])
+        with patch("stripe.checkout.Session.create") as mock_session:
+            mock_session.return_value.id = "cs_test_456"
+            mock_session.return_value.url = "https://checkout.stripe.com/test"
+            self.client.get(url)
+            self.assertTrue(Payment.objects.filter(order=self.order).exists())
+            payment = Payment.objects.get(order=self.order)
+            self.assertEqual(payment.stripe_session_id, "cs_test_456")
+            self.assertEqual(payment.status, "PENDING")
+
+    def test_duplicate_payment_redirects(self):
+        Payment.objects.create(
+            order=self.order,
+            amount=Decimal("50.00"),
+            payment_method="CARD",
+            status="COMPLETED",
+        )
+        self.client.login(username="pay_create_cust@example.com", password="pass123")
+        url = reverse("payments:payment_create", args=[self.order.id])
+        resp = self.client.get(url)
+        self.assertRedirects(resp, reverse("payments:payment_detail", args=[self.order.payment.pk]))
+
+    def test_completed_order_redirects_with_message(self):
+        self.order.status = "DELIVERED"
+        self.order.save()
+        self.client.login(username="pay_create_cust@example.com", password="pass123")
+        url = reverse("payments:payment_create", args=[self.order.id])
+        resp = self.client.get(url, follow=True)
+        self.assertRedirects(resp, reverse("orders:order_detail", args=[self.order.id]))
 
 
 class PaymentDetailViewTests(TestCase):

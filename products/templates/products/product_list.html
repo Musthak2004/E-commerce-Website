@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Products — ShopEase{% endblock %}
+{% block title %}{% if query %}Search: {{ query }} — {% endif %}Products — ShopEase{% endblock %}
 
 {% block content %}
 
 <section class="section">
     <div class="section-header anim-up">
         <div>
-            <h2>Products</h2>
-            <p>Browse our curated collection of premium essentials.</p>
+            <h2>{% if query %}Results for "{{ query }}"{% else %}Products{% endif %}</h2>
+            <p>{% if query %}Showing results for your search{% else %}Browse our curated collection of premium essentials.{% endif %}</p>
         </div>
         {% if user.is_authenticated and user.user_type == "SELLER" %}
             <a href="{% url 'products:product_create' %}" class="btn btn-primary">
@@ -35,6 +35,14 @@
                     <div class="product-card-body">
                         <span class="product-category">{{ product.category.name|default:"General" }}</span>
                         <h3>{{ product.name }}</h3>
+                        {% if product.average_rating %}
+                        <div class="product-rating">
+                          {% for i in "12345" %}
+                            <i class="fas fa-star{% if forloop.counter > product.average_rating %}-o text-muted{% endif %}" style="color:{% if forloop.counter <= product.average_rating %}var(--accent){% else %}var(--text-muted){% endif %};font-size:.75rem;"></i>
+                          {% endfor %}
+                          <span style="font-size:.75rem;color:var(--text-muted);margin-left:4px;">({{ product.review_count }})</span>
+                        </div>
+                        {% endif %}
                         <span class="product-price">${{ product.price }}</span>
                     </div>
                 </a>
@@ -58,9 +66,14 @@
         {% endif %}
     {% else %}
         <div class="empty-state anim-scale">
-            <i class="fas fa-box-open"></i>
-            <h3>No products yet</h3>
-            <p>Check back soon for new arrivals.</p>
+            <i class="fas fa-{% if query %}search{% else %}box-open{% endif %}"></i>
+            <h3>{% if query %}No results found{% else %}No products yet{% endif %}</h3>
+            <p>{% if query %}Try a different search term or browse our full collection.{% else %}Check back soon for new arrivals.{% endif %}</p>
+            {% if query %}
+            <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Browse All Products
+            </a>
+            {% endif %}
         </div>
     {% endif %}
 </section>

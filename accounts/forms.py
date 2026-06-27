@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import CustomUser
+from .models import CustomUser, Profile
 
 
 class SignUpForm(UserCreationForm):
@@ -27,3 +27,19 @@ class SignUpForm(UserCreationForm):
             raise forms.ValidationError("A user with this email already exists.")
 
         return email
+
+
+class ProfileForm(forms.ModelForm):
+
+    class Meta:
+
+        model = Profile
+
+        fields = (
+            "full_name",
+            "address",
+            "city",
+            "country",
+            "postal_code",
+            "profile_picture",
+        )

@@ -37,6 +37,13 @@ class Payment(models.Model):
         choices=PAYMENT_METHODS
     )
 
+    stripe_session_id = models.CharField(
+        max_length=255,
+        unique=True,
+        null=True,
+        blank=True
+    )
+
     transaction_id = models.CharField(
         max_length=255,
         unique=True,

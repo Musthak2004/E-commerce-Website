@@ -1,4 +1,4 @@
-from .models import Cart
+from .models import Cart, Wishlist
 
 
 def cart_counts(request):
@@ -13,7 +13,14 @@ def cart_counts(request):
         user=request.user
     ).prefetch_related("items").first()
 
+    wishlist_count = 0
+    try:
+        wishlist = Wishlist.objects.get(user=request.user)
+        wishlist_count = wishlist.products.count()
+    except Wishlist.DoesNotExist:
+        pass
+
     return {
         "cart_count": cart.items.count() if cart else 0,
-        "wishlist_count": None,
+        "wishlist_count": wishlist_count,
     }

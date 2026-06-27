@@ -10,6 +10,7 @@ A Django-based e-commerce platform with a warm gold-themed UI. Features user aut
 - **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header; inline quantity controls
 - **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled)
 - **Payment Processing** — Record payments against orders with multiple payment methods and status tracking
+- **Coupon System** — Discount coupons with fixed/percentage types, usage limits, validity dates; applied at checkout
 - **Product Reviews** — Customers can review products with ratings; duplicate-review prevention, linked from product detail and order detail pages
 - **About & Contact Pages** — Static information pages linked in header and footer
 - **Responsive Design** — Works on desktop, tablet, and mobile
@@ -35,7 +36,7 @@ python -m venv .venv
 .venv\Scripts\activate
 
 # Install dependencies
-pip install django pillow
+pip install django pillow stripe
 
 # Run migrations
 python manage.py migrate
@@ -57,17 +58,18 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
-The project has **182 tests** across seven apps:
+The project has **280 tests** across eight apps:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
-| accounts | 33 | Models, forms, views, signals, URLs, auth flow |
+| accounts | 38 | Models, forms, views, signals, URLs, auth flow |
 | pages | 4 | URL resolution, template rendering |
-| products | 50 | Models, forms, permissions, CRUD workflow, URL routing |
-| cart | 54 | Models, URL resolution, add/remove/update views, cart detail, context processor |
-| orders | 41 | Models, URL resolution, create order (stock validation, atomicity), order detail, order list |
-| payments | 0 | No tests yet |
-| reviews | 0 | No tests yet |
+| products | 55 | Models, forms, permissions, CRUD workflow, URL routing, search |
+| cart | 59 | Models, URL resolution, add/remove/update views, cart detail, context processor, wishlist |
+| orders | 48 | Models, URL resolution, create order (stock validation, atomicity, coupons), order detail, order list |
+| coupons | 31 | Models (discount logic, validation), forms, views (apply/remove), session management |
+| payments | 21 | Models, forms (duplicate-payment prevention), create/detail views, ownership enforcement |
+| reviews | 24 | Models, forms (rating/comment validation), create (duplicate-check), detail view |
 
 ```bash
 # Run all tests
@@ -111,13 +113,21 @@ python manage.py test reviews --verbosity=2
 │   └── templates/orders/
 │       ├── order_list.html      # Card-based history with status badges
 │       └── order_detail.html    # Contact card, items table, summary panel
+├── coupons/                # Coupon/discount app
+│   ├── models.py           # Coupon (code, discount type/value, dates, usage limit/used)
+│   ├── forms.py            # CouponApplyForm (normalizes to uppercase)
+│   ├── views.py            # apply_coupon, remove_coupon (session-based)
+│   ├── urls.py             # 2 routes
+│   ├── admin.py            # CouponAdmin with filters
+│   ├── tests.py            # 31 tests
+│   └── templates/coupons/  # (coupon form rendered inside cart detail)
 ├── payments/               # Payment processing app
 │   ├── models.py           # Payment (OneToOneField to Order, status/method tracking)
-│   ├── forms.py            # PaymentForm with duplicate-payment validation
-│   ├── views.py            # PaymentCreateView, PaymentDetailView (ownership enforced)
+│   ├── forms.py            # PaymentForm with duplicate-payment & zero-value validation
+│   ├── views.py            # PaymentCreateView (Stripe redirect), PaymentDetailView (ownership enforced)
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # PaymentAdmin with list filters
-│   ├── tests.py            # 0 tests (pending)
+│   ├── tests.py            # 21 tests
 │   └── templates/payments/
 │       ├── payment_form.html    # Checkout with order summary and payment method selection
 │       └── payment_detail.html  # Payment receipt with status badge and info cards
@@ -127,7 +137,7 @@ python manage.py test reviews --verbosity=2
 │   ├── views.py            # ReviewCreateView (duplicate-check), ReviewDetailView
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # ReviewAdmin with user email search
-│   ├── tests.py            # 0 tests (pending)
+│   ├── tests.py            # 24 tests
 │   └── templates/reviews/
 │       ├── review_form.html      # Product summary card with styled rating selector
 │       └── review_detail.html    # Rating badge, 2-col meta grid, comment card

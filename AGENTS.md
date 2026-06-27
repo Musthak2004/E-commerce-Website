@@ -15,6 +15,7 @@ python manage.py runserver
 | Run all tests | `python manage.py test --verbosity=2` |
 | Test single app | `python manage.py test <app> --verbosity=2` |
 | After adding/editing models | `python manage.py makemigrations <app>` then `python manage.py migrate` |
+| Install dependencies | `.venv\Scripts\pip install -r requirements.txt` or `pip install django pillow stripe` |
 | Superuser | `python manage.py createsuperuser` |
 
 No linters, formatters, or pre-commit hooks are configured.
@@ -25,11 +26,11 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`
 - **`pages/`** — static pages (home, about, contact)
 - **`products/`** — product CRUD with seller-ownership enforcement
-- **`cart/`** — shopping cart; 54 tests
-- **`orders/`** — order processing with stock validation; 41 tests
-- **`payments/`** — payment processing (OneToOne to Order); 33 tests
-- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 19 tests
-- **`coupons/`** — coupon management (code, discount, dates, usage limit); 18 tests
+- **`cart/`** — shopping cart; 59 tests
+- **`orders/`** — order processing with stock validation; 48 tests
+- **`coupons/`** — coupon management (code, discount, dates, usage limit); 31 tests
+- **`payments/`** — payment processing (OneToOne to Order); 21 tests
+- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 24 tests
 - **`templates/`** — project-level templates (`base.html`, registration templates)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 222 lines); uses Font Awesome 6.5.1
 

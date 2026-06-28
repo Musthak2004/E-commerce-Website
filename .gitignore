@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 db.sqlite3
+default_*.sqlite3
 .DS_Store
 .env
 media/

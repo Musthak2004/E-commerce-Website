@@ -162,7 +162,7 @@ python manage.py migrate
 python manage.py createsuperuser
 
 # Seed test data (optional)
-python _seed_products.py  # creates 20 products across 10 categories
+# No built-in seed script; use admin panel or shell
 
 # Run the server
 python manage.py runserver
@@ -419,8 +419,6 @@ The `wsgi.py` file auto-loads `.env` and configures the Python path for PythonAn
 │   ├── css/style.css       # Complete stylesheet (~2500 lines): animations, responsive, gold theme
 │   └── js/main.js          # Vanilla JS (203 lines): nav, search, alerts, animations, form loading
 ├── media/products/         # Uploaded product images
-├── _seed_products.py       # Product seed script (20 products across 10 categories)
-├── _check_data.py          # Data verification script
 ├── .env.example            # Environment variable template
 ├── AGENTS.md               # AI agent guide
 └── manage.py

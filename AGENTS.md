@@ -14,7 +14,7 @@ python manage.py runserver
 | Run dev server | `python manage.py runserver` |
 | Run all tests | `python manage.py test --parallel --verbosity=2` |
 | Test single app | `python manage.py test <app> --verbosity=2` |
-| Seed test data | `.venv\Scripts\python _seed_products.py` |
+
 | After adding/editing models | `python manage.py makemigrations <app>` then `python manage.py migrate` |
 | Install dependencies | `.venv\Scripts\pip install -r requirements.txt` |
 | Superuser | `python manage.py createsuperuser` |

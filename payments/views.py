@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.mail import send_mail
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -23,14 +24,15 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def _complete_payment(payment, transaction_id):
-    payment.status = "COMPLETED"
-    payment.transaction_id = transaction_id
-    payment.paid_at = timezone.now()
-    payment.save(update_fields=["status", "transaction_id", "paid_at"])
+    with transaction.atomic():
+        payment.status = "COMPLETED"
+        payment.transaction_id = transaction_id
+        payment.paid_at = timezone.now()
+        payment.save(update_fields=["status", "transaction_id", "paid_at"])
 
-    order = payment.order
-    order.status = "CONFIRMED"
-    order.save(update_fields=["status"])
+        order = payment.order
+        order.status = "CONFIRMED"
+        order.save(update_fields=["status"])
 
     try:
         send_mail(

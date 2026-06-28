@@ -38,11 +38,11 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 26 tests
 - **`api/`** — REST API (DRF read-only product endpoint with pagination)
 - **`templates/`** — project-level templates (`base.html`, registration templates, admin dashboard, breadcrumbs include)
-- **`static/`** — single CSS stylesheet (`css/style.css`, ~2600 lines) and JS (`js/main.js`, 222 lines); uses Font Awesome 6.5.1
+- **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 203 lines); uses Font Awesome 6.5.1
 
 ## Template patterns
 
-- All 22 templates extend `base.html`. Inline `<style>` blocks per page (no global CSS for page-specific styles). Font Awesome icons everywhere.
+- All 29 templates extend `base.html`. Inline `<style>` blocks per page (no global CSS for page-specific styles). Font Awesome icons everywhere.
 - URL namespace pattern: `products:product_list`, `cart:cart_detail`, `orders:order_list`, `payments:payment_create`, `reviews:review_create`.
 - Back navigation: `<a href="..." class="back-link"><i class="fas fa-arrow-left"></i> Label</a>`.
 - Buttons use pill shape (`border-radius: 100px`). Gold accent via CSS custom properties (`--accent`, `--border`, `--bg-card`, etc.).

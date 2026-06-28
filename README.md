@@ -29,7 +29,7 @@ A Django-based e-commerce platform with a warm gold-themed UI. Features user aut
 - **Frontend:** HTML5, CSS3 (custom properties, keyframe animations), vanilla JavaScript, Font Awesome 6.5.1
 - **Fonts:** Playfair Display (headings), Outfit (body) — via Google Fonts
 - **Database:** SQLite (default)
-- **Auth:** `django.contrib.auth` with custom `AbstractUser` model (`USERNAME_FIELD = "email"`)
+- **Auth:** `accounts.CustomUser` (email-based, `USERNAME_FIELD = "email"`, `is_email_verified`)
 - **Payments:** Stripe Checkout Sessions + Webhooks
 - **CI:** GitHub Actions
 
@@ -185,7 +185,7 @@ python manage.py test api --verbosity=2
 ├── django_project/         # Project configuration
 │   ├── settings.py         # Installed apps, templates, auth, media config
 │   ├── urls.py             # Root URLConf (includes all apps)
-│   └── tests.py            # Error handler tests (404, 500)
+│   └── tests.py            # Error handler tests (403, 404)
 ├── .github/workflows/      # CI/CD
 │   └── ci.yml              # GitHub Actions: test on push/PR
 ├── templates/              # Project-level templates

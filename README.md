@@ -84,7 +84,6 @@ A Django-based e-commerce platform with a warm gold-themed UI. Features user aut
 | **Storage** | django-cleanup (auto-cleanup of orphaned images), Pillow |
 | **Static files** | WhiteNoise (compressed, cached) |
 | **Config** | python-decouple (environment-based settings) |
-| **CI** | GitHub Actions (test on push/PR to `main`) |
 | **Server** | Gunicorn (production) |
 
 ### Dependencies
@@ -331,25 +330,6 @@ The `wsgi.py` file auto-loads `.env` and configures the Python path for PythonAn
 
 ---
 
-## CI/CD
-
-```yaml
-# .github/workflows/ci.yml
-on: [push, pull_request] → main
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - checkout, setup Python 3.13
-      - pip install -r requirements.txt
-      - python manage.py migrate
-      - python manage.py test --verbosity=2
-```
-
-GitHub Actions runs the full test suite on every push and pull request to `main`.
-
----
-
 ## Project Structure
 
 ```
@@ -439,7 +419,6 @@ GitHub Actions runs the full test suite on every push and pull request to `main`
 │   └── js/main.js          # Vanilla JS (203 lines): nav, search, alerts, animations, form loading
 ├── media/products/         # Uploaded product images
 ├── .env.example            # Environment variable template
-├── .github/workflows/ci.yml
 ├── AGENTS.md               # AI agent guide
 └── manage.py
 ```

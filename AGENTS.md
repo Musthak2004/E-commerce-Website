@@ -21,7 +21,6 @@ python manage.py runserver
 | Check system | `.venv\Scripts\python manage.py check --deploy` |
 | Collect static files | `python manage.py collectstatic` |
 | Admin dashboard | Visit `/admin/dashboard/` (staff-only) |
-| Run CI checks | GitHub Actions on push/PR to `main` |
 
 No linters, formatters, or pre-commit hooks are configured.
 

@@ -46,6 +46,7 @@ class ReviewCreateView(
                 self.request,
                 "You have already reviewed this product."
             )
+            form.add_error(None, "You have already reviewed this product.")
             return self.form_invalid(form)
 
         form.instance.user = self.request.user

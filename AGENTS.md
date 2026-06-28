@@ -13,11 +13,13 @@ python manage.py runserver
 |--------|---------|
 | Run dev server | `python manage.py runserver` |
 | Run all tests | `python manage.py test --verbosity=2` |
+| Run tests (parallel) | `python manage.py test --parallel --verbosity=2` |
 | Test single app | `python manage.py test <app> --verbosity=2` |
 | After adding/editing models | `python manage.py makemigrations <app>` then `python manage.py migrate` |
 | Install dependencies | `.venv\Scripts\pip install -r requirements.txt` |
 | Superuser | `python manage.py createsuperuser` |
 | Check system | `.venv\Scripts\python manage.py check --deploy` |
+| Collect static files | `python manage.py collectstatic` |
 | Admin dashboard | Visit `/admin/dashboard/` (staff-only) |
 | Run CI checks | GitHub Actions on push/PR to `main` |
 
@@ -29,11 +31,11 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`, email verification
 - **`pages/`** — static pages + contact form + newsletter signup (models/forms/views)
 - **`products/`** — product CRUD with seller-ownership enforcement, category filtering, sorting, search, tags (M2M)
-- **`cart/`** — shopping cart + wishlist; 59 tests
-- **`orders/`** — order processing with stock validation, user cancellation; 48 tests
-- **`coupons/`** — coupon management (code, discount, dates, usage limit); 31 tests
-- **`payments/`** — payment processing (Stripe Checkout, webhooks, OneToOne to Order); 21 tests
-- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 24 tests
+- **`cart/`** — shopping cart + wishlist; 68 tests
+- **`orders/`** — order processing with stock validation, user cancellation; 58 tests
+- **`coupons/`** — coupon management (code, discount, dates, usage limit); 33 tests
+- **`payments/`** — payment processing (Stripe Checkout, webhooks, OneToOne to Order); 32 tests
+- **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 26 tests
 - **`api/`** — REST API (DRF read-only product endpoint with pagination)
 - **`templates/`** — project-level templates (`base.html`, registration templates, admin dashboard, breadcrumbs include)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2600 lines) and JS (`js/main.js`, 222 lines); uses Font Awesome 6.5.1

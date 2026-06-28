@@ -14,8 +14,25 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     {% block extra_head %}{% endblock %}
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "ShopEase",
+        "url": "{{ request.build_absolute_uri|cut:request.get_full_path }}",
+        "description": "Thoughtfully curated products delivered to your door.",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+1-555-123-4567",
+            "contactType": "customer service"
+        }
+    }
+    </script>
 </head>
-<body>
+<body{% block body_attrs %}{% endblock %}>
+
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
     <!-- Grain Overlay -->
     <div class="grain-overlay"></div>
@@ -50,10 +67,10 @@
             </div>
 
             <nav class="desktop-nav" aria-label="Main navigation">
-                <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
-                <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active"{% endif %}>Shop</a>
-                <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}>About</a>
-                <a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active"{% endif %}>Contact</a>
+                <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active" aria-current="page"{% endif %}>Home</a>
+                <a href="{% url 'products:product_list' %}" {% if request.resolver_match.url_name|slice:":8" == 'product_' %}class="active" aria-current="page"{% endif %}>Shop</a>
+                <a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}class="active" aria-current="page"{% endif %}>About</a>
+                <a href="{% url 'contact' %}" {% if request.resolver_match.url_name == 'contact' %}class="active" aria-current="page"{% endif %}>Contact</a>
             </nav>
 
             <div class="header-right">
@@ -144,7 +161,7 @@
     {% block breadcrumbs %}{% endblock %}
 
     <!-- Content -->
-    <main class="anim-fadein">
+    <main id="main-content" class="page-enter">
         {% block content %}{% endblock %}
     </main>
 

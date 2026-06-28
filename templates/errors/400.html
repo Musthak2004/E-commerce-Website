@@ -2,11 +2,14 @@
 {% block title %}Bad Request — ShopEase{% endblock %}
 {% block content %}
 <div class="error-page">
-    <div class="error-card anim-up">
+    <div class="error-card">
         <span class="error-code">400</span>
         <h1>Bad Request</h1>
         <p>The request could not be understood by the server.</p>
-        <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Home</a>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            <a href="{% url 'contact' %}" class="btn btn-secondary">Contact Support</a>
+        </div>
     </div>
 </div>
 {% endblock %}

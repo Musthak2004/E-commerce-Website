@@ -16,7 +16,7 @@
         <p class="anim-up anim-delay-3">Curated pieces that bring quiet luxury into your everyday rituals.</p>
         <div class="hero-actions anim-up anim-delay-4">
             <a href="{% url 'products:product_list' %}" class="btn btn-primary">{% if user.is_authenticated %}Browse Products{% else %}Explore the Collection{% endif %} <i class="fas fa-arrow-right"></i></a>
-            <a href="{% url 'products:product_list' %}" class="btn btn-secondary">Shop Now</a>
+            <a href="{% url 'about' %}" class="btn btn-secondary">Our Story <i class="fas fa-book-open"></i></a>
         </div>
         <div class="hero-stats anim-up anim-delay-5">
             <div class="hero-stat">

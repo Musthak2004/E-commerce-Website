@@ -45,12 +45,12 @@
 
 <div class="profile-page">
   <div class="profile-inner">
-    <div class="profile-header">
+    <div class="profile-header anim-up">
       <h1>My Profile</h1>
       <p>Update your personal information and shipping address.</p>
     </div>
 
-    <div class="form-card">
+    <div class="form-card anim-up anim-delay-1">
       <form class="styled-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -61,7 +61,7 @@
           </div>
         {% endif %}
 
-        <div class="form-group">
+        <div class="form-group anim-fadein" style="--i:0;animation-delay:calc(0.1s + var(--i,0)*40ms);">
           <label for="id_full_name">Full Name</label>
           <input type="text" name="full_name" id="id_full_name" placeholder="Your full name"{% if form.full_name.errors %} class="error"{% endif %} value="{{ form.full_name.value|default:'' }}">
           {% if form.full_name.errors %}
@@ -69,7 +69,7 @@
           {% endif %}
         </div>
 
-        <div class="form-group">
+        <div class="form-group anim-fadein" style="--i:1;animation-delay:calc(0.1s + var(--i,0)*40ms);">
           <label for="id_address">Address</label>
           <textarea name="address" id="id_address" placeholder="Street address" rows="3"{% if form.address.errors %} class="error"{% endif %}>{{ form.address.value|default:'' }}</textarea>
           {% if form.address.errors %}
@@ -78,21 +78,21 @@
         </div>
 
         <div class="field-row">
-          <div class="form-group">
+          <div class="form-group anim-fadein" style="--i:2;animation-delay:calc(0.1s + var(--i,0)*40ms);">
             <label for="id_city">City</label>
             <input type="text" name="city" id="id_city" placeholder="City"{% if form.city.errors %} class="error"{% endif %} value="{{ form.city.value|default:'' }}">
             {% if form.city.errors %}
               <ul class="errorlist">{% for error in form.city.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
           </div>
-          <div class="form-group">
+          <div class="form-group anim-fadein" style="--i:3;animation-delay:calc(0.1s + var(--i,0)*40ms);">
             <label for="id_country">Country</label>
             <input type="text" name="country" id="id_country" placeholder="Country"{% if form.country.errors %} class="error"{% endif %} value="{{ form.country.value|default:'' }}">
             {% if form.country.errors %}
               <ul class="errorlist">{% for error in form.country.errors %}<li>{{ error }}</li>{% endfor %}</ul>
             {% endif %}
           </div>
-          <div class="form-group">
+          <div class="form-group anim-fadein" style="--i:4;animation-delay:calc(0.1s + var(--i,0)*40ms);">
             <label for="id_postal_code">Postal Code</label>
             <input type="text" name="postal_code" id="id_postal_code" placeholder="Postal code"{% if form.postal_code.errors %} class="error"{% endif %} value="{{ form.postal_code.value|default:'' }}">
             {% if form.postal_code.errors %}
@@ -101,7 +101,7 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group anim-fadein" style="--i:5;animation-delay:calc(0.1s + var(--i,0)*40ms);">
           <label for="id_profile_picture">Profile Picture</label>
           <input type="file" name="profile_picture" id="id_profile_picture" accept="image/*"{% if form.profile_picture.errors %} class="error"{% endif %}>
           {% if form.profile_picture.errors %}
@@ -109,7 +109,9 @@
           {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-primary">Save Changes <i class="fas fa-check"></i></button>
+        <div class="form-actions" style="border:none;padding:0;margin-top:24px;">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save Changes</button>
+        </div>
       </form>
     </div>
   </div>

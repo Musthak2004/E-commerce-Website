@@ -67,22 +67,27 @@ Visit `http://127.0.0.1:8000/` to see the app.
 
 ## Running Tests
 
-The project has **280 tests** across eight apps:
+The project has **380 tests** across ten test suites:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
-| accounts | 38 | Models, forms, views, signals, URLs, auth flow |
-| pages | 4 | URL resolution, template rendering |
-| products | 55 | Models, forms, permissions, CRUD workflow, URL routing, search |
-| cart | 59 | Models, URL resolution, add/remove/update views, cart detail, context processor, wishlist |
-| orders | 48 | Models, URL resolution, create order (stock validation, atomicity, coupons), order detail, order list |
-| coupons | 31 | Models (discount logic, validation), forms, views (apply/remove), session management |
-| payments | 21 | Models, forms (duplicate-payment prevention), create/detail views, ownership enforcement |
-| reviews | 24 | Models, forms (rating/comment validation), create (duplicate-check), detail view |
+| accounts | 47 | Models, forms, views, signals, URLs, auth flow, email verification |
+| pages | 31 | Models, forms, views (home/about/contact/newsletter/dashboard), URL resolution |
+| products | 70 | Models (Category/Tag/Product/ProductImage), forms, CRUD, permissions, filtering, sorting, search |
+| cart | 68 | Models (Cart/CartItem/Wishlist), add/remove/update views, cart detail, context processor, coupon-in-cart |
+| orders | 58 | Models, create order (stock validation, atomicity, coupons), detail, list, cancel (stock restore) |
+| coupons | 33 | Models (discount logic, validation), forms, views (apply/remove), session management, expired/inactive codes |
+| payments | 32 | Models, forms (duplicate-payment prevention), create/detail/success views, ownership enforcement, URL resolves |
+| reviews | 26 | Models, forms (rating/comment validation), create (duplicate-check), detail view, URL resolves |
+| api | 13 | Product list/retrieve, pagination, auth, filtering, all serializer fields |
+| django_project | 2 | Error handlers (404, 500) |
 
 ```bash
 # Run all tests
 python manage.py test --verbosity=2
+
+# Run tests in parallel
+python manage.py test --parallel --verbosity=2
 
 # Run specific app tests
 python manage.py test accounts --verbosity=2
@@ -92,6 +97,7 @@ python manage.py test cart --verbosity=2
 python manage.py test orders --verbosity=2
 python manage.py test payments --verbosity=2
 python manage.py test reviews --verbosity=2
+python manage.py test api --verbosity=2
 ```
 
 ## Project Structure
@@ -104,14 +110,14 @@ python manage.py test reviews --verbosity=2
 │   ├── urls.py             # signup, profile, verify/<uidb64>/<token>/
 │   ├── admin.py            # CustomUserAdmin, ProfileAdmin
 │   ├── signals.py          # Auto-create Profile on user signup
-│   └── tests.py            # 38 tests
+│   └── tests.py            # 47 tests
 ├── cart/                   # Shopping cart app
 │   ├── models.py           # Cart, CartItem (UniqueConstraint, MinValueValidator)
 │   ├── views.py            # add_to_cart, remove_from_cart, update_quantity, cart_detail
 │   ├── urls.py             # 4 routes
 │   ├── admin.py            # CartAdmin, CartItemAdmin with search & filters
 │   ├── context_processors.py   # cart_count / wishlist_count for nav badge
-│   ├── tests.py            # 54 tests
+│   ├── tests.py            # 68 tests
 │   └── templates/cart/
 │       └── cart_detail.html    # Items with qty controls, order summary, trust badges, empty state
 ├── orders/                 # Order management app
@@ -119,7 +125,7 @@ python manage.py test reviews --verbosity=2
 │   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail, cancel_order
 │   ├── urls.py             # 4 routes (includes cancel)
 │   ├── admin.py            # OrderAdmin with OrderItemInline
-│   ├── tests.py            # 41 tests
+│   ├── tests.py            # 58 tests
 │   └── templates/orders/
 │       ├── order_list.html      # Card-based history with status badges
 │       └── order_detail.html    # Contact card, items table, summary panel
@@ -129,7 +135,7 @@ python manage.py test reviews --verbosity=2
 │   ├── views.py            # apply_coupon, remove_coupon (session-based)
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # CouponAdmin with filters
-│   ├── tests.py            # 31 tests
+│   ├── tests.py            # 33 tests
 │   └── templates/coupons/  # (coupon form rendered inside cart detail)
 ├── payments/               # Payment processing app
 │   ├── models.py           # Payment (OneToOneField to Order, status/method tracking)
@@ -137,7 +143,7 @@ python manage.py test reviews --verbosity=2
 │   ├── views.py            # PaymentCreateView (Stripe redirect), PaymentDetailView (ownership enforced)
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # PaymentAdmin with list filters
-│   ├── tests.py            # 21 tests
+│   ├── tests.py            # 32 tests
 │   └── templates/payments/
 │       ├── payment_form.html    # Checkout with order summary and payment method selection
 │       └── payment_detail.html  # Payment receipt with status badge and info cards
@@ -147,13 +153,14 @@ python manage.py test reviews --verbosity=2
 │   ├── views.py            # ReviewCreateView (duplicate-check), ReviewDetailView
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # ReviewAdmin with user email search
-│   ├── tests.py            # 24 tests
+│   ├── tests.py            # 26 tests
 │   └── templates/reviews/
 │       ├── review_form.html      # Product summary card with styled rating selector
 │       └── review_detail.html    # Rating badge, 2-col meta grid, comment card
 ├── api/                    # REST API
 │   ├── serializers.py      # ProductListSerializer, CategorySerializer, TagSerializer
 │   ├── views.py            # ProductViewSet (ReadOnlyModelViewSet)
+│   ├── tests.py            # 13 tests
 │   └── urls.py             # Router with /products/ endpoint
 ├── pages/                  # Static page routing app
 │   ├── models.py           # ContactMessage, NewsletterSubscriber
@@ -162,14 +169,14 @@ python manage.py test reviews --verbosity=2
 │   ├── urls.py             # Root + /about/ + /contact/ + /newsletter/
 │   ├── admin.py            # ContactMessageAdmin, NewsletterSubscriberAdmin
 │   ├── admin_dashboard.py  # admin_dashboard view (staff-only stats)
-│   └── tests.py            # 4 tests
+│   └── tests.py            # 31 tests
 ├── products/               # Product management app
 │   ├── models.py           # Category, Tag, Product (tags M2M), ProductImage (indexed, ordered)
 │   ├── forms.py            # ProductForm (price > 0, stock >= 0 validation, tags field)
 │   ├── views.py            # CRUD with SellerRequiredMixin, category/tag filtering, sort, search
 │   ├── urls.py             # 5 routes
 │   ├── admin.py            # Inline images, list_editable, prepopulated slugs, TagAdmin
-│   ├── tests.py            # 55 tests
+│   ├── tests.py            # 70 tests
 │   └── templates/products/
 │       ├── product_list.html          # Grid with staggered card entrance
 │       ├── product_detail.html        # Gallery + info with fade-in sections
@@ -177,7 +184,8 @@ python manage.py test reviews --verbosity=2
 │       └── product_confirm_delete.html
 ├── django_project/         # Project configuration
 │   ├── settings.py         # Installed apps, templates, auth, media config
-│   └── urls.py             # Root URLConf (includes all apps)
+│   ├── urls.py             # Root URLConf (includes all apps)
+│   └── tests.py            # Error handler tests (404, 500)
 ├── .github/workflows/      # CI/CD
 │   └── ci.yml              # GitHub Actions: test on push/PR
 ├── templates/              # Project-level templates

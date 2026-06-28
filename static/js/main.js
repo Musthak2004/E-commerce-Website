@@ -111,8 +111,9 @@
     });
 
     // Intersection Observer for scroll-triggered animations
+    var animClasses = '.animate-in, .anim-up:not(.hero *):not(.auth-page *):not(.form-page *):not(.error-page *), .anim-scale:not(.auth-page *):not(.form-page *):not(.error-page *), .anim-slideDown:not(.messages)';
     if ('IntersectionObserver' in window) {
-        var animatingElements = document.querySelectorAll('.animate-in');
+        var animatingElements = document.querySelectorAll(animClasses);
         if (animatingElements.length) {
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
@@ -121,7 +122,7 @@
                         observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.15 });
+            }, { threshold: 0.1 });
 
             animatingElements.forEach(function (el) {
                 el.style.animationPlayState = 'paused';
@@ -129,7 +130,7 @@
             });
         }
     } else {
-        document.querySelectorAll('.animate-in').forEach(function (el) {
+        document.querySelectorAll(animClasses).forEach(function (el) {
             el.style.opacity = '1';
         });
     }
@@ -151,13 +152,16 @@
         });
     });
 
-    // Form submit loading state
-    document.querySelectorAll('.auth-form').forEach(function (form) {
+    // Form submit loading state (all forms with .btn-primary[type="submit"])
+    document.querySelectorAll('form').forEach(function (form) {
         form.addEventListener('submit', function () {
-            var btn = this.querySelector('.btn-primary[type="submit"]');
-            if (btn) {
+            var btn = this.querySelector('.btn-primary[type="submit"], .btn-submit[type="submit"], .btn-checkout[type="submit"]');
+            if (btn && !btn.classList.contains('btn-loading')) {
+                btn.classList.add('btn-loading');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Please wait...';
+                var originalText = btn.innerHTML;
+                btn.setAttribute('data-original-text', originalText);
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             }
         });
     });

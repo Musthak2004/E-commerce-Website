@@ -1,8 +1,11 @@
+import os
 from pathlib import Path
 
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+os.makedirs(BASE_DIR / "logs", exist_ok=True)
 
 SECRET_KEY = config("SECRET_KEY")
 

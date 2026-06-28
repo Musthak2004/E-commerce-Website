@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "django_cleanup.apps.CleanupConfig",
     "accounts.apps.AccountsConfig",
     "pages.apps.PagesConfig",
     "products.apps.ProductsConfig",
@@ -28,6 +29,7 @@ INSTALLED_APPS = [
     "payments.apps.PaymentsConfig",
     "reviews.apps.ReviewsConfig",
     "coupons.apps.CouponsConfig",
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [

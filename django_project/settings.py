@@ -1,11 +1,10 @@
+import logging
 import os
 from pathlib import Path
 
 from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-os.makedirs(BASE_DIR / "logs", exist_ok=True)
 
 SECRET_KEY = config("SECRET_KEY")
 
@@ -123,6 +122,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 ADMINS = [("Admin", config("ADMIN_EMAIL", default="admin@shopease.com"))]
 SERVER_EMAIL = config("SERVER_EMAIL", default="server@shopease.com")
 
+class _MakeDirFileHandler(logging.FileHandler):
+    def __init__(self, filename, *args, **kwargs):
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        super().__init__(filename, *args, **kwargs)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -138,8 +142,8 @@ LOGGING = {
             "formatter": "verbose",
         },
         "file": {
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
+            "class": "django_project.settings._MakeDirFileHandler",
+            "filename": str(BASE_DIR / "logs" / "django.log"),
             "formatter": "verbose",
         },
     },

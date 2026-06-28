@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import Sum, F
 
 from accounts.models import CustomUser
 from products.models import Product
@@ -54,7 +55,6 @@ class Cart(models.Model):
 
     @property
     def total_price(self):
-        from django.db.models import Sum, F
         result = self.items.aggregate(
             total=Sum(F("product__price") * F("quantity"))
         )

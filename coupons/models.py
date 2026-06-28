@@ -103,5 +103,5 @@ class Coupon(models.Model):
             raise ValidationError("Percentage discount cannot exceed 100%.")
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        self.clean()
         super().save(*args, **kwargs)

@@ -409,7 +409,7 @@
           <div class="order-detail-item-product">
             <div class="order-detail-item-img">
               {% if item.product.image %}
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" loading="lazy">
               {% else %}
                 <i class="fas fa-box"></i>
               {% endif %}

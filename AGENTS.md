@@ -12,8 +12,7 @@ python manage.py runserver
 | Action | Command |
 |--------|---------|
 | Run dev server | `python manage.py runserver` |
-| Run all tests | `python manage.py test --verbosity=2` |
-| Run tests (parallel) | `python manage.py test --parallel --verbosity=2` |
+| Run all tests | `$env:DJANGO_SETTINGS_MODULE='django_project.settings'; python -m django test --parallel --verbosity=2` |
 | Test single app | `python manage.py test <app> --verbosity=2` |
 | After adding/editing models | `python manage.py makemigrations <app>` then `python manage.py migrate` |
 | Install dependencies | `.venv\Scripts\pip install -r requirements.txt` |
@@ -23,6 +22,8 @@ python manage.py runserver
 | Admin dashboard | Visit `/admin/dashboard/` (staff-only) |
 
 No linters, formatters, or pre-commit hooks are configured.
+
+> **Test gotcha:** `.env` sets `DEBUG=True`. The `if not DEBUG:` block enables `SECURE_SSL_REDIRECT`. **Do NOT set `$env:DEBUG='False'` before running tests** — it causes mass 301 redirect failures. Tests read `DEBUG` from `.env` (which is `True`), keeping SSL redirect off.
 
 ## Project structure
 

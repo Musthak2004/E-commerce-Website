@@ -741,7 +741,7 @@
             <!-- Image -->
             <a href="{% url 'products:product_detail' item.product.slug %}" class="cart-row-img">
               {% if item.product.image %}
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" loading="lazy">
+                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" loading="lazy">
               {% else %}
                 <span class="img-fallback"><i class="fas fa-box"></i></span>
               {% endif %}

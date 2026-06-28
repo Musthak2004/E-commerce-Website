@@ -98,6 +98,15 @@ class Product(models.Model):
     def review_count(self):
         return self.reviews.count()
 
+    @property
+    def image_url(self):
+        if not self.image:
+            return ""
+        name = self.image.name
+        if name.startswith("http"):
+            return name
+        return self.image.url
+
 class ProductImage(models.Model):
 
     product = models.ForeignKey(

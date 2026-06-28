@@ -1,10 +1,13 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from .models import Profile
-from .forms import SignUpForm
-from .views import ProfileUpdateView, SignUpView
+from .forms import SignUpForm, ProfileForm
+from .views import ProfileUpdateView, SignUpView, VerifyEmailView
 
 User = get_user_model()
 
@@ -243,6 +246,16 @@ class SignUpViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("email", response.context["form"].errors)
 
+    def test_signup_redirects_authenticated_user(self):
+        User.objects.create_user(
+            username="loggedin",
+            email="logged@example.com",
+            password="pass123"
+        )
+        self.client.login(username="logged@example.com", password="pass123")
+        response = self.client.get(reverse("signup"))
+        self.assertRedirects(response, reverse("home"))
+
 
 class SignalTests(TestCase):
     def test_profile_created_on_user_creation(self):
@@ -262,6 +275,69 @@ class SignalTests(TestCase):
         Profile.objects.count()
         user.save()
         self.assertEqual(Profile.objects.filter(user=user).count(), 1)
+
+
+class VerifyEmailViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="verifyuser",
+            email="verify@example.com",
+            password="pass123"
+        )
+        self.token = default_token_generator.make_token(self.user)
+        self.uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+
+    def test_verify_email_url_resolves(self):
+        resolver = resolve(f"/accounts/verify/{self.uid}/{self.token}/")
+        self.assertEqual(resolver.func.view_class, VerifyEmailView)
+
+    def test_valid_verification_sets_verified(self):
+        url = reverse("verify_email", args=[self.uid, self.token])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "registration/email_verified.html")
+        self.assertTrue(resp.context["valid"])
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.is_email_verified)
+
+    def test_already_verified_still_shows_valid(self):
+        self.user.is_email_verified = True
+        self.user.save()
+        url = reverse("verify_email", args=[self.uid, self.token])
+        resp = self.client.get(url)
+        self.assertTrue(resp.context["valid"])
+
+    def test_invalid_uid_shows_invalid(self):
+        url = reverse("verify_email", args=["invalid", self.token])
+        resp = self.client.get(url)
+        self.assertFalse(resp.context["valid"])
+
+    def test_invalid_token_shows_invalid(self):
+        url = reverse("verify_email", args=[self.uid, "bad-token"])
+        resp = self.client.get(url)
+        self.assertFalse(resp.context["valid"])
+
+
+class ProfileFormTests(TestCase):
+    def test_form_has_correct_fields(self):
+        form = ProfileForm()
+        expected = ["full_name", "address", "city", "country", "postal_code", "profile_picture"]
+        for field in expected:
+            self.assertIn(field, form.fields)
+
+    def test_valid_form(self):
+        form = ProfileForm(data={
+            "full_name": "John Doe",
+            "address": "123 Main St",
+            "city": "New York",
+            "country": "USA",
+            "postal_code": "10001",
+        })
+        self.assertTrue(form.is_valid())
+
+    def test_blank_form_is_valid(self):
+        form = ProfileForm(data={})
+        self.assertTrue(form.is_valid())
 
 
 class AuthURLTests(TestCase):

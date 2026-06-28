@@ -1,10 +1,14 @@
+from datetime import timedelta
+
 from django.test import TestCase
 from django.urls import reverse, resolve
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
+from coupons.models import Coupon
 from products.models import Category, Product
 from .models import Cart, CartItem, Wishlist
-from .views import add_to_cart, remove_from_cart, update_quantity, cart_detail
+from .views import add_to_cart, remove_from_cart, update_quantity, cart_detail, toggle_wishlist
 from .context_processors import cart_counts
 
 User = get_user_model()
@@ -114,6 +118,48 @@ class CartItemModelTests(TestCase):
         self.assertEqual(self.item.quantity, 1)
 
 
+class WishlistModelTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="wl_seller", email="wl_seller@example.com",
+            password="pass123", user_type="SELLER",
+        )
+        self.cat = Category.objects.create(name="Test", slug="test")
+        self.product = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="WL Product", slug="wl-product",
+            price=10, stock=5,
+        )
+        self.user = User.objects.create_user(
+            username="wl_user", email="wl_user@example.com", password="pass123"
+        )
+        self.wishlist = Wishlist.objects.create(user=self.user)
+
+    def test_create_wishlist(self):
+        self.assertEqual(self.wishlist.user, self.user)
+        self.assertIsNotNone(self.wishlist.created_at)
+
+    def test_wishlist_str(self):
+        self.assertEqual(str(self.wishlist), f"Wishlist - {self.user.email}")
+
+    def test_wishlist_add_product(self):
+        self.wishlist.products.add(self.product)
+        self.assertIn(self.product, self.wishlist.products.all())
+
+    def test_wishlist_cascade_delete(self):
+        wl_id = self.wishlist.id
+        self.user.delete()
+        self.assertFalse(Wishlist.objects.filter(id=wl_id).exists())
+
+    def test_wishlist_ordering(self):
+        other = User.objects.create_user(
+            username="wl_other", email="wl_other@example.com", password="pass123"
+        )
+        wl2 = Wishlist.objects.create(user=other)
+        qs = Wishlist.objects.all()
+        self.assertEqual(qs.first(), wl2)
+
+
 class CartURLTests(TestCase):
     def test_cart_detail_url_resolves(self):
         resolver = resolve("/cart/")
@@ -146,6 +192,12 @@ class CartURLTests(TestCase):
     def test_update_quantity_url_name(self):
         url = reverse("cart:update_quantity", args=[1])
         self.assertEqual(url, "/cart/update/1/")
+
+
+class WishlistURLTests(TestCase):
+    def test_toggle_wishlist_url_resolves(self):
+        resolver = resolve("/cart/wishlist/toggle/1/")
+        self.assertEqual(resolver.func, toggle_wishlist)
 
 
 class AddToCartViewTests(TestCase):
@@ -395,6 +447,42 @@ class CartDetailViewTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIsNotNone(resp.context["cart"])
         self.assertFalse(resp.context["cart"].items.exists())
+
+    def test_detail_context_has_coupon_keys(self):
+        self.client.login(username="cust@example.com", password="pass123")
+        resp = self.client.get(reverse("cart:cart_detail"))
+        self.assertIn("coupon", resp.context)
+        self.assertIn("discount_amount", resp.context)
+        self.assertIn("total_after_discount", resp.context)
+
+    def test_detail_with_valid_coupon(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="CART10", discount_type="PERCENTAGE", discount_value=10,
+            valid_from=now - timedelta(days=1), valid_to=now + timedelta(days=30),
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        resp = self.client.get(reverse("cart:cart_detail"))
+        self.assertEqual(resp.context["coupon"], coupon)
+        self.assertEqual(resp.context["discount_amount"], 6.00)
+
+    def test_detail_with_expired_coupon_in_session(self):
+        now = timezone.now()
+        coupon = Coupon.objects.create(
+            code="EXPIRED", discount_type="PERCENTAGE", discount_value=10,
+            valid_from=now - timedelta(days=60), valid_to=now - timedelta(days=1),
+        )
+        self.client.login(username="cust@example.com", password="pass123")
+        session = self.client.session
+        session["coupon_id"] = coupon.id
+        session.save()
+        resp = self.client.get(reverse("cart:cart_detail"))
+        self.assertEqual(resp.context["coupon"], coupon)
+        self.assertEqual(resp.context["discount_amount"], 0)
+        self.assertEqual(resp.context["total_after_discount"], 60.00)
 
 
 class CartContextProcessorTests(TestCase):

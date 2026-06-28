@@ -1,14 +1,16 @@
 from decimal import Decimal
 from unittest.mock import patch
 
+import stripe
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, resolve
 
 from orders.models import Order
 from payments.forms import PaymentForm
 from payments.models import Payment
+from payments.views import payment_create, payment_success, stripe_webhook, PaymentDetailView
 
 User = get_user_model()
 
@@ -196,6 +198,94 @@ class PaymentCreateViewTests(TestCase):
         resp = self.client.get(url, follow=True)
         self.assertRedirects(resp, reverse("orders:order_detail", args=[self.order.id]))
 
+    def test_non_pending_order_redirects(self):
+        self.order.status = "CANCELLED"
+        self.order.save()
+        self.client.login(username="pay_create_cust@example.com", password="pass123")
+        url = reverse("payments:payment_create", args=[self.order.id])
+        resp = self.client.get(url)
+        self.assertRedirects(resp, reverse("orders:order_detail", args=[self.order.id]))
+
+
+class PaymentSuccessViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="pay_succ_cust", email="pay_succ_cust@example.com", password="pass123"
+        )
+        self.order = Order.objects.create(user=self.user, total_price=Decimal("50.00"))
+
+    def test_success_redirects_anonymous(self):
+        url = reverse("payments:payment_success", args=[self.order.id])
+        resp = self.client.get(url)
+        self.assertRedirects(resp, f"/accounts/login/?next={url}")
+
+    def test_success_no_payment_redirects(self):
+        self.client.login(username="pay_succ_cust@example.com", password="pass123")
+        url = reverse("payments:payment_success", args=[self.order.id])
+        resp = self.client.get(url)
+        self.assertRedirects(resp, reverse("orders:order_detail", args=[self.order.id]))
+
+    def test_success_with_completed_payment(self):
+        Payment.objects.create(
+            order=self.order, amount=Decimal("50.00"),
+            payment_method="CARD", status="COMPLETED",
+            transaction_id="txn_test",
+        )
+        self.client.login(username="pay_succ_cust@example.com", password="pass123")
+        url = reverse("payments:payment_success", args=[self.order.id])
+        with patch("stripe.checkout.Session.retrieve") as mock_retrieve:
+            mock_session = type("Session", (), {"payment_status": "paid", "payment_intent": "pi_test"})()
+            mock_retrieve.return_value = mock_session
+            resp = self.client.get(url)
+            self.assertRedirects(resp, reverse("payments:payment_detail", args=[self.order.payment.pk]))
+
+    def test_success_with_pending_stripe_session(self):
+        payment = Payment.objects.create(
+            order=self.order, amount=Decimal("50.00"),
+            payment_method="CARD", status="PENDING",
+            stripe_session_id="cs_test_123",
+        )
+        self.client.login(username="pay_succ_cust@example.com", password="pass123")
+        url = reverse("payments:payment_success", args=[self.order.id])
+        with patch("stripe.checkout.Session.retrieve") as mock_retrieve:
+            mock_session = type("Session", (), {"payment_status": "paid", "payment_intent": "pi_test"})()
+            mock_retrieve.return_value = mock_session
+            resp = self.client.get(url)
+            payment.refresh_from_db()
+            self.assertEqual(payment.status, "COMPLETED")
+            self.order.refresh_from_db()
+            self.assertEqual(self.order.status, "CONFIRMED")
+
+    def test_success_stripe_error_handled(self):
+        Payment.objects.create(
+            order=self.order, amount=Decimal("50.00"),
+            payment_method="CARD", status="PENDING",
+            stripe_session_id="cs_test_bad",
+        )
+        self.client.login(username="pay_succ_cust@example.com", password="pass123")
+        url = reverse("payments:payment_success", args=[self.order.id])
+        with patch("stripe.checkout.Session.retrieve", side_effect=stripe.error.StripeError("err")):
+            resp = self.client.get(url)
+            self.assertRedirects(resp, reverse("payments:payment_detail", args=[self.order.payment.pk]))
+
+
+class PaymentURLTests(TestCase):
+    def test_payment_create_url_resolves(self):
+        resolver = resolve("/payments/create/1/")
+        self.assertEqual(resolver.func, payment_create)
+
+    def test_payment_success_url_resolves(self):
+        resolver = resolve("/payments/success/1/")
+        self.assertEqual(resolver.func, payment_success)
+
+    def test_payment_detail_url_resolves(self):
+        resolver = resolve("/payments/1/")
+        self.assertEqual(resolver.func.view_class, PaymentDetailView)
+
+    def test_webhook_url_resolves(self):
+        resolver = resolve("/payments/webhook/")
+        self.assertEqual(resolver.func, stripe_webhook)
+
 
 class PaymentDetailViewTests(TestCase):
 
@@ -235,3 +325,9 @@ class PaymentDetailViewTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp, "payments/payment_detail.html")
         self.assertEqual(resp.context["payment"], self.payment)
+
+    def test_nonexistent_payment_returns_404(self):
+        self.client.login(username="pay_detail_cust@example.com", password="pass123")
+        url = reverse("payments:payment_detail", args=[9999])
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)

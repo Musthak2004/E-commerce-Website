@@ -6,8 +6,9 @@ from django.contrib.auth import get_user_model
 
 from products.models import Category, Product
 from cart.models import Cart, CartItem
+from payments.models import Payment
 from .models import Order, OrderItem
-from .views import create_order, order_detail, order_list
+from .views import create_order, order_detail, order_list, cancel_order
 from datetime import timedelta
 from django.utils import timezone
 from coupons.models import Coupon
@@ -53,6 +54,10 @@ class OrderModelTests(TestCase):
     def test_order_verbose_names(self):
         self.assertEqual(Order._meta.verbose_name, "Order")
         self.assertEqual(Order._meta.verbose_name_plural, "Orders")
+
+    def test_order_discount_amount_default(self):
+        order = Order.objects.create(user=self.user, total_price=100)
+        self.assertEqual(order.discount_amount, Decimal("0.00"))
 
 
 class OrderItemModelTests(TestCase):
@@ -138,6 +143,14 @@ class OrderURLTests(TestCase):
     def test_order_detail_url_name(self):
         url = reverse("orders:order_detail", args=[1])
         self.assertEqual(url, "/orders/1/")
+
+    def test_cancel_order_url_resolves(self):
+        resolver = resolve("/orders/1/cancel/")
+        self.assertEqual(resolver.func, cancel_order)
+
+    def test_cancel_order_url_name(self):
+        url = reverse("orders:cancel_order", args=[1])
+        self.assertEqual(url, "/orders/1/cancel/")
 
 
 class CreateOrderViewTests(TestCase):
@@ -473,3 +486,74 @@ class OrderListViewTests(TestCase):
         orders = list(resp.context["orders"])
         self.assertEqual(orders[0], self.order2)
         self.assertEqual(orders[1], self.order1)
+
+
+class CancelOrderViewTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="cancel_seller", email="cancel_seller@example.com",
+            password="pass123", user_type="SELLER",
+        )
+        self.cat = Category.objects.create(name="Test", slug="test")
+        self.product = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Product", slug="product",
+            price=20, stock=10,
+        )
+        self.user = User.objects.create_user(
+            username="cancel_cust", email="cancel_cust@example.com", password="pass123"
+        )
+        self.other = User.objects.create_user(
+            username="cancel_other", email="cancel_other@example.com", password="pass123"
+        )
+        self.order = Order.objects.create(user=self.user, total_price=40)
+        OrderItem.objects.create(
+            order=self.order, product=self.product, quantity=2, price=20,
+        )
+
+    def test_cancel_redirects_anonymous(self):
+        resp = self.client.post(reverse("orders:cancel_order", args=[self.order.id]))
+        self.assertRedirects(
+            resp, f"{reverse('login')}?next={reverse('orders:cancel_order', args=[self.order.id])}"
+        )
+
+    def test_cancel_get_returns_405(self):
+        self.client.login(username="cancel_cust@example.com", password="pass123")
+        resp = self.client.get(reverse("orders:cancel_order", args=[self.order.id]))
+        self.assertEqual(resp.status_code, 405)
+
+    def test_cancel_pending_order(self):
+        self.client.login(username="cancel_cust@example.com", password="pass123")
+        resp = self.client.post(reverse("orders:cancel_order", args=[self.order.id]))
+        self.assertRedirects(resp, reverse("orders:order_detail", args=[self.order.id]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "CANCELLED")
+
+    def test_cancel_restores_stock(self):
+        self.client.login(username="cancel_cust@example.com", password="pass123")
+        self.client.post(reverse("orders:cancel_order", args=[self.order.id]))
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 12)
+
+    def test_cancel_non_pending_order_fails(self):
+        self.order.status = "CONFIRMED"
+        self.order.save()
+        self.client.login(username="cancel_cust@example.com", password="pass123")
+        resp = self.client.post(reverse("orders:cancel_order", args=[self.order.id]), follow=True)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "CONFIRMED")
+
+    def test_cancel_paid_order_fails(self):
+        Payment.objects.create(
+            order=self.order, amount=Decimal("40.00"),
+            payment_method="CARD", status="COMPLETED",
+        )
+        self.client.login(username="cancel_cust@example.com", password="pass123")
+        resp = self.client.post(reverse("orders:cancel_order", args=[self.order.id]), follow=True)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, "PENDING")
+
+    def test_cancel_other_user_order_returns_404(self):
+        self.client.login(username="cancel_other@example.com", password="pass123")
+        resp = self.client.post(reverse("orders:cancel_order", args=[self.order.id]))
+        self.assertEqual(resp.status_code, 404)

@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, resolve
 
 from products.models import Category, Product
 from reviews.forms import ReviewForm
 from reviews.models import Review
+from reviews.views import ReviewCreateView, ReviewDetailView
 
 User = get_user_model()
 
@@ -197,6 +198,16 @@ class ReviewCreateViewTests(TestCase):
         url = reverse("reviews:review_create", args=[9999])
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
+
+
+class ReviewURLTests(TestCase):
+    def test_review_create_url_resolves(self):
+        resolver = resolve("/reviews/create/1/")
+        self.assertEqual(resolver.func.view_class, ReviewCreateView)
+
+    def test_review_detail_url_resolves(self):
+        resolver = resolve("/reviews/1/")
+        self.assertEqual(resolver.func.view_class, ReviewDetailView)
 
 
 class ReviewDetailViewTests(TestCase):

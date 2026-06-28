@@ -4,7 +4,8 @@ from django.test import TestCase
 from django.urls import reverse, resolve
 from django.contrib.auth import get_user_model
 
-from .models import Category, Product, ProductImage
+from reviews.models import Review
+from .models import Category, Product, ProductImage, Tag
 from .forms import ProductForm
 from .views import (
     ProductListView,
@@ -88,6 +89,69 @@ class ProductModelTests(TestCase):
         self.cat.delete()
         self.product.refresh_from_db()
         self.assertIsNone(self.product.category)
+
+
+class TagModelTests(TestCase):
+    def test_create_tag(self):
+        tag = Tag.objects.create(name="Sale", slug="sale")
+        self.assertEqual(tag.name, "Sale")
+        self.assertEqual(tag.slug, "sale")
+
+    def test_tag_str(self):
+        tag = Tag.objects.create(name="New", slug="new")
+        self.assertEqual(str(tag), "New")
+
+    def test_tag_ordering(self):
+        Tag.objects.create(name="B", slug="b")
+        Tag.objects.create(name="A", slug="a")
+        qs = Tag.objects.all()
+        self.assertEqual(qs[0].name, "A")
+        self.assertEqual(qs[1].name, "B")
+
+    def test_tag_unique(self):
+        Tag.objects.create(name="Unique", slug="unique")
+        with self.assertRaises(Exception):
+            Tag.objects.create(name="Unique", slug="unique")
+
+
+class ProductModelPropertyTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_prop", email="seller_prop@example.com",
+            password="pass123", user_type="SELLER",
+        )
+        self.cat = Category.objects.create(name="Cat", slug="cat")
+        self.product = Product.objects.create(
+            seller=self.seller, category=self.cat,
+            name="Rated Product", slug="rated-product",
+            price=20, stock=5,
+        )
+
+    def test_average_rating_no_reviews(self):
+        self.assertIsNone(self.product.average_rating)
+
+    def test_average_rating_with_reviews(self):
+        user = User.objects.create_user(
+            username="reviewer", email="reviewer@example.com", password="pass123"
+        )
+        Review.objects.create(user=user, product=self.product, rating=4)
+        Review.objects.create(
+            user=User.objects.create_user(
+                username="reviewer2", email="reviewer2@example.com", password="pass123"
+            ),
+            product=self.product, rating=5,
+        )
+        self.assertEqual(self.product.average_rating, 4.5)
+
+    def test_review_count_zero(self):
+        self.assertEqual(self.product.review_count, 0)
+
+    def test_review_count_with_reviews(self):
+        user = User.objects.create_user(
+            username="reviewer3", email="reviewer3@example.com", password="pass123"
+        )
+        Review.objects.create(user=user, product=self.product, rating=3)
+        self.assertEqual(self.product.review_count, 1)
 
 
 class ProductImageModelTests(TestCase):
@@ -303,6 +367,85 @@ class ProductDetailViewTests(TestCase):
     def test_nonexistent_product_returns_404(self):
         resp = self.client.get("/products/no-exist/")
         self.assertEqual(resp.status_code, 404)
+
+
+class ProductListViewFilterSortTests(TestCase):
+    def setUp(self):
+        self.seller = User.objects.create_user(
+            username="seller_fs", email="seller_fs@example.com",
+            password="pass123", user_type="SELLER",
+        )
+        self.cat1 = Category.objects.create(name="Electronics", slug="electronics")
+        self.cat2 = Category.objects.create(name="Books", slug="books")
+        self.tag1 = Tag.objects.create(name="Sale", slug="sale")
+        self.tag2 = Tag.objects.create(name="New", slug="new")
+        self.p1 = Product.objects.create(
+            seller=self.seller, category=self.cat1,
+            name="A Product", slug="a-product",
+            price=50, stock=5, is_available=True,
+        )
+        self.p2 = Product.objects.create(
+            seller=self.seller, category=self.cat2,
+            name="Z Product", slug="z-product",
+            price=10, stock=5, is_available=True,
+        )
+        self.p3 = Product.objects.create(
+            seller=self.seller, category=self.cat1,
+            name="Middle", slug="middle",
+            price=30, stock=5, is_available=True,
+        )
+        self.p1.tags.add(self.tag1)
+        self.p2.tags.add(self.tag2)
+        self.p3.tags.add(self.tag1, self.tag2)
+
+    def test_filter_by_category(self):
+        resp = self.client.get(reverse("products:product_list"), {"category": "electronics"})
+        products = resp.context["products"]
+        self.assertIn(self.p1, products)
+        self.assertIn(self.p3, products)
+        self.assertNotIn(self.p2, products)
+
+    def test_filter_by_tag(self):
+        resp = self.client.get(reverse("products:product_list"), {"tag": "sale"})
+        products = resp.context["products"]
+        self.assertIn(self.p1, products)
+        self.assertIn(self.p3, products)
+        self.assertNotIn(self.p2, products)
+
+    def test_sort_price_asc(self):
+        resp = self.client.get(reverse("products:product_list"), {"sort": "price_asc"})
+        products = list(resp.context["products"])
+        self.assertEqual(products[0].price, 10)
+        self.assertEqual(products[1].price, 30)
+        self.assertEqual(products[2].price, 50)
+
+    def test_sort_price_desc(self):
+        resp = self.client.get(reverse("products:product_list"), {"sort": "price_desc"})
+        products = list(resp.context["products"])
+        self.assertEqual(products[0].price, 50)
+        self.assertEqual(products[1].price, 30)
+        self.assertEqual(products[2].price, 10)
+
+    def test_sort_name(self):
+        resp = self.client.get(reverse("products:product_list"), {"sort": "name"})
+        products = list(resp.context["products"])
+        self.assertEqual(products[0].name, "A Product")
+        self.assertEqual(products[1].name, "Middle")
+        self.assertEqual(products[2].name, "Z Product")
+
+    def test_sort_oldest(self):
+        resp = self.client.get(reverse("products:product_list"), {"sort": "oldest"})
+        products = list(resp.context["products"])
+        self.assertEqual(products[0], self.p1)
+
+    def test_context_has_categories(self):
+        resp = self.client.get(reverse("products:product_list"))
+        self.assertIn("categories", resp.context)
+        self.assertIn("tags", resp.context)
+        self.assertIn("current_category", resp.context)
+        self.assertIn("current_sort", resp.context)
+        self.assertIn("current_tag", resp.context)
+        self.assertIn("query", resp.context)
 
 
 class ProductCreateViewTests(TestCase):

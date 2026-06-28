@@ -3,11 +3,12 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.utils import timezone
 
 from coupons.forms import CouponApplyForm
 from coupons.models import Coupon
+from coupons.views import apply_coupon, remove_coupon
 
 User = get_user_model()
 
@@ -203,6 +204,16 @@ class CouponApplyFormTests(TestCase):
     def test_empty_code_invalid(self):
         form = CouponApplyForm(data={"code": ""})
         self.assertFalse(form.is_valid())
+
+
+class CouponURLTests(TestCase):
+    def test_apply_coupon_url_resolves(self):
+        resolver = resolve("/coupons/apply/")
+        self.assertEqual(resolver.func, apply_coupon)
+
+    def test_remove_coupon_url_resolves(self):
+        resolver = resolve("/coupons/remove/")
+        self.assertEqual(resolver.func, remove_coupon)
 
 
 class ApplyCouponViewTests(TestCase):

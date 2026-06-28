@@ -25,8 +25,8 @@ def handler400(request, exception):
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path("admin/dashboard/", admin_dashboard, name="admin_dashboard"),
+    path('admin/', admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("accounts/login/", auth_views.LoginView.as_view(redirect_authenticated_user=True), name="login"),
     path("accounts/", include("django.contrib.auth.urls")),

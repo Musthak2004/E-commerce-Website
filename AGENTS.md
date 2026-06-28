@@ -28,15 +28,15 @@ No linters, formatters, or pre-commit hooks are configured.
 ## Project structure
 
 - **`django_project/`** — project config (`settings.py`, root `urls.py`)
-- **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`, email verification
-- **`pages/`** — static pages + contact form + newsletter signup (models/forms/views)
-- **`products/`** — product CRUD with seller-ownership enforcement, category filtering, sorting, search, tags (M2M)
+- **`accounts/`** — `CustomUser` (email-based auth, `USERNAME_FIELD = "email"`), `Profile`, email verification; 47 tests
+- **`pages/`** — static pages + contact form + newsletter signup (models/forms/views); 31 tests
+- **`products/`** — product CRUD with seller-ownership enforcement, category filtering, sorting, search, tags (M2M); 70 tests
 - **`cart/`** — shopping cart + wishlist; 68 tests
 - **`orders/`** — order processing with stock validation, user cancellation; 58 tests
 - **`coupons/`** — coupon management (code, discount, dates, usage limit); 33 tests
 - **`payments/`** — payment processing (Stripe Checkout, webhooks, OneToOne to Order); 32 tests
 - **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 26 tests
-- **`api/`** — REST API (DRF read-only product endpoint with pagination)
+- **`api/`** — REST API (DRF read-only product endpoint with pagination); 13 tests
 - **`templates/`** — project-level templates (`base.html`, registration templates, admin dashboard, breadcrumbs include)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 203 lines); uses Font Awesome 6.5.1
 

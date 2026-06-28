@@ -1,51 +1,159 @@
-# E-commerce Website
+<div align="center">
+  <h1>🛍️ ShopEase</h1>
+  <p><strong>Full-featured Django e-commerce platform</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/Django-6.0.6-092E20?logo=django&logoColor=white" alt="Django">
+    <img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/DRF-3.17.1-A30000?logo=django&logoColor=white" alt="DRF">
+    <img src="https://img.shields.io/badge/Stripe-15.3.0-008CDD?logo=stripe&logoColor=white" alt="Stripe">
+    <img src="https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+    <img src="https://img.shields.io/badge/380_tests-passing-22C55E" alt="Tests">
+  </p>
+</div>
 
 A Django-based e-commerce platform with a warm gold-themed UI. Features user authentication, product management, shopping cart, order processing, Stripe payment integration, coupon discounts, product reviews, wishlist, email verification, and a refined shopping experience with subtle animations.
 
+---
+
 ## Features
 
-- **User Authentication** — Login, signup, password reset, email verification (token-based, `CustomUser` model with `is_email_verified` field)
-- **Role-Based Access** — Customer and Seller roles with profile management; redirects for authenticated users
-- **Product Management** — Sellers can create, edit, and delete products; product listing with pagination, images, and search
-- **Shopping Cart** — Add, remove, update quantities; login-required; cart count badge in header; inline quantity controls
-- **Wishlist** — Toggle products on/off wishlist; wishlist count badge in header
-- **Order Processing** — Create orders from cart with stock validation, atomic transactions, order history with status tracking (Pending / Confirmed / Shipped / Delivered / Cancelled), user-initiated cancellation
-- **Payment Processing** — Record payments against orders with Stripe Checkout integration, webhook confirmation, and status tracking
-- **Coupon System** — Discount coupons with fixed/percentage types, usage limits, validity dates; applied at checkout
-- **Product Reviews** — Customers can review products with ratings; duplicate-review prevention, linked from product detail and order detail pages
-- **Image Gallery** — Multiple product images with click-to-swap thumbnails
-- **Related Products** — Same-category product suggestions on detail page
-- **Category Filtering & Sorting** — Filter by category, sort by price/name/date on product list
-- **Contact Form** — Working contact form with DB storage and email notification
-- **Newsletter Signup** — Email capture with DB storage
-- **REST API** — Read-only API for products (Django REST Framework)
-- **Admin Dashboard** — Stats overview at `/admin/dashboard/`
-- **Responsive Design** — Works on desktop, tablet, and mobile
-- **Subtle Animations** — Fade-in/slide-up page entrances, staggered list reveals, image zoom on hover, button press micro-interactions (disabled for reduced-motion preference)
+### User Management
+- **Email-based authentication** — `CustomUser` model with `USERNAME_FIELD = "email"`; no username required for login
+- **Token email verification** — Users verify their email via tokenized link before accessing order features
+- **Role-based access control** — Customer and Seller roles; seller-only product management
+- **Profile management** — Editable profile with address details and avatar upload
+
+### Product Management (Sellers)
+- **Full CRUD** — Create, read, update, delete products with ownership enforcement
+- **Category & tags** — Products organized by category and many-to-many tags with slug-based URLs
+- **Image gallery** — Multiple product images with thumbnail selector on detail page
+- **Search & filtering** — Search by name/description, filter by category/tag, sort by price/name/date
+- **Pagination** — 12 products per page with paginated browsing
+
+### Shopping
+- **Cart** — Add/remove/update quantities; unique product constraint per cart; aggregated total price via DB query
+- **Wishlist** — Toggle products on/off; wishlist count badge in navigation
+- **Context processor** — Cart and wishlist counts injected globally into all templates
+
+### Orders
+- **Atomic order creation** — Stock validation, inventory decrement, and order creation inside a database transaction
+- **Status tracking** — Pending → Confirmed → Shipped → Delivered → Cancelled
+- **User-initiated cancellation** — Cancel pending orders with automatic stock restoration
+- **Order history** — Per-user order list with status badges
+
+### Payments (Stripe)
+- **Checkout Sessions** — Redirect to Stripe-hosted checkout with line-item pricing
+- **Webhook confirmation** — Server-side `checkout.session.completed` event processing
+- **Payment status** — Pending → Processing → Completed → Failed → Refunded
+- **Minimum amount** — $0.50 minimum transaction enforced
+
+### Coupons & Discounts
+- **Flexible discount types** — Percentage (with optional max cap) or fixed amount
+- **Validity rules** — Date range, minimum order amount, usage limits
+- **Application** — Code-based, applied at checkout via session; case-insensitive
+
+### Reviews
+- **Star ratings** — 1–5 star rating with duplicate-review prevention (unique user + product constraint)
+- **Linked access** — Review form accessible from both product detail and order detail pages
+
+### API (REST)
+- **Read-only product endpoint** — Django REST Framework `ReadOnlyModelViewSet`
+- **Nested serializers** — Category and tag data included; average rating and review count computed
+- **Pagination** — Configurable page size (default 12, max 48)
+- **Throttling** — 100 req/h anonymous, 1000 req/h authenticated
+
+### Design & UX
+- **Warm gold theme** — Custom CSS properties, pill-shaped buttons, card-based layout
+- **Subtle animations** — Page entrance fades, staggered product reveals, image zoom on hover, button micro-interactions
+- **Responsive** — 375px mobile breakpoint through desktop
+- **Accessibility** — Skip-to-content link, focus-visible outlines, reduced-motion support
+- **No JavaScript framework** — Vanilla JS in IIFE pattern, lightweight (~200 lines)
+
+---
 
 ## Tech Stack
 
-- **Backend:** Django 6.0.6, Python 3.13, Django REST Framework 3.17.1
-- **Frontend:** HTML5, CSS3 (custom properties, keyframe animations), vanilla JavaScript, Font Awesome 6.5.1
-- **Fonts:** Playfair Display (headings), Outfit (body) — via Google Fonts
-- **Database:** SQLite (default)
-- **Auth:** `accounts.CustomUser` (email-based, `USERNAME_FIELD = "email"`, `is_email_verified`)
-- **Payments:** Stripe Checkout Sessions + Webhooks
-- **CI:** GitHub Actions
+| Category | Technologies |
+|----------|-------------|
+| **Backend** | Django 6.0.6, Python 3.13, Django REST Framework 3.17.1 |
+| **Frontend** | HTML5, CSS3 (custom properties, keyframes), Vanilla JS, Font Awesome 6.5.1 |
+| **Typography** | Playfair Display (headings), Outfit (body) — Google Fonts |
+| **Database** | SQLite (development), SQLite/PostgreSQL (production) |
+| **Auth** | `django.contrib.auth` + custom `AbstractUser` (`USERNAME_FIELD = "email"`) |
+| **Payments** | Stripe Checkout Sessions + Webhooks |
+| **Storage** | django-cleanup (auto-cleanup of orphaned images), Pillow |
+| **Static files** | WhiteNoise (compressed, cached) |
+| **Config** | python-decouple (environment-based settings) |
+| **CI** | GitHub Actions (test on push/PR to `main`) |
+| **Server** | Gunicorn (production) |
+
+### Dependencies
+
+```
+Django==6.0.6
+django-cleanup==9.0.0
+djangorestframework==3.17.1
+gunicorn==25.1.0
+pillow==12.2.0
+python-decouple==3.8
+stripe==15.3.0
+whitenoise==6.12.0
+```
+
+---
+
+## Architecture
+
+### Entity Relationships
+
+```
+CustomUser (AbstractUser)
+  ├── Profile          (OneToOne → user)
+  ├── Product (seller) (ForeignKey ← seller)
+  ├── Cart             (OneToOne → user)
+  │   └── CartItem     (ForeignKey → cart, ForeignKey → product)
+  ├── Wishlist         (OneToOne → user)
+  │   └── M2M → Product
+  ├── Order            (ForeignKey → user)
+  │   └── OrderItem    (ForeignKey → order, ForeignKey → product)
+  ├── Review           (ForeignKey → user, ForeignKey → product)
+  └── Payment          (OneToOne → Order)
+
+Category ──→ Product (ForeignKey ← category)
+Tag      ──→ Product (M2M)
+Coupon   ──→ Order   (ForeignKey ← coupon, nullable)
+ProductImage (ForeignKey → Product)
+```
+
+### Key Design Decisions
+
+- **Context processor** injects `cart_count` and `wishlist_count` globally — no per-view boilerplate
+- **Payment flow**: Cart → Create order (atomic, stock validation) → Stripe Checkout → Webhook → Confirm
+- **Review flow**: Product detail or order detail → Review form → Review detail
+- **Seller ownership**: All product CRUD views enforce `seller=self.request.user` via queryset filtering
+- **Email verification**: Token-based (`uidb64` + token) with `django.utils.http` helpers; verification required before ordering
+- **Coupon application**: Session-based (no database writes until order creation); normalized to uppercase
+
+---
 
 ## Quick Start
 
 ```bash
-# Clone the repo
+# Clone
 git clone https://github.com/Musthak2004/E-commerce-Website.git
 cd E-commerce-Website
 
-# Create and activate virtual environment
+# Create virtual environment
 python -m venv .venv
-.venv\Scripts\activate
+source .venv/bin/activate    # Linux/macOS
+.venv\Scripts\activate       # Windows
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your SECRET_KEY, Stripe keys, and email settings
 
 # Run migrations
 python manage.py migrate
@@ -53,11 +161,44 @@ python manage.py migrate
 # Create a superuser
 python manage.py createsuperuser
 
-# Run the development server
+# Seed test data (optional)
+python manage.py loaddata products/fixtures/*.json  # if available
+
+# Run the server
 python manage.py runserver
 ```
 
 Visit `http://127.0.0.1:8000/` to see the app.
+
+---
+
+## Configuration
+
+All sensitive settings are managed via `.env` using `python-decouple`:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SECRET_KEY` | — | Django secret key (generate with `python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'`) |
+| `DEBUG` | `False` | Debug mode |
+| `ALLOWED_HOSTS` | `.pythonanywhere.com,localhost,127.0.0.1` | Allowed hostnames |
+| `CSRF_TRUSTED_ORIGINS` | `https://*.pythonanywhere.com,http://localhost` | CSRF trust origins |
+| `STRIPE_PUBLISHABLE_KEY` | — | Stripe publishable key (pk_test_...) |
+| `STRIPE_SECRET_KEY` | — | Stripe secret key (sk_test_...) |
+| `STRIPE_WEBHOOK_SECRET` | — | Stripe webhook signing secret (whsec_...) |
+
+Email settings default to the console backend (`django.core.mail.backends.console.EmailBackend`). Configure SMTP in `.env` for production:
+
+```
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=noreply@shopease.com
+```
+
+---
 
 ## Test Account
 
@@ -65,142 +206,246 @@ Visit `http://127.0.0.1:8000/` to see the app.
 |-------|----------|------|
 | testuser@gmail.com | test_2004 | Seller |
 
+The database is pre-seeded with test data including categories, products, and this test account.
+
+---
+
 ## Running Tests
 
 The project has **380 tests** across ten test suites:
 
 | App | Tests | Coverage |
 |-----|-------|----------|
-| accounts | 47 | Models, forms, views, signals, URLs, auth flow, email verification |
-| pages | 31 | Models, forms, views (home/about/contact/newsletter/dashboard), URL resolution |
-| products | 70 | Models (Category/Tag/Product/ProductImage), forms, CRUD, permissions, filtering, sorting, search |
-| cart | 68 | Models (Cart/CartItem/Wishlist), add/remove/update views, cart detail, context processor, coupon-in-cart |
-| orders | 58 | Models, create order (stock validation, atomicity, coupons), detail, list, cancel (stock restore) |
-| coupons | 33 | Models (discount logic, validation), forms, views (apply/remove), session management, expired/inactive codes |
-| payments | 32 | Models, forms (duplicate-payment prevention), create/detail/success views, ownership enforcement, URL resolves |
-| reviews | 26 | Models, forms (rating/comment validation), create (duplicate-check), detail view, URL resolves |
-| api | 13 | Product list/retrieve, pagination, auth, filtering, all serializer fields |
-| django_project | 2 | Error handlers (404, 500) |
+| products | 70 | Models (Category/Tag/Product/ProductImage), forms, CRUD views, seller permissions, filtering, sorting, search, pagination |
+| cart | 68 | Models (Cart/CartItem/Wishlist), add/remove/update views, cart detail, context processor, coupon-in-cart session |
+| orders | 58 | Models, create order (stock validation, atomicity, coupon discount), order detail, list, cancel with stock restore |
+| accounts | 47 | CustomUser model, Profile model, SignUpForm, SignUpView, VerifyEmailView, ProfileUpdateView, signals, URLs |
+| coupons | 33 | Coupon model (discount logic, validation), forms, apply/remove views, session management, expired/inactive codes |
+| payments | 32 | Payment model, PaymentForm (duplicate & zero-value prevention), create/detail/success views, ownership, URL resolves |
+| pages | 31 | Models (ContactMessage, NewsletterSubscriber), forms, views (home/about/contact/newsletter/dashboard) |
+| reviews | 26 | Review model, ReviewForm (rating/comment validation), create (duplicate-check), detail view, URL resolves |
+| api | 13 | Product list/retrieve endpoints, pagination, authentication, serializer field completeness |
+| django_project | 2 | Custom error handlers (403, 404) |
 
 ```bash
 # Run all tests
 python manage.py test --verbosity=2
 
-# Run tests in parallel
+# Run in parallel (8 workers)
 python manage.py test --parallel --verbosity=2
 
-# Run specific app tests
+# Run specific app
 python manage.py test accounts --verbosity=2
-python manage.py test pages --verbosity=2
 python manage.py test products --verbosity=2
-python manage.py test cart --verbosity=2
 python manage.py test orders --verbosity=2
-python manage.py test payments --verbosity=2
-python manage.py test reviews --verbosity=2
-python manage.py test api --verbosity=2
 ```
+
+---
+
+## API Reference
+
+### `GET /api/products/`
+
+Returns a paginated list of available products.
+
+**Query parameters:**
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | integer | Page number (default: 1) |
+| `page_size` | integer | Items per page (default: 12, max: 48) |
+
+**Response:**
+
+```json
+{
+  "count": 42,
+  "next": "http://localhost:8000/api/products/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "name": "Wireless Headphones",
+      "slug": "wireless-headphones",
+      "description": "Premium wireless headphones with noise cancellation.",
+      "price": "79.99",
+      "stock": 15,
+      "is_available": true,
+      "image": "http://localhost:8000/media/products/headphones.jpg",
+      "category": {
+        "id": 1,
+        "name": "Electronics",
+        "slug": "electronics"
+      },
+      "tags": [
+        {"id": 1, "name": "Wireless", "slug": "wireless"},
+        {"id": 2, "name": "Audio", "slug": "audio"}
+      ],
+      "average_rating": 4.2,
+      "review_count": 5,
+      "created_at": "2026-06-20T10:30:00Z"
+    }
+  ]
+}
+```
+
+### `GET /api/products/<slug:slug>/`
+
+Returns a single product by slug.
+
+---
+
+## Deployment
+
+Designed for PythonAnywhere (free plan) with WhiteNoise for static files:
+
+```bash
+# Collect static files
+python manage.py collectstatic
+
+# Run production checks
+python manage.py check --deploy
+
+# Start with Gunicorn
+gunicorn django_project.wsgi:application --workers=2 --bind=0.0.0.0:8000
+```
+
+The project includes production-ready settings:
+- `whitenoise.middleware.WhiteNoiseMiddleware` for static file serving (compressed + cached)
+- `SECURE_SSL_REDIRECT`, `SECURE_HSTS_*` headers (enabled when `DEBUG=False`)
+- `SECURE_CONTENT_TYPE_NOSNIFF`, `X_FRAME_OPTIONS = "DENY"`
+- `CONN_MAX_AGE = 60` for persistent database connections
+- `DATA_UPLOAD_MAX_MEMORY_SIZE = 5MB`
+- File + console logging with rotation
+- `ADMINS` and `SERVER_EMAIL` configured for error notifications
+
+### Environment Setup for PythonAnywhere
+
+`.env.example` includes PythonAnywhere-ready defaults:
+```
+ALLOWED_HOSTS=.pythonanywhere.com,localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=https://*.pythonanywhere.com,http://localhost
+```
+
+The `wsgi.py` file auto-loads `.env` and configures the Python path for PythonAnywhere.
+
+---
+
+## CI/CD
+
+```yaml
+# .github/workflows/ci.yml
+on: [push, pull_request] → main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - checkout, setup Python 3.13
+      - pip install -r requirements.txt
+      - python manage.py migrate
+      - python manage.py test --verbosity=2
+```
+
+GitHub Actions runs the full test suite on every push and pull request to `main`.
+
+---
 
 ## Project Structure
 
 ```
-├── accounts/               # User auth app
-│   ├── models.py           # CustomUser (email-based, is_email_verified), Profile
-│   ├── forms.py            # SignUpForm with duplicate email validation
-│   ├── views.py            # SignUpView (sends verification email), VerifyEmailView, ProfileUpdateView
-│   ├── urls.py             # signup, profile, verify/<uidb64>/<token>/
+├── accounts/               # User authentication (CustomUser, Profile, email verification)
+│   ├── models.py           # CustomUser (email-based USERNAME_FIELD), Profile (OneToOne)
+│   ├── forms.py            # SignUpForm with duplicate email check
+│   ├── views.py            # SignUpView (welcome email), VerifyEmailView, ProfileUpdateView
+│   ├── urls.py             # signup/, profile/, verify/<uidb64>/<token>/
 │   ├── admin.py            # CustomUserAdmin, ProfileAdmin
-│   ├── signals.py          # Auto-create Profile on user signup
+│   ├── signals.py          # Auto-create Profile on user creation
 │   └── tests.py            # 47 tests
-├── cart/                   # Shopping cart app
-│   ├── models.py           # Cart, CartItem (UniqueConstraint, MinValueValidator)
-│   ├── views.py            # add_to_cart, remove_from_cart, update_quantity, cart_detail
-│   ├── urls.py             # 4 routes
-│   ├── admin.py            # CartAdmin, CartItemAdmin with search & filters
-│   ├── context_processors.py   # cart_count / wishlist_count for nav badge
+├── cart/                   # Shopping cart + wishlist
+│   ├── models.py           # Cart (OneToOne), CartItem (UniqueConstraint), Wishlist (M2M)
+│   ├── views.py            # add/remove/update cart, cart_detail, toggle_wishlist
+│   ├── urls.py             # 5 routes
+│   ├── admin.py            # CartAdmin, CartItemAdmin
+│   ├── context_processors.py   # cart_count, wishlist_count (global template injection)
 │   ├── tests.py            # 68 tests
 │   └── templates/cart/
-│       └── cart_detail.html    # Items with qty controls, order summary, trust badges, empty state
-├── orders/                 # Order management app
-│   ├── models.py           # Order (5 statuses), OrderItem (with total_price property)
-│   ├── views.py            # create_order (atomic, stock validation), order_list, order_detail, cancel_order
-│   ├── urls.py             # 4 routes (includes cancel)
-│   ├── admin.py            # OrderAdmin with OrderItemInline
+├── orders/                 # Order processing
+│   ├── models.py           # Order (5 statuses, db_index on created_at), OrderItem
+│   ├── views.py            # create (atomic), list, detail, cancel (stock restore)
+│   ├── urls.py             # 4 routes
+│   ├── admin.py            # OrderAdmin with inline items
 │   ├── tests.py            # 58 tests
 │   └── templates/orders/
-│       ├── order_list.html      # Card-based history with status badges
-│       └── order_detail.html    # Contact card, items table, summary panel
-├── coupons/                # Coupon/discount app
-│   ├── models.py           # Coupon (code, discount type/value, dates, usage limit/used)
-│   ├── forms.py            # CouponApplyForm (normalizes to uppercase)
-│   ├── views.py            # apply_coupon, remove_coupon (session-based)
+├── coupons/                # Discount coupons
+│   ├── models.py           # Coupon (percentage/fixed, dates, usage limits, validation)
+│   ├── forms.py            # CouponApplyForm (uppercase normalization)
+│   ├── views.py            # apply/remove (session-based)
 │   ├── urls.py             # 2 routes
 │   ├── admin.py            # CouponAdmin with filters
 │   ├── tests.py            # 33 tests
-│   └── templates/coupons/  # (coupon form rendered inside cart detail)
-├── payments/               # Payment processing app
-│   ├── models.py           # Payment (OneToOneField to Order, status/method tracking)
-│   ├── forms.py            # PaymentForm with duplicate-payment & zero-value validation
-│   ├── views.py            # PaymentCreateView (Stripe redirect), PaymentDetailView (ownership enforced)
-│   ├── urls.py             # 2 routes
-│   ├── admin.py            # PaymentAdmin with list filters
+├── payments/               # Stripe payment processing
+│   ├── models.py           # Payment (OneToOne Order, Stripe session ID, status)
+│   ├── forms.py            # PaymentForm (duplicate-payment prevention)
+│   ├── views.py            # create (Stripe redirect), success (webhook verify), detail, webhook
+│   ├── urls.py             # 4 routes
+│   ├── admin.py            # PaymentAdmin
 │   ├── tests.py            # 32 tests
 │   └── templates/payments/
-│       ├── payment_form.html    # Checkout with order summary and payment method selection
-│       └── payment_detail.html  # Payment receipt with status badge and info cards
-├── reviews/                # Product reviews app
-│   ├── models.py           # Review (ForeignKey to User + Product, UniqueConstraint, rating validators)
-│   ├── forms.py            # ReviewForm with rating/comment validation
-│   ├── views.py            # ReviewCreateView (duplicate-check), ReviewDetailView
+├── reviews/                # Product reviews
+│   ├── models.py           # Review (UniqueConstraint user+product, rating 1-5)
+│   ├── forms.py            # ReviewForm
+│   ├── views.py            # ReviewCreateView (duplicate-guard), ReviewDetailView
 │   ├── urls.py             # 2 routes
-│   ├── admin.py            # ReviewAdmin with user email search
+│   ├── admin.py            # ReviewAdmin
 │   ├── tests.py            # 26 tests
 │   └── templates/reviews/
-│       ├── review_form.html      # Product summary card with styled rating selector
-│       └── review_detail.html    # Rating badge, 2-col meta grid, comment card
-├── api/                    # REST API
-│   ├── serializers.py      # ProductListSerializer, CategorySerializer, TagSerializer
-│   ├── views.py            # ProductViewSet (ReadOnlyModelViewSet)
-│   ├── tests.py            # 13 tests
-│   └── urls.py             # Router with /products/ endpoint
-├── pages/                  # Static page routing app
+├── api/                    # REST API (DRF)
+│   ├── serializers.py      # ProductListSerializer with nested category/tags + computed fields
+│   ├── views.py            # ProductViewSet (ReadOnly, slug lookup, pagination)
+│   ├── urls.py             # /products/ endpoint (DefaultRouter)
+│   └── tests.py            # 13 tests
+├── pages/                  # Static pages + admin dashboard
 │   ├── models.py           # ContactMessage, NewsletterSubscriber
 │   ├── forms.py            # ContactForm
-│   ├── views.py            # Home/About/ContactPageView, newsletter_signup
-│   ├── urls.py             # Root + /about/ + /contact/ + /newsletter/
+│   ├── views.py            # Home/About/Contact views, newsletter_signup
+│   ├── urls.py             # /, /about/, /contact/, /newsletter/
 │   ├── admin.py            # ContactMessageAdmin, NewsletterSubscriberAdmin
-│   ├── admin_dashboard.py  # admin_dashboard view (staff-only stats)
+│   ├── admin_dashboard.py  # Staff-only stats view
 │   └── tests.py            # 31 tests
-├── products/               # Product management app
-│   ├── models.py           # Category, Tag, Product (tags M2M), ProductImage (indexed, ordered)
-│   ├── forms.py            # ProductForm (price > 0, stock >= 0 validation, tags field)
-│   ├── views.py            # CRUD with SellerRequiredMixin, category/tag filtering, sort, search
-│   ├── urls.py             # 5 routes
-│   ├── admin.py            # Inline images, list_editable, prepopulated slugs, TagAdmin
+├── products/               # Product catalog
+│   ├── models.py           # Category, Tag, Product (MinValueValidator price), ProductImage
+│   ├── forms.py            # ProductForm (price > 0 validation, tags CheckboxSelectMultiple)
+│   ├── views.py            # CRUD with seller ownership + filtering/sorting/search
+│   ├── urls.py             # 5 routes (slug-based)
+│   ├── admin.py            # ProductAdmin with inline images + list_editable
 │   ├── tests.py            # 70 tests
 │   └── templates/products/
-│       ├── product_list.html          # Grid with staggered card entrance
-│       ├── product_detail.html        # Gallery + info with fade-in sections
-│       ├── product_form.html          # Styled create/edit form
-│       └── product_confirm_delete.html
 ├── django_project/         # Project configuration
-│   ├── settings.py         # Installed apps, templates, auth, media config
-│   ├── urls.py             # Root URLConf (includes all apps)
-│   └── tests.py            # Error handler tests (403, 404)
-├── .github/workflows/      # CI/CD
-│   └── ci.yml              # GitHub Actions: test on push/PR
-├── templates/              # Project-level templates
-│   ├── base.html           # Layout: header (auth-aware nav, badges), search overlay, footer
-│   ├── home.html           # Hero, featured categories, stats, prompt assistant, CTA
-│   ├── about.html          # About page
-│   ├── contact.html        # Contact page with working form
-│   ├── admin/
-│   │   └── dashboard.html  # Admin dashboard with stats cards
-│   ├── includes/
-│   │   └── breadcrumbs.html    # Reusable breadcrumb nav
-│   └── registration/       # Login, signup, password reset, email verified (7 templates)
+│   ├── settings.py         # All config: apps, middleware, auth, DRF, Stripe, security, logging
+│   ├── urls.py             # Root URLConf (all URL includes + custom error handlers)
+│   ├── wsgi.py             # WSGI with .env auto-loading and sys.path setup for PA
+│   └── tests.py            # Custom error handler tests (403, 404)
+├── templates/              # Project-level templates (29 total, all extend base.html)
+│   ├── base.html           # Layout: skip-link, nav (auth-aware, badges), search overlay, footer
+│   ├── home.html           # Hero, featured categories, stats
+│   ├── about.html          # Company info
+│   ├── contact.html        # Contact form
+│   ├── errors/             # 400, 403, 404, 500 error pages
+│   ├── admin/dashboard.html    # Stats overview
+│   ├── registration/       # Login, signup, password reset (7 templates)
+│   └── includes/breadcrumbs.html
 ├── static/
-│   ├── css/style.css       # Complete stylesheet (~2500 lines, animations, responsive)
-│   └── js/main.js          # Nav, search, password toggle, alert dismiss, prompt assistant
+│   ├── css/style.css       # Complete stylesheet (~2500 lines): animations, responsive, gold theme
+│   └── js/main.js          # Vanilla JS (203 lines): nav, search, alerts, animations, form loading
 ├── media/products/         # Uploaded product images
+├── .env.example            # Environment variable template
+├── .github/workflows/ci.yml
+├── AGENTS.md               # AI agent guide
 └── manage.py
 ```
+
+---
+
+## License
+
+This project is for educational and portfolio purposes.

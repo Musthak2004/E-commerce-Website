@@ -181,7 +181,7 @@ class ProductFormTests(TestCase):
 
     def test_form_has_correct_fields(self):
         form = ProductForm()
-        expected = ["category", "name", "slug", "description", "price", "stock", "image", "is_available"]
+        expected = ["category", "tags", "name", "slug", "description", "price", "stock", "image", "is_available"]
         for field in expected:
             self.assertIn(field, form.fields)
 

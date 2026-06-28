@@ -12,8 +12,9 @@ python manage.py runserver
 | Action | Command |
 |--------|---------|
 | Run dev server | `python manage.py runserver` |
-| Run all tests | `$env:DJANGO_SETTINGS_MODULE='django_project.settings'; python -m django test --parallel --verbosity=2` |
+| Run all tests | `python manage.py test --parallel --verbosity=2` |
 | Test single app | `python manage.py test <app> --verbosity=2` |
+| Seed test data | `.venv\Scripts\python _seed_products.py` |
 | After adding/editing models | `python manage.py makemigrations <app>` then `python manage.py migrate` |
 | Install dependencies | `.venv\Scripts\pip install -r requirements.txt` |
 | Superuser | `python manage.py createsuperuser` |
@@ -24,6 +25,8 @@ python manage.py runserver
 No linters, formatters, or pre-commit hooks are configured.
 
 > **Test gotcha:** `.env` sets `DEBUG=True`. The `if not DEBUG:` block enables `SECURE_SSL_REDIRECT`. **Do NOT set `$env:DEBUG='False'` before running tests** — it causes mass 301 redirect failures. Tests read `DEBUG` from `.env` (which is `True`), keeping SSL redirect off.
+>
+> **Image gotcha:** `Product.image` is an `ImageField`. Storing external URLs (like Unsplash) in it makes `.url` prepend `MEDIA_URL` → broken path. Use `product.image_url` in templates instead of `product.image.url`. The `image_url` property returns external URLs as-is.
 
 ## Project structure
 
@@ -57,6 +60,7 @@ No linters, formatters, or pre-commit hooks are configured.
 - **Payment flow**: Cart → Create order (stock validation, atomic) → Order detail → Payment create → Payment detail.
 - **Review flow**: Product detail (Write a Review) or Order detail (per-item Review) → Review form → Review detail.
 - **Database**: SQLite (`db.sqlite3`) — pre-seeded with test data and a test account.
+- **External images**: `Product.image_url` property returns remote URLs directly; use `product.image_url` in templates, never `product.image.url` for external URLs.
 
 ## Test accounts
 

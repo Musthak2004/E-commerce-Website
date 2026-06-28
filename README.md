@@ -132,6 +132,7 @@ ProductImage (ForeignKey → Product)
 - **Seller ownership**: All product CRUD views enforce `seller=self.request.user` via queryset filtering
 - **Email verification**: Token-based (`uidb64` + token) with `django.utils.http` helpers; verification required before ordering
 - **Coupon application**: Session-based (no database writes until order creation); normalized to uppercase
+- **External image URLs**: `Product.image_url` property returns remote URLs directly instead of mangling them through `ImageField.url` (which prepends `MEDIA_URL`)
 
 ---
 
@@ -161,7 +162,7 @@ python manage.py migrate
 python manage.py createsuperuser
 
 # Seed test data (optional)
-python manage.py loaddata products/fixtures/*.json  # if available
+python _seed_products.py  # creates 20 products across 10 categories
 
 # Run the server
 python manage.py runserver
@@ -418,6 +419,8 @@ The `wsgi.py` file auto-loads `.env` and configures the Python path for PythonAn
 │   ├── css/style.css       # Complete stylesheet (~2500 lines): animations, responsive, gold theme
 │   └── js/main.js          # Vanilla JS (203 lines): nav, search, alerts, animations, form loading
 ├── media/products/         # Uploaded product images
+├── _seed_products.py       # Product seed script (20 products across 10 categories)
+├── _check_data.py          # Data verification script
 ├── .env.example            # Environment variable template
 ├── AGENTS.md               # AI agent guide
 └── manage.py

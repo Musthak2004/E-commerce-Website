@@ -13,37 +13,8 @@
 {% endblock %}
 
 {% block content %}
-<style>
-.profile-page {
-  min-height : 100vh;
-  padding    : 40px 16px 80px;
-}
 
-.profile-inner {
-  max-width : 640px;
-  margin    : 0 auto;
-}
-
-.profile-header {
-  margin-bottom : 32px;
-}
-
-.profile-header h1 {
-  font-size      : clamp(1.4rem, 3vw, 1.8rem);
-  font-weight    : 800;
-  letter-spacing : -.4px;
-  color          : var(--text);
-  margin         : 0 0 4px;
-}
-
-.profile-header p {
-  font-size : .9rem;
-  color     : var(--text-secondary);
-  margin    : 0;
-}
-</style>
-
-<div class="profile-page">
+<div class="profile-page" data-animate>
   <div class="profile-inner">
     <div class="profile-header anim-up">
       <h1>My Profile</h1>

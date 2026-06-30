@@ -6,7 +6,7 @@
         <span class="error-code">403</span>
         <h1>Access Denied</h1>
         <p>You don't have permission to access this page.</p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <div class="error-actions">
             <a href="{% url 'home' %}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Back to Home</a>
             <a href="{% url 'login' %}" class="btn btn-secondary">Sign In</a>
         </div>

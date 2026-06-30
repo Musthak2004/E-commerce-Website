@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% block meta_description %}ShopEase — Thoughtfully curated products delivered to your door.{% endblock %}">
+    <meta name="theme-color" content="#b8860b">
     <title>{% block title %}ShopEase — Thoughtfully Curated{% endblock %}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -164,6 +165,14 @@
     <main id="main-content" class="page-enter">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Back to Top -->
+    <button id="backToTop" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-relevant="additions"></div>
 
     <!-- Footer -->
     <footer class="site-footer">

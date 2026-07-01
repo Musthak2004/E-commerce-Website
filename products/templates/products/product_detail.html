@@ -17,7 +17,7 @@
 
 <section class="product-detail-section" data-animate>
     <div class="product-detail">
-        <div class="product-detail-gallery anim-up anim-delay-1">
+        <div class="product-detail-gallery anim-fadeInUp anim-delay-1">
             {% if product.image %}
                 <div class="product-detail-main-img" id="mainImageContainer">
                     <img src="{{ product.image_url }}" alt="{{ product.name }}" id="mainProductImage">
@@ -39,7 +39,7 @@
             {% endwith %}
         </div>
 
-        <div class="product-detail-info anim-up anim-delay-2">
+        <div class="product-detail-info anim-fadeInUp anim-delay-2">
             {% if product.category %}
                 <span class="product-category">{{ product.category.name }}</span>
             {% endif %}
@@ -124,13 +124,13 @@
 
 {% if related_products %}
 <section class="section related-section">
-    <div class="section-header anim-up">
+    <div class="section-header anim-fadeInUp">
         <div>
             <h2>Related Products</h2>
             <p>You might also like these.</p>
         </div>
     </div>
-    <div class="product-grid stagger">
+    <div class="product-grid ">
         {% for related in related_products %}
             <a href="{% url 'products:product_detail' related.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
                 <div class="product-card-img">

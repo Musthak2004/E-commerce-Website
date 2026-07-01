@@ -4457,6 +4457,15 @@ input[type="number"].qty-input::-webkit-outer-spin-button {
 }
 
 /* ══════════════════════════════════════
+   UTILITY CLASSES
+   ══════════════════════════════════════ */
+
+.text-success { color: var(--success); }
+.text-error   { color: var(--error, #ef4444); }
+.text-muted   { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+
+/* ══════════════════════════════════════
    PRINT STYLES
    ══════════════════════════════════════ */
 

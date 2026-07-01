@@ -17,7 +17,7 @@
 {% block content %}
 
 <section class="form-page" data-animate>
-  <div class="form-card anim-up">
+  <div class="form-card anim-fadeInUp">
     <div class="form-card-header">
       <a href="{% url 'products:product_detail' product.slug %}" class="back-link">
         <i class="fas fa-arrow-left"></i> Back to Product
@@ -59,7 +59,7 @@
       {% endif %}
 
       {% for field in form %}
-        <div class="form-group anim-fadein" style="--i:{{ forloop.counter0 }}; animation-delay: calc(0.1s + var(--i, 0) * 40ms);">
+        <div class="form-group anim-fadeIn" style="--i:{{ forloop.counter0 }}; animation-delay: calc(0.1s + var(--i, 0) * 40ms);">
           <label for="{{ field.id_for_label }}">{{ field.label }}</label>
           {{ field }}
           {% if field.help_text %}

@@ -1,0 +1,138 @@
+/* ═══════════════════════════════════════════════════════════════
+   ShopEase — Reviews
+   ═══════════════════════════════════════════════════════════════ */
+
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.review-rating-badge i {
+  color: var(--white);
+  font-size: 0.78rem;
+}
+
+.review-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.review-meta-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.review-meta-item-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.review-meta-item-label i {
+  margin-right: 4px;
+}
+
+.review-meta-item-value {
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.review-comment-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 24px;
+}
+
+.review-comment-card h3 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.review-comment-card h3 i {
+  margin-right: 4px;
+}
+
+.review-comment-card p {
+  font-size: 0.925rem;
+  color: var(--text);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.review-product-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+
+.review-product-summary-img {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+}
+
+.review-product-summary-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.review-product-summary-img i {
+  font-size: 1.3rem;
+  color: var(--text-muted);
+}
+
+.review-product-summary-info h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 2px;
+}
+
+.review-product-summary-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}

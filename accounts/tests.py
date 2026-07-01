@@ -80,7 +80,7 @@ class CustomUserModelTests(TestCase):
         self.assertEqual(User.USERNAME_FIELD, "email")
 
     def test_required_fields(self):
-        self.assertIn("username", User.REQUIRED_FIELDS)
+        self.assertNotIn("username", User.REQUIRED_FIELDS)
 
 
 class ProfileModelTests(TestCase):
@@ -126,13 +126,12 @@ class ProfileModelTests(TestCase):
 class SignUpFormTests(TestCase):
     def test_form_has_correct_fields(self):
         form = SignUpForm()
-        expected_fields = ["username", "email", "user_type", "phone_number", "password1", "password2"]
+        expected_fields = ["email", "user_type", "phone_number", "password1", "password2"]
         for field in expected_fields:
             self.assertIn(field, form.fields)
 
     def test_valid_signup_form(self):
         form_data = {
-            "username": "newuser",
             "email": "new@example.com",
             "user_type": "CUSTOMER",
             "phone_number": "+1234567890",
@@ -145,14 +144,12 @@ class SignUpFormTests(TestCase):
     def test_blank_data(self):
         form = SignUpForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertIn("username", form.errors)
         self.assertIn("email", form.errors)
         self.assertIn("password1", form.errors)
         self.assertIn("password2", form.errors)
 
     def test_password_mismatch(self):
         form_data = {
-            "username": "newuser",
             "email": "new@example.com",
             "password1": "StrongPass123!",
             "password2": "DifferentPass456!",
@@ -168,7 +165,6 @@ class SignUpFormTests(TestCase):
             password="pass123"
         )
         form_data = {
-            "username": "newuser",
             "email": "existing@example.com",
             "user_type": "CUSTOMER",
             "password1": "StrongPass123!",
@@ -180,7 +176,6 @@ class SignUpFormTests(TestCase):
 
     def test_invalid_email(self):
         form_data = {
-            "username": "newuser",
             "email": "not-an-email",
             "password1": "StrongPass123!",
             "password2": "StrongPass123!",
@@ -206,7 +201,6 @@ class SignUpViewTests(TestCase):
 
     def test_signup_post_creates_user_and_profile(self):
         response = self.client.post(reverse("signup"), {
-            "username": "newuser",
             "email": "newuser@example.com",
             "user_type": "CUSTOMER",
             "phone_number": "+1234567890",
@@ -221,7 +215,6 @@ class SignUpViewTests(TestCase):
 
     def test_signup_post_invalid_data(self):
         response = self.client.post(reverse("signup"), {
-            "username": "",
             "email": "bad",
             "password1": "pw1",
             "password2": "pw2",
@@ -237,7 +230,6 @@ class SignUpViewTests(TestCase):
             password="pass123"
         )
         response = self.client.post(reverse("signup"), {
-            "username": "newuser",
             "email": "dup@example.com",
             "user_type": "CUSTOMER",
             "password1": "StrongPass123!",

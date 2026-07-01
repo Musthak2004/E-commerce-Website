@@ -32,9 +32,13 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -201,6 +205,9 @@ REST_FRAMEWORK = {
         "user": "1000/hour",
     },
 }
+
+if DEBUG:
+    INTERNAL_IPS = ["127.0.0.1", "localhost"]
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True

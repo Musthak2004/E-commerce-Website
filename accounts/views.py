@@ -16,6 +16,8 @@ from .models import CustomUser, Profile
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 
 class SignUpView(CreateView):
 
@@ -35,6 +37,16 @@ class SignUpView(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        # Auto-generate a unique username from the email prefix
+        email = form.cleaned_data.get("email", "")
+        base_username = email.split("@")[0][:150]
+        username = base_username
+        counter = 1
+        while CustomUser.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        form.instance.username = username
+
         response = super().form_valid(form)
         user = self.object
         token = default_token_generator.make_token(user)

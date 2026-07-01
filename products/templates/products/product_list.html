@@ -46,10 +46,69 @@
                     <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
                     <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
                     <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
+                    <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=rating" {% if current_sort == 'rating' %}selected{% endif %}>Top Rated</option>
                     <option value="{% url 'products:product_list' %}?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}sort=oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Oldest</option>
                 </select>
             </div>
         </div>
+
+        <div class="shop-filter-bar anim-fadeInUp">
+            <form class="shop-filter-form" method="GET" action="{% url 'products:product_list' %}">
+                {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+                {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+                {% if current_tag %}<input type="hidden" name="tag" value="{{ current_tag }}">{% endif %}
+                {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+
+                <div class="shop-filter-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" placeholder="Search products..." value="{{ query }}" aria-label="Search products">
+                </div>
+
+                <div class="shop-filter-field">
+                    <label for="minPrice">Min</label>
+                    <input type="number" name="min_price" id="minPrice" placeholder="$0" min="0" step="0.01" value="{{ min_price }}">
+                </div>
+
+                <div class="shop-filter-field">
+                    <label for="maxPrice">Max</label>
+                    <input type="number" name="max_price" id="maxPrice" placeholder="$999" min="0" step="0.01" value="{{ max_price }}">
+                </div>
+
+                <div class="shop-filter-field">
+                    <label for="minRating">Rating</label>
+                    <select name="min_rating" id="minRating">
+                        <option value="">Any</option>
+                        <option value="4" {% if min_rating == '4' %}selected{% endif %}>★★★★ & up</option>
+                        <option value="3" {% if min_rating == '3' %}selected{% endif %}>★★★ & up</option>
+                        <option value="2" {% if min_rating == '2' %}selected{% endif %}>★★ & up</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </form>
+        </div>
+
+        {% if query or current_category or current_tag or min_price or max_price or min_rating %}
+        <div class="active-filters anim-fadeIn">
+            <span class="active-filters-label">Active filters:</span>
+            {% if query %}
+                <span class="filter-tag">"{{ query }}" <a href="?{% if current_category %}category={{ current_category }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if current_sort %}sort={{ current_sort }}&{% endif %}" class="filter-tag-remove">&times;</a></span>
+            {% endif %}
+            {% if current_category %}
+                <span class="filter-tag">{{ current_category|title }} <a href="?{% if query %}q={{ query }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if min_rating %}min_rating={{ min_rating }}&{% endif %}{% if current_sort %}sort={{ current_sort }}{% endif %}" class="filter-tag-remove">&times;</a></span>
+            {% endif %}
+            {% if current_tag %}
+                <span class="filter-tag">{{ current_tag|title }} <a href="?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if min_rating %}min_rating={{ min_rating }}&{% endif %}{% if current_sort %}sort={{ current_sort }}{% endif %}" class="filter-tag-remove">&times;</a></span>
+            {% endif %}
+            {% if min_price or max_price %}
+                <span class="filter-tag">Price: {% if min_price %}${{ min_price }}{% endif %}{% if min_price and max_price %} – {% endif %}{% if max_price %}${{ max_price }}{% endif %} <a href="?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if min_rating %}min_rating={{ min_rating }}&{% endif %}{% if current_sort %}sort={{ current_sort }}{% endif %}" class="filter-tag-remove">&times;</a></span>
+            {% endif %}
+            {% if min_rating %}
+                <span class="filter-tag">{{ min_rating }}+ stars <a href="?{% if query %}q={{ query }}&{% endif %}{% if current_category %}category={{ current_category }}&{% endif %}{% if current_tag %}tag={{ current_tag }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}&{% endif %}{% if current_sort %}sort={{ current_sort }}{% endif %}" class="filter-tag-remove">&times;</a></span>
+            {% endif %}
+            <a href="{% url 'products:product_list' %}" class="filter-clear-all">Clear all</a>
+        </div>
+        {% endif %}
         <div class="product-grid">
             {% for product in products %}
                 <a href="{% url 'products:product_detail' product.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">

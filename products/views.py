@@ -1,5 +1,7 @@
+from decimal import Decimal
+
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Avg, Q
 from django.views.generic import (
     ListView,
     DetailView,
@@ -45,6 +47,8 @@ class ProductListView(ListView):
             is_available=True
         ).select_related(
             "seller", "category"
+        ).prefetch_related(
+            "tags"
         )
 
         query = self.request.GET.get("q", "").strip()
@@ -61,6 +65,30 @@ class ProductListView(ListView):
         if tag_slug:
             qs = qs.filter(tags__slug=tag_slug)
 
+        min_price = self.request.GET.get("min_price", "").strip()
+        if min_price:
+            try:
+                qs = qs.filter(price__gte=Decimal(min_price))
+            except Exception:
+                pass
+
+        max_price = self.request.GET.get("max_price", "").strip()
+        if max_price:
+            try:
+                qs = qs.filter(price__lte=Decimal(max_price))
+            except Exception:
+                pass
+
+        min_rating = self.request.GET.get("min_rating", "").strip()
+        if min_rating:
+            try:
+                rating_val = Decimal(min_rating)
+                qs = qs.annotate(
+                    avg_rating=Avg("reviews__rating")
+                ).filter(avg_rating__gte=rating_val)
+            except Exception:
+                pass
+
         sort = self.request.GET.get("sort", "").strip()
         if sort == "price_asc":
             qs = qs.order_by("price")
@@ -70,6 +98,8 @@ class ProductListView(ListView):
             qs = qs.order_by("name")
         elif sort == "oldest":
             qs = qs.order_by("created_at")
+        elif sort == "rating":
+            qs = qs.annotate(avg_rating=Avg("reviews__rating")).order_by("-avg_rating")
         else:
             qs = qs.order_by("-created_at")
 
@@ -81,6 +111,9 @@ class ProductListView(ListView):
         context["current_category"] = self.request.GET.get("category", "").strip()
         context["current_tag"] = self.request.GET.get("tag", "").strip()
         context["current_sort"] = self.request.GET.get("sort", "").strip()
+        context["min_price"] = self.request.GET.get("min_price", "").strip()
+        context["max_price"] = self.request.GET.get("max_price", "").strip()
+        context["min_rating"] = self.request.GET.get("min_rating", "").strip()
         context["categories"] = Category.objects.filter(
             products__is_available=True
         ).distinct()

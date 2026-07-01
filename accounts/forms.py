@@ -11,7 +11,6 @@ class SignUpForm(UserCreationForm):
         model = CustomUser
 
         fields = (
-            "username",
             "email",
             "user_type",
             "phone_number",

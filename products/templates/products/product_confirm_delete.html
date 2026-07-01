@@ -19,7 +19,7 @@
             {% csrf_token %}
             <div class="form-actions" style="border: none; margin-top: 0; padding-top: 0;">
                 <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary" style="background: #dc2626;">
+                <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </div>

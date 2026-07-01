@@ -10,6 +10,13 @@
     var searchInput = document.getElementById('searchInput');
     var header = document.querySelector('.site-header');
 
+    /* ── Helper: escape HTML ── */
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
     /* ═══════════════════════════════════════════════
        MOBILE NAV
        ═══════════════════════════════════════════════ */
@@ -91,7 +98,7 @@
 
     if (header) {
         window.addEventListener('scroll', updateHeaderOnScroll, { passive: true });
-        updateHeaderOnScroll(); // initial check
+        updateHeaderOnScroll();
     }
 
     /* ═══════════════════════════════════════════════
@@ -113,8 +120,7 @@
     }
 
     /* ═══════════════════════════════════════════════
-       SCROLL-TRIGGERED ANIMATIONS
-       Uses data-animate attribute for robustness.
+       SCROLL-TRIGGERED ANIMATIONS (data-animate)
        ═══════════════════════════════════════════════ */
 
     if ('IntersectionObserver' in window) {
@@ -127,64 +133,11 @@
             });
         }, { threshold: 0.1 });
 
-        // Observe elements with data-animate attribute
         document.querySelectorAll('[data-animate]').forEach(function (el) {
             el.style.animationPlayState = 'paused';
             revealObserver.observe(el);
         });
-
-        // Also observe legacy animation classes for backwards compat
-        var legacySelector = '.anim-up:not(.hero *):not(.auth-page *):not(.form-page *):not(.error-page *), .anim-scale:not(.auth-page *):not(.form-page *):not(.error-page *), .anim-slideDown:not(.messages), .anim-fadein, .anim-pop';
-        document.querySelectorAll(legacySelector).forEach(function (el) {
-            // Only observe if not already using data-animate
-            if (!el.hasAttribute('data-animate')) {
-                el.style.animationPlayState = 'paused';
-                revealObserver.observe(el);
-            }
-        });
-
-        /* ── Section reveal (section-reveal) ── */
-        var sectionObserver = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    sectionObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.05 });
-
-        document.querySelectorAll('.section-reveal').forEach(function (el) {
-            sectionObserver.observe(el);
-        });
-    } else {
-        // Fallback: make everything visible immediately
-        document.querySelectorAll('[data-animate], .anim-up, .anim-scale, .anim-slideDown, .anim-fadein, .anim-pop, .section-reveal').forEach(function (el) {
-            if (el.classList) el.classList.add('is-visible');
-            el.style.opacity = '1';
-        });
     }
-
-    /* ═══════════════════════════════════════════════
-       IMAGE BLUR-UP LAZY LOADING
-       ═══════════════════════════════════════════════ */
-
-    document.querySelectorAll('.img-blur-wrap img').forEach(function (img) {
-        if (img.complete) {
-            img.classList.add('loaded');
-            img.closest('.img-blur-wrap') && img.closest('.img-blur-wrap').classList.add('loaded');
-        } else {
-            img.addEventListener('load', function () {
-                img.classList.add('loaded');
-                var wrap = img.closest('.img-blur-wrap');
-                if (wrap) wrap.classList.add('loaded');
-            });
-            img.addEventListener('error', function () {
-                img.classList.add('loaded'); // show broken image fallback regardless
-                var wrap = img.closest('.img-blur-wrap');
-                if (wrap) wrap.classList.add('loaded');
-            });
-        }
-    });
 
     /* ═══════════════════════════════════════════════
        ALERT DISMISS
@@ -242,7 +195,6 @@
 
         container.appendChild(toast);
 
-        // Remove after 4 seconds
         setTimeout(function () {
             toast.classList.add('is-dismissing');
             setTimeout(function () {
@@ -329,12 +281,6 @@
             textarea.addEventListener('input', function () {
                 sendBtn.disabled = !this.value.trim();
             });
-        }
-
-        function escapeHtml(str) {
-            var div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
         }
     }
 

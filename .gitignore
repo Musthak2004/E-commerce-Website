@@ -7,3 +7,5 @@ default_*.sqlite3
 media/
 staticfiles/
 logs/
+node_modules/
+package-lock.json

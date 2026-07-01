@@ -7,10 +7,10 @@
 {{ block.super }}
 <style>
 .dashboard-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin:20px 0; }
-.dashboard-card { background:#fff; border:1px solid #e8e3dc; border-radius:14px; padding:24px; text-align:center; transition:box-shadow .2s; }
+.dashboard-card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:24px; text-align:center; transition:box-shadow .2s; }
 .dashboard-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.06); }
-.dashboard-card-value { font-size:2rem; font-weight:700; color:#b8860b; margin-bottom:4px; }
-.dashboard-card-label { font-size:.85rem; color:#6b6560; font-weight:600; }
+.dashboard-card-value { font-size:2rem; font-weight:700; color:var(--primary); margin-bottom:4px; }
+.dashboard-card-label { font-size:.85rem; color:var(--text-secondary); font-weight:600; }
 .dashboard-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .dashboard-header h1 { margin:0; font-size:1.5rem; font-weight:700; }
 </style>

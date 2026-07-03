@@ -33,193 +33,23 @@
       <div class="cart-header-right"></div>
     </header>
 
-    {% if cart and cart.items.exists %}
-
-      <div class="cart-content">
-
-        <!-- ── Items ── -->
-        <section class="cart-items" aria-label="Cart items">
-          {% for item in cart.items.all %}
-          <article class="cart-row" style="--i:{{ forloop.counter }}">
-
-            <!-- Image -->
-            <a href="{% url 'products:product_detail' item.product.slug %}" class="cart-row-img">
-              {% if item.product.image %}
-                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" loading="lazy">
-              {% else %}
-                <span class="img-fallback"><i class="fas fa-box"></i></span>
-              {% endif %}
-            </a>
-
-            <!-- Body -->
-            <div class="cart-row-body">
-
-              <!-- Top row: meta + unit price -->
-              <div class="cart-row-top">
-                <div class="cart-row-meta">
-                  {% if item.product.category %}
-                    <span class="cart-row-category">{{ item.product.category.name }}</span>
-                  {% endif %}
-                  <a href="{% url 'products:product_detail' item.product.slug %}" class="cart-row-name">
-                    {{ item.product.name }}
-                  </a>
-                </div>
-                <span class="cart-row-unit">${{ item.product.price }}</span>
-              </div>
-
-              <!-- Divider -->
-              <div class="cart-row-divider"></div>
-
-              <!-- Bottom row: qty + line total + remove -->
-              <div class="cart-row-bottom">
-
-                <form method="post"
-                      action="{% url 'cart:update_quantity' item.id %}"
-                      class="qty-selector">
-                  {% csrf_token %}
-                  <button type="submit"
-                          name="quantity"
-                          value="{{ item.quantity|add:-1 }}"
-                          class="qty-btn"
-                          {% if item.quantity <= 1 %}disabled{% endif %}
-                          aria-label="Decrease quantity">
-                    <i class="fas fa-minus"></i>
-                  </button>
-                  <span class="qty-value">{{ item.quantity }}</span>
-                  <button type="submit"
-                          name="quantity"
-                          value="{{ item.quantity|add:1 }}"
-                          class="qty-btn"
-                          aria-label="Increase quantity">
-                    <i class="fas fa-plus"></i>
-                  </button>
-                </form>
-
-                <div class="cart-row-right">
-                  <span class="cart-row-total">${{ item.total_price }}</span>
-                  <form method="post" action="{% url 'cart:remove_from_cart' item.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="cart-row-remove" aria-label="Remove item">
-                      <i class="fas fa-trash-can"></i>
-                      <span>Remove</span>
-                    </button>
-                  </form>
-                </div>
-
-              </div>
-            </div>
-
-          </article>
-          {% endfor %}
-        </section>
-
-        <!-- ── Summary ── -->
-        <aside class="cart-summary" aria-label="Order summary">
-
-          <h2 class="summary-heading">Order Summary</h2>
-
-          <dl class="summary-list">
-            <div class="summary-line">
-              <dt>Subtotal</dt>
-              <dd>${{ cart.total_price }}</dd>
-            </div>
-            <div class="summary-line">
-              <dt>Shipping</dt>
-              <dd class="summary-free">
-                <i class="fas fa-truck"></i> Free
-              </dd>
-            </div>
-            <div class="summary-line">
-              <dt>Tax</dt>
-              <dd>Calculated at checkout</dd>
-            </div>
-          </dl>
-
-          <!-- ── Coupon ── -->
-          <div class="cart-coupon">
-            {% if coupon %}
-              <div class="coupon-applied">
-                <div class="coupon-applied-info">
-                  <i class="fas fa-tag"></i>
-                  <span><strong>{{ coupon.code }}</strong>
-                    {% if coupon.discount_type == "PERCENTAGE" %}
-                      — {{ coupon.discount_value }}% off
-                    {% else %}
-                      — ${{ coupon.discount_value }} off
-                    {% endif %}
-                  </span>
-                </div>
-                <form method="post" action="{% url 'coupons:remove_coupon' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="coupon-remove" aria-label="Remove coupon">
-                    <i class="fas fa-xmark"></i>
-                  </button>
-                </form>
-              </div>
-            {% else %}
-              <form method="post" action="{% url 'coupons:apply_coupon' %}" class="coupon-form">
-                {% csrf_token %}
-                <input type="text" name="code" placeholder="Enter coupon code" class="coupon-input" maxlength="50">
-                <button type="submit" class="coupon-btn">Apply</button>
-              </form>
-            {% endif %}
-          </div>
-
-          {% if discount_amount %}
-          <div class="summary-line text-success">
-            <dt>Discount</dt>
-            <dd style="font-weight:700;">−${{ discount_amount|floatformat:2 }}</dd>
-          </div>
-          {% endif %}
-
-          <div class="summary-divider"></div>
-
-          <div class="summary-total">
-            <span>Total</span>
-            <strong>${{ total_after_discount|floatformat:2 }}</strong>
-          </div>
-
-          <form method="post" action="{% url 'orders:create_order' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn-checkout">
-              <i class="fas fa-lock"></i>
-              Proceed to Checkout
-              <i class="fas fa-arrow-right"></i>
-            </button>
-          </form>
-
-          <!-- Trust badges -->
-          <ul class="trust-badges">
-            <li><i class="fas fa-shield-halved"></i> Secure Checkout</li>
-            <li><i class="fas fa-rotate-left"></i> Easy Returns</li>
-            <li><i class="fas fa-headset"></i> 24/7 Support</li>
-          </ul>
-
-          <a href="{% url 'products:product_list' %}" class="summary-shop-link">
-            <i class="fas fa-arrow-left"></i> Continue Shopping
-          </a>
-
-        </aside>
-
-      </div>
-
-    {% else %}
-
-      <!-- ── Empty State ── -->
-      <div class="cart-empty">
-        <div class="cart-empty-blob">
-          <i class="fas fa-bag-shopping"></i>
-        </div>
-        <h2>Your cart is empty</h2>
-        <p>Looks like you haven&rsquo;t added anything yet.<br>Browse our collection and find something you love.</p>
-        <a href="{% url 'products:product_list' %}" class="btn-start-shopping">
-          Start Shopping <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-
-    {% endif %}
+    <div id="cart-content-region">
+      {% include "cart/partials/cart_content.html" %}
+    </div>
 
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Listen for cart-updated events to update the cart count badge in the header
+  document.body.addEventListener('cart-updated', function() {
+    // The badge OOB swap already updates it; this is just a safety fallback
+  });
+  document.body.addEventListener('wishlist-updated', function() {
+    // Same — OOB handles it
+  });
+</script>
 {% endblock %}

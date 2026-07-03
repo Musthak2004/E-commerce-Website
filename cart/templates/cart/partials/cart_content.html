@@ -1,0 +1,35 @@
+{% if cart and cart.items.exists %}
+
+  <div class="cart-content">
+
+    <!-- ── Items ── -->
+    <section class="cart-items" aria-label="Cart items">
+      {% for item in cart.items.all %}
+        {% include "cart/partials/cart_row.html" with item=item %}
+      {% endfor %}
+    </section>
+
+    <!-- ── Summary ── -->
+    {% include "cart/partials/cart_summary.html" with cart=cart coupon=coupon discount_amount=discount_amount total_after_discount=total_after_discount %}
+
+  </div>
+
+{% else %}
+
+  <!-- ── Empty State ── -->
+  <div class="cart-empty">
+    <div class="cart-empty-blob">
+      <i class="fas fa-bag-shopping"></i>
+    </div>
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven&rsquo;t added anything yet.<br>Browse our collection and find something you love.</p>
+    <a href="{% url 'products:product_list' %}" class="btn-start-shopping">
+      Start Shopping <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+
+{% endif %}
+
+{% if cart_count is not None %}
+  {% include "cart/partials/cart_badge.html" %}
+{% endif %}

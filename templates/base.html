@@ -26,6 +26,31 @@
     <link rel="stylesheet" href="{% static 'css/pages.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztWhBXbJhLAe1GJ6+18S" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            /* ── HTMX + Django CSRF ── */
+            (function () {
+                var value = '; ' + document.cookie;
+                var parts = value.split('; csrftoken=');
+                var token = parts.length === 2 ? parts.pop().split(';').shift() : null;
+                if (token) {
+                    document.body.addEventListener('htmx:configRequest', function (evt) {
+                        evt.detail.headers['X-CSRFToken'] = token;
+                    });
+                }
+            })();
+
+            /* ── HTMX toast notifications ── */
+            document.body.addEventListener('show-toast', function (evt) {
+                var data = evt.detail;
+                if (window.addToast) {
+                    window.addToast(data.message || '', data.type || 'info');
+                }
+            });
+        });
+    </script>
+
     {% block extra_head %}{% endblock %}
 
     <script type="application/ld+json">
@@ -99,16 +124,20 @@
 
                 <a href="{% url 'products:product_list' %}" class="header-icon" aria-label="Wishlist">
                     <i class="fas fa-heart" aria-hidden="true"></i>
+                    <span id="wishlist-count-badge">
                     {% if wishlist_count %}
                         <span class="badge">{{ wishlist_count }}</span>
                     {% endif %}
+                    </span>
                 </a>
 
                 <a href="{% url 'cart:cart_detail' %}" class="header-icon" aria-label="Shopping Cart">
                     <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                    <span id="cart-count-badge">
                     {% if cart_count %}
                         <span class="badge">{{ cart_count }}</span>
                     {% endif %}
+                    </span>
                 </a>
 
                 {% if user.is_authenticated %}

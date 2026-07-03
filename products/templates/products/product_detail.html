@@ -86,18 +86,25 @@
             {% endif %}
 
             <div class="product-detail-actions">
-                <form method="post" action="{% url 'cart:add_to_cart' product.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary" {% if not product.is_available or product.stock == 0 %}disabled{% endif %}>
-                        <i class="fas fa-shopping-bag"></i> Add to Cart
-                    </button>
-                </form>
-                <form method="post" action="{% url 'cart:toggle_wishlist' product.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary">
-                        <i class="far fa-heart"></i> Wishlist
-                    </button>
-                </form>
+                <button type="submit"
+                        class="btn btn-primary"
+                        {% if not product.is_available or product.stock == 0 %}disabled{% endif %}
+                        hx-post="{% url 'cart:add_to_cart' product.id %}"
+                        hx-target="#cart-count-badge"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="this">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="btn-text">Add to Cart</span>
+                </button>
+                <button type="submit"
+                        class="btn btn-secondary"
+                        hx-post="{% url 'cart:toggle_wishlist' product.id %}"
+                        hx-target="#wishlist-count-badge"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="this">
+                    <i class="far fa-heart"></i>
+                    <span class="btn-text">Wishlist</span>
+                </button>
             </div>
 
             {% if user.is_authenticated and user == product.seller %}

@@ -1,0 +1,86 @@
+<aside id="cart-summary-target" class="cart-summary" aria-label="Order summary">
+
+  <h2 class="summary-heading">Order Summary</h2>
+
+  <dl class="summary-list">
+    <div class="summary-line">
+      <dt>Subtotal</dt>
+      <dd id="summary-subtotal">${{ cart.total_price }}</dd>
+    </div>
+    <div class="summary-line">
+      <dt>Shipping</dt>
+      <dd class="summary-free">
+        <i class="fas fa-truck"></i> Free
+      </dd>
+    </div>
+    <div class="summary-line">
+      <dt>Tax</dt>
+      <dd>Calculated at checkout</dd>
+    </div>
+  </dl>
+
+  <!-- ── Coupon ── -->
+  <div class="cart-coupon">
+    {% if coupon %}
+      <div class="coupon-applied">
+        <div class="coupon-applied-info">
+          <i class="fas fa-tag"></i>
+          <span><strong>{{ coupon.code }}</strong>
+            {% if coupon.discount_type == "PERCENTAGE" %}
+              — {{ coupon.discount_value }}% off
+            {% else %}
+              — ${{ coupon.discount_value }} off
+            {% endif %}
+          </span>
+        </div>
+        <form method="post" action="{% url 'coupons:remove_coupon' %}">
+          {% csrf_token %}
+          <button type="submit" class="coupon-remove" aria-label="Remove coupon">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <form method="post" action="{% url 'coupons:apply_coupon' %}" class="coupon-form">
+        {% csrf_token %}
+        <input type="text" name="code" placeholder="Enter coupon code" class="coupon-input" maxlength="50">
+        <button type="submit" class="coupon-btn">Apply</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if discount_amount %}
+  <div class="summary-line text-success">
+    <dt>Discount</dt>
+    <dd style="font-weight:700;">−${{ discount_amount|floatformat:2 }}</dd>
+  </div>
+  {% endif %}
+
+  <div class="summary-divider"></div>
+
+  <div class="summary-total">
+    <span>Total</span>
+    <strong id="summary-total">${{ total_after_discount|floatformat:2 }}</strong>
+  </div>
+
+  <form method="post" action="{% url 'orders:create_order' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn-checkout">
+      <i class="fas fa-lock"></i>
+      Proceed to Checkout
+      <i class="fas fa-arrow-right"></i>
+    </button>
+  </form>
+
+  <!-- Trust badges -->
+  <ul class="trust-badges">
+    <li><i class="fas fa-shield-halved"></i> Secure Checkout</li>
+    <li><i class="fas fa-rotate-left"></i> Easy Returns</li>
+    <li><i class="fas fa-headset"></i> 24/7 Support</li>
+  </ul>
+
+  <a href="{% url 'products:product_list' %}" class="summary-shop-link">
+    <i class="fas fa-arrow-left"></i> Continue Shopping
+  </a>
+
+</aside>

@@ -1,7 +1,5 @@
-from decimal import Decimal
-
 from django.core.exceptions import PermissionDenied
-from django.db.models import Avg, Q
+from django.db.models import Avg, Q, Case, IntegerField, Value, When
 from django.views.generic import (
     ListView,
     DetailView,
@@ -18,6 +16,7 @@ from django.shortcuts import get_object_or_404
 
 from .models import Category, Product, Tag
 from .forms import ProductForm
+from .filters import ProductFilter
 
 
 class SellerRequiredMixin(UserPassesTestMixin):
@@ -51,43 +50,27 @@ class ProductListView(ListView):
             "tags"
         )
 
+        # Apply declarative django-filter — replaces hand-rolled filter logic
+        self.filter = ProductFilter(self.request.GET, queryset=qs)
+        qs = self.filter.qs
+
         query = self.request.GET.get("q", "").strip()
         if query:
-            qs = qs.filter(
-                Q(name__icontains=query) | Q(description__icontains=query)
+            # Add relevance annotation: name matches rank higher than description matches
+            name_match = Q(name__icontains=query)
+            qs = qs.annotate(
+                relevance=(
+                    Case(
+                        When(name__icontains=query, then=Value(2)),
+                        default=Value(1),
+                        output_field=IntegerField(),
+                    )
+                )
             )
-
-        category_slug = self.request.GET.get("category", "").strip()
-        if category_slug:
-            qs = qs.filter(category__slug=category_slug)
-
-        tag_slug = self.request.GET.get("tag", "").strip()
-        if tag_slug:
-            qs = qs.filter(tags__slug=tag_slug)
-
-        min_price = self.request.GET.get("min_price", "").strip()
-        if min_price:
-            try:
-                qs = qs.filter(price__gte=Decimal(min_price))
-            except Exception:
-                pass
-
-        max_price = self.request.GET.get("max_price", "").strip()
-        if max_price:
-            try:
-                qs = qs.filter(price__lte=Decimal(max_price))
-            except Exception:
-                pass
-
-        min_rating = self.request.GET.get("min_rating", "").strip()
-        if min_rating:
-            try:
-                rating_val = Decimal(min_rating)
-                qs = qs.annotate(
-                    avg_rating=Avg("reviews__rating")
-                ).filter(avg_rating__gte=rating_val)
-            except Exception:
-                pass
+        else:
+            qs = qs.annotate(
+                relevance=Value(1, output_field=IntegerField())
+            )
 
         sort = self.request.GET.get("sort", "").strip()
         if sort == "price_asc":
@@ -101,12 +84,15 @@ class ProductListView(ListView):
         elif sort == "rating":
             qs = qs.annotate(avg_rating=Avg("reviews__rating")).order_by("-avg_rating")
         else:
-            qs = qs.order_by("-created_at")
+            # Default: sort by relevance (search) then newest
+            qs = qs.order_by("-relevance", "-created_at")
 
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        filter_params = getattr(self, "filter", None)
+        context["filter"] = filter_params
         context["query"] = self.request.GET.get("q", "").strip()
         context["current_category"] = self.request.GET.get("category", "").strip()
         context["current_tag"] = self.request.GET.get("tag", "").strip()

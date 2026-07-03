@@ -1,0 +1,10 @@
+<button type="submit"
+        class="btn btn-primary"
+        {% if not available or stock == 0 %}disabled{% endif %}
+        hx-post="{% url 'cart:add_to_cart' product_id %}"
+        hx-target="#cart-count-badge"
+        hx-swap="outerHTML"
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <i class="fas fa-shopping-bag"></i>
+  <span class="btn-text">Add to Cart</span>
+</button>

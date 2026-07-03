@@ -1,0 +1,17 @@
+Don't leave your cart behind!
+
+Hi {{ user.email }},
+
+You left some items in your cart. They're still waiting for you!
+
+{% for item in items %}- {{ item.quantity }}x {{ item.product.name }} — ${{ item.total_price }}
+{% endfor %}
+Order Total: ${{ total }}
+
+→ Complete your order: {{ cart_url }}
+
+Your items are reserved, but may sell out if you wait too long.
+
+—
+ShopEase
+123 Commerce St, New York, NY 10001

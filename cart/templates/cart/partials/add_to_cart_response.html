@@ -1,0 +1,13 @@
+{% if cart_count is not None %}
+  {% include "cart/partials/cart_badge.html" %}
+{% endif %}
+{% if wishlist_count is not None %}
+  {% include "cart/partials/wishlist_badge.html" %}
+{% endif %}
+
+{# Trigger a toast notification via HX-Trigger #}
+{% if toast_message %}
+<script>
+  window.addToast && window.addToast({{ toast_message|safe }}, 'success');
+</script>
+{% endif %}

@@ -20,6 +20,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "django_filters",
+    "cachalot",
+    "django_htmx",
     "django_cleanup.apps.CleanupConfig",
     "accounts.apps.AccountsConfig",
     "pages.apps.PagesConfig",
@@ -38,6 +41,7 @@ if DEBUG:
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -79,8 +83,12 @@ DATABASES = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "shopease-cache",
     }
 }
+
+# django-cachalot: auto-caches repeated querysets
+CACHALOT_ENABLED = True
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -196,6 +204,8 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@shopease.com")
+
+BASE_URL = config("BASE_URL", default="http://localhost:8000")
 
 REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": [

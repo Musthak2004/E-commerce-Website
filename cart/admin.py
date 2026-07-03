@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import (
+    AbandonedCartReminder,
     Cart,
     CartItem,
     Wishlist,
@@ -92,3 +93,28 @@ class WishlistAdmin(
     @admin.display(description="Items")
     def item_count(self, obj):
         return obj.products.count()
+
+
+@admin.register(AbandonedCartReminder)
+class AbandonedCartReminderAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "cart",
+        "user_email",
+        "reminder_type",
+        "sent_at",
+        "recovered",
+        "recovered_at",
+    )
+
+    list_select_related = ("cart__user",)
+
+    search_fields = ("cart__user__email",)
+
+    list_filter = ("reminder_type", "recovered", "sent_at")
+
+    readonly_fields = ("sent_at", "recovered_at")
+
+    @admin.display(description="User")
+    def user_email(self, obj):
+        return obj.cart.user.email

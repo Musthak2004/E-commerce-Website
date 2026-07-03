@@ -1,0 +1,11 @@
+<span id="cart-count-badge" hx-swap-oob="true">
+{% if cart_count %}
+    <span class="badge">{{ cart_count }}</span>
+{% endif %}
+</span>
+
+<span id="wishlist-count-badge" hx-swap-oob="true">
+{% if wishlist_count %}
+    <span class="badge">{{ wishlist_count }}</span>
+{% endif %}
+</span>

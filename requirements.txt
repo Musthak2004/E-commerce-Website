@@ -1,6 +1,9 @@
 Django==6.0.6
 django-cleanup==9.0.0
 django-debug-toolbar==7.0.0
+django-filter==25.2
+django-cachalot==2.9.0
+django-htmx==1.27.0
 djangorestframework==3.17.1
 gunicorn==25.1.0
 pillow==12.2.0

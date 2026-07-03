@@ -160,7 +160,8 @@
   margin-top: 6px;
 }
 
-.auth-form .alert-error {
+.auth-form .alert-error,
+.auth-form .alert-success {
   padding: 12px 14px;
   background: var(--danger-bg);
   border: 1px solid #fecaca;
@@ -171,6 +172,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.auth-form .alert-success {
+  background: var(--success-bg);
+  color: var(--success-text);
+  border-color: #a7f3d0;
 }
 
 .auth-form .forgot-pw {
@@ -238,6 +245,9 @@
   font-size: 2.8rem;
   margin-bottom: 14px;
 }
+
+.verify-valid { color: var(--primary); }
+.verify-invalid { color: var(--danger); }
 
 .verify-card h1 {
   font-size: 1.4rem;

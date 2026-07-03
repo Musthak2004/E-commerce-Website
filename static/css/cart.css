@@ -311,6 +311,10 @@
   color: var(--success);
 }
 
+.summary-discount-value {
+  font-weight: 700;
+}
+
 .summary-tax {
   color: var(--text-muted);
   font-size: 0.8rem;
@@ -519,6 +523,7 @@
   padding: 80px 24px;
 }
 
+.cart-empty-blob,
 .cart-empty-icon {
   width: 80px;
   height: 80px;
@@ -530,6 +535,7 @@
   margin-bottom: 24px;
 }
 
+.cart-empty-blob i,
 .cart-empty-icon i {
   font-size: 2rem;
   color: var(--primary);

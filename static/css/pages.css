@@ -113,33 +113,7 @@
   font-weight: 500;
 }
 
-/* ── Sections ── */
-
-.section {
-  padding: 80px 24px;
-  max-width: var(--max-width);
-  margin: 0 auto;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 44px;
-}
-
-.section-header h2 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  color: var(--text);
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.section-header p {
-  color: var(--text-secondary);
-  font-size: 0.925rem;
-  max-width: 420px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
+/* ── Section classes are in base.css ── */
 
 /* ── Category Cards ── */
 
@@ -490,6 +464,14 @@
   margin-bottom: 10px;
 }
 
+.about-section-heading {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 24px;
+  letter-spacing: -0.3px;
+}
+
 .about-values-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -820,34 +802,6 @@
   min-height: 110px;
 }
 
-.contact-form .btn-submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 13px 32px;
-  border-radius: 100px;
-  background: var(--primary);
-  color: var(--white);
-  font-size: 0.875rem;
-  font-weight: 700;
-  font-family: var(--font);
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition);
-  align-self: flex-start;
-}
-
-.contact-form .btn-submit:hover {
-  background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
-}
-
-.contact-form .btn-submit:active {
-  transform: scale(0.97);
-}
-
 /* ── Prompt Assistant ── */
 
 .prompt-assistant {
@@ -999,144 +953,4 @@
   font-weight: 600;
 }
 
-/* ── Footer ── */
-
-.site-footer {
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  margin-top: 80px;
-}
-
-.footer-main {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 56px 24px 40px;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1.5fr;
-  gap: 40px;
-}
-
-.footer-col h3 {
-  font-family: var(--font);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  margin-bottom: 18px;
-}
-
-.footer-brand .logo { margin-bottom: 14px; }
-
-.footer-brand p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  margin-bottom: 18px;
-}
-
-.footer-contact p {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.footer-contact i {
-  width: 14px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
-
-.footer-links li { margin-bottom: 8px; }
-
-.footer-links a {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  transition: color var(--transition);
-}
-
-.footer-links a:hover { color: var(--text); }
-
-.footer-col p {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-}
-
-.newsletter-form {
-  display: flex;
-  gap: 0;
-  margin-top: 14px;
-  border-bottom: 2px solid var(--border);
-  transition: border-color var(--transition);
-}
-
-.newsletter-form:focus-within { border-color: var(--primary); }
-
-.newsletter-form input {
-  flex: 1;
-  border: none;
-  padding: 10px 0;
-  font-size: 0.875rem;
-  font-family: var(--font);
-  background: transparent;
-  color: var(--text);
-  outline: none;
-}
-
-.newsletter-form input::placeholder { color: var(--text-muted); }
-
-.newsletter-form button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 10px 0 10px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--primary);
-  transition: color var(--transition);
-  white-space: nowrap;
-  font-family: var(--font);
-}
-
-.newsletter-form button:hover { color: var(--primary-hover); }
-
-.social-links {
-  display: flex;
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.social-links a {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  transition: color var(--transition);
-}
-
-.social-links a:hover { color: var(--text); }
-
-.footer-bottom {
-  border-top: 1px solid var(--border);
-  padding: 20px 24px;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.footer-bottom p { font-size: 0.8rem; color: var(--text-muted); }
-
-.payment-icons {
-  display: flex;
-  gap: 10px;
-  font-size: 1.2rem;
-  color: var(--text-muted);
-}
-
-.payment-icons i { transition: color var(--transition); }
-.payment-icons i:hover { color: var(--text-secondary); }
+/* ── Footer styles are in layout.css ── */

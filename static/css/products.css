@@ -102,10 +102,32 @@
   margin: 6px 0;
 }
 
+.product-rating .fa-star,
+.product-rating .fa-regular.fa-star {
+  font-size: 0.85rem;
+}
+
+.product-rating .fa-star,
+.product-detail .product-rating .fa-star,
+.product-card .product-rating .fa-star { color: var(--primary); }
+
+.product-rating .fa-regular.fa-star { color: var(--text-muted); }
+
 .product-rating .rating-count {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-left: 4px;
+}
+
+.product-detail-rating {
+  margin-bottom: 16px;
+  gap: 4px;
+}
+
+.product-detail-rating .rating-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-left: 6px;
 }
 
 .product-card-tags {

@@ -140,3 +140,36 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+
+/* ── Checkout (Payment Form) ── */
+
+.checkout-card {
+  text-align: center;
+  padding: 48px 32px;
+}
+
+.checkout-icon {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+.checkout-title {
+  margin: 0 0 8px;
+}
+
+.checkout-desc {
+  color: var(--text-secondary);
+  margin: 0 0 32px;
+  font-size: 1rem;
+}
+
+.checkout-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}

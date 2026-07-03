@@ -163,6 +163,7 @@
   padding: 80px 24px;
 }
 
+.orders-empty-blob,
 .orders-empty-icon {
   width: 80px;
   height: 80px;
@@ -174,6 +175,7 @@
   margin-bottom: 24px;
 }
 
+.orders-empty-blob i,
 .orders-empty-icon i {
   font-size: 2rem;
   color: var(--primary);
@@ -254,6 +256,10 @@
   border-color: var(--primary);
   background: var(--primary-light);
   transform: translateX(-2px);
+}
+
+.order-detail-cancel-form {
+  display: inline;
 }
 
 .order-detail-status {
@@ -448,6 +454,15 @@
 
 .order-detail-summary .summary-line + .summary-line {
   border-top: 1px solid var(--border-light);
+}
+
+.summary-line--discount dt {
+  color: var(--primary);
+}
+
+.summary-line--highlight {
+  font-weight: 700;
+  color: var(--primary);
 }
 
 .order-detail-summary .summary-line.total {

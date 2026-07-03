@@ -92,14 +92,14 @@
           <dd>${{ order.total_price|add:order.discount_amount|floatformat:2 }}</dd>
         </div>
         {% if order.discount_amount %}
-        <div class="summary-line" style="color:var(--primary);">
+        <div class="summary-line summary-line--discount">
           <dt>Discount</dt>
-          <dd style="font-weight:700;">−${{ order.discount_amount|floatformat:2 }}</dd>
+          <dd class="summary-line--highlight">−${{ order.discount_amount|floatformat:2 }}</dd>
         </div>
         {% endif %}
         <div class="summary-line">
           <dt>Shipping</dt>
-          <dd style="color:var(--primary);font-weight:600;">Free</dd>
+          <dd class="summary-line--highlight">Free</dd>
         </div>
         <div class="summary-line">
           <dt>Tax</dt>
@@ -127,7 +127,7 @@
         </a>
       {% endif %}
       {% if order.status == "PENDING" %}
-        <form method="post" action="{% url 'orders:cancel_order' order.id %}" style="display:inline;">
+        <form method="post" action="{% url 'orders:cancel_order' order.id %}" class="order-detail-cancel-form">
           {% csrf_token %}
           <button type="submit" class="btn btn-secondary delete-btn" onclick="return confirm('Are you sure you want to cancel this order?');">
             <i class="fas fa-ban"></i> Cancel Order

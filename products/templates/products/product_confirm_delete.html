@@ -6,7 +6,7 @@
 {% block content %}
 
 <section class="form-page">
-    <div class="form-card anim-scale" style="max-width: 480px;">
+    <div class="form-card anim-scaleIn" style="max-width: 480px;">
         <div class="form-card-header">
             <a href="{% url 'products:product_detail' product.slug %}" class="back-link">
                 <i class="fas fa-arrow-left"></i> Back
@@ -17,7 +17,7 @@
 
         <form class="styled-form" method="post">
             {% csrf_token %}
-            <div class="form-actions" style="border: none; margin-top: 0; padding-top: 0;">
+            <div class="form-actions form-actions--flush">
                 <a href="{% url 'products:product_detail' product.slug %}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Delete

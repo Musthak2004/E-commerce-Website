@@ -3,14 +3,14 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Colors */
+  /* Colors — light mode */
   --white: #ffffff;
   --bg: #f4f5f7;
   --bg-subtle: #eef0f2;
   --bg-card: #ffffff;
   --text: #1e293b;
   --text-secondary: #64748b;
-  --text-muted: #94a3b8;
+  --text-muted: #6b7280;
   --border: #e2e8f0;
   --border-light: #f1f5f9;
   --primary: #6366f1;
@@ -53,4 +53,75 @@
   /* Transitions */
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Dark Mode ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --white: #ffffff;
+    --bg: #0f172a;
+    --bg-subtle: #1e293b;
+    --bg-card: #1e293b;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #6b7280;
+    --border: #334155;
+    --border-light: #1e293b;
+    --primary-light: rgba(99, 102, 241, 0.12);
+    --primary-subtle: rgba(99, 102, 241, 0.1);
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --success-text: #6ee7b7;
+    --danger-bg: rgba(239, 68, 68, 0.1);
+    --danger-text: #fca5a5;
+    --warning-bg: rgba(245, 158, 11, 0.1);
+    --warning-text: #fde68a;
+    --info-bg: rgba(59, 130, 246, 0.1);
+    --info-text: #93c5fd;
+    --dark: #020617;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.5);
+  }
+
+  .site-header { background: rgba(15, 23, 42, 0.92); }
+  .search-overlay { background: rgba(15, 23, 42, 0.98); }
+  .shop-filter-form,
+  .active-filters,
+  .cart-summary,
+  .styled-form,
+  .order-card,
+  .order-detail-items,
+  .order-detail-info-card,
+  .order-detail-summary,
+  .payment-detail-card,
+  .review-meta-item,
+  .review-comment-card,
+  .review-product-summary,
+  .category-card,
+  .featured-card,
+  .about-stat,
+  .about-value,
+  .about-team-card,
+  .contact-card,
+  .contact-form-card,
+  .cta-inner,
+  .about-cta { background: var(--bg-card); }
+
+  .hero { background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); }
+  .hero::before {
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 500px at 80% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  }
+  .order-status-PENDING { background: rgba(245, 158, 11, 0.15); }
+  .order-status-CONFIRMED { background: rgba(59, 130, 246, 0.15); }
+  .order-status-SHIPPED { background: rgba(139, 92, 246, 0.15); }
+  .order-status-DELIVERED { background: rgba(16, 185, 129, 0.15); }
+  .order-status-CANCELLED { background: rgba(239, 68, 68, 0.15); }
+  .payment-status.PENDING { background: rgba(245, 158, 11, 0.15); }
+  .payment-status.PROCESSING { background: rgba(59, 130, 246, 0.15); }
+  .payment-status.COMPLETED { background: rgba(16, 185, 129, 0.15); }
+  .payment-status.FAILED { background: rgba(239, 68, 68, 0.15); }
+  .payment-status.REFUNDED { background: rgba(139, 92, 246, 0.15); }
 }

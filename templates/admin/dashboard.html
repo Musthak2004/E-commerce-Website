@@ -13,6 +13,8 @@
 .dashboard-card-label { font-size:.85rem; color:var(--text-secondary); font-weight:600; }
 .dashboard-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .dashboard-header h1 { margin:0; font-size:1.5rem; font-weight:700; }
+.dashboard-footer { margin-top:20px; }
+.dashboard-back-btn { padding:10px 20px !important; }
 </style>
 {% endblock %}
 
@@ -55,8 +57,8 @@
     </div>
   </div>
 
-  <div style="margin-top:20px;">
-    <a href="{% url 'admin:index' %}" class="button" style="padding:10px 20px;">{% trans 'Back to Admin' %}</a>
+  <div class="dashboard-footer">
+    <a href="{% url 'admin:index' %}" class="button dashboard-back-btn">{% trans 'Back to Admin' %}</a>
   </div>
 </div>
 {% endblock %}

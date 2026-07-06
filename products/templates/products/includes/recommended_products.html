@@ -1,0 +1,28 @@
+{% if products %}
+<section class="section related-section" data-animate>
+    <div class="section-header anim-fadeInUp">
+        <div>
+            <h2>{{ title }}</h2>
+            {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+        </div>
+    </div>
+    <div class="product-grid">
+        {% for product in products %}
+            <a href="{% url 'products:product_detail' product.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
+                <div class="product-card-img">
+                    {% if product.image %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                    {% else %}
+                        <i class="fas fa-image placeholder-icon"></i>
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    <span class="product-category">{{ product.category.name|default:"General" }}</span>
+                    <h3>{{ product.name }}</h3>
+                    <span class="product-price">${{ product.price }}</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}

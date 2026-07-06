@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load recommendations_tags %}
 
 {% block title %}ShopEase — Premium Essentials{% endblock %}
 
@@ -106,6 +107,35 @@
         </div>
     </div>
 </section>
+
+{% if new_arrivals %}
+<section class="section" data-animate>
+    <div class="section-header anim-fadeInUp">
+        <h2>Latest Products</h2>
+        <p>Fresh additions to our collection.</p>
+    </div>
+    <div class="product-grid">
+        {% for product in new_arrivals %}
+            <a href="{% url 'products:product_detail' product.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
+                <div class="product-card-img">
+                    {% if product.image %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                    {% else %}
+                        <i class="fas fa-image placeholder-icon"></i>
+                    {% endif %}
+                </div>
+                <div class="product-card-body">
+                    <span class="product-category">{{ product.category.name|default:"General" }}</span>
+                    <h3>{{ product.name }}</h3>
+                    <span class="product-price">${{ product.price }}</span>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% recently_viewed_products 6 %}
 
 <!-- Prompt Assistant -->
 <section class="section">

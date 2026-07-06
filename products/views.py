@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.db.models import Avg, Q, Case, IntegerField, Value, When
+from django.db.models import Avg, Count, Q, Case, IntegerField, Value, When
 from django.views.generic import (
     ListView,
     DetailView,
@@ -17,6 +17,11 @@ from django.shortcuts import get_object_or_404
 from .models import Category, Product, Tag
 from .forms import ProductForm
 from .filters import ProductFilter
+from .recommendations import (
+    get_frequently_bought_together,
+    get_related_products,
+    track_product_view,
+)
 
 
 class SellerRequiredMixin(UserPassesTestMixin):
@@ -125,22 +130,23 @@ class ProductDetailView(DetailView):
             is_available=True,
         )
 
+        # Track this view for Recently Viewed recommendations
+        track_product_view(self.request, product)
+
         return product
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         product = self.object
         context["extra_images"] = product.images.all()
-        related = Product.objects.filter(
-            is_available=True,
-        ).exclude(
-            pk=product.pk
-        ).filter(
-            Q(category=product.category) | Q(tags__in=product.tags.all())
-        ).distinct().select_related(
-            "seller", "category"
-        )[:4]
-        context["related_products"] = related
+
+        # --- Recommendations ---
+        # 1. Enhanced related products (category/tag based, ordered by rating + sales)
+        context["related_products"] = get_related_products(product)
+
+        # 2. Frequently bought together (co-occurrence in orders)
+        context["bought_together"] = get_frequently_bought_together(product)
+
         return context
 
 

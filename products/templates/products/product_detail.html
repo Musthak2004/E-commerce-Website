@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load recommendations_tags %}
 
 {% block title %}{{ product.name }} — ShopEase{% endblock %}
 
@@ -138,7 +139,7 @@
             <p>You might also like these.</p>
         </div>
     </div>
-    <div class="product-grid ">
+    <div class="product-grid">
         {% for related in related_products %}
             <a href="{% url 'products:product_detail' related.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
                 <div class="product-card-img">
@@ -158,6 +159,8 @@
     </div>
 </section>
 {% endif %}
+
+{% frequently_bought_together product %}
 
 {% block extra_js %}
 <script>

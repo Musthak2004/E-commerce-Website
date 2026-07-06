@@ -13,6 +13,8 @@ from django.views.decorators.http import require_POST
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 
+from products.models import Product
+
 from .forms import ContactForm
 from .models import NewsletterSubscriber
 
@@ -21,6 +23,17 @@ logger = logging.getLogger(__name__)
 
 class HomePageView(TemplateView):
     template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Show the 4 newest available products
+        context["new_arrivals"] = (
+            Product.objects
+            .filter(is_available=True)
+            .select_related("seller", "category")
+            .order_by("-created_at")[:4]
+        )
+        return context
 
 
 class ContactPageView(FormView):

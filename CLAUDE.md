@@ -126,3 +126,22 @@ Single `static/css/style.css` (~4500 lines) with CSS custom properties (`--accen
 - **Seller ownership**: `ProductUpdateView` and `ProductDeleteView` override `get_queryset` to filter by `seller=self.request.user` (not just `test_func`).
 - **Review uniqueness**: enforced by `UniqueConstraint(fields=["user", "product"])` at DB level PLUS an explicit `exists()` check in `ReviewCreateView.form_valid`.
 - **`.env` file uses `DEBUG=False` as default** — for local dev you must edit it to `DEBUG=True`. The repo `.env.example` has `DEBUG=False`.
+
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec

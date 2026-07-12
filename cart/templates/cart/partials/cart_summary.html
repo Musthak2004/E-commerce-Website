@@ -89,7 +89,8 @@
     {% csrf_token %}
     <button type="submit" class="btn-checkout" id="checkoutBtn">
       <i class="fas fa-lock"></i>
-      <span class="btn-text">Proceed to Checkout</span>
+      <span class="btn-text">Secure Checkout</span>
+      <span class="btn-subtotal">${{ total_after_discount|floatformat:2 }}</span>
       <i class="fas fa-arrow-right"></i>
     </button>
   </form>

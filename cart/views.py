@@ -25,6 +25,7 @@ from .models import (
 )
 
 from products.models import Product
+from products.recommendations import get_frequently_bought_together
 
 
 def _cart_badge_html(request):
@@ -236,6 +237,16 @@ def cart_detail(request):
     ).first()
 
     ctx = _cart_summary_context(request, cart)
+
+    # Get frequently bought together recommendations based on first cart item
+    recommendations = []
+    if cart and cart.items.exists():
+        first_item = cart.items.first()
+        recs = get_frequently_bought_together(first_item.product_id, max_results=6)
+        # Filter out items already in cart
+        cart_pids = set(cart.items.values_list("product_id", flat=True))
+        recommendations = [p for p in recs if p.id not in cart_pids][:4]
+    ctx["recommendations"] = recommendations
 
     return render(request, "cart/cart_detail.html", ctx)
 

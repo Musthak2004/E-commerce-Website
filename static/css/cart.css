@@ -371,6 +371,17 @@
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
 }
 
+.btn-checkout .btn-subtotal {
+  font-size: 0.82rem;
+  font-weight: 600;
+  opacity: 0.9;
+  margin-left: 2px;
+}
+
+.btn-checkout .btn-text {
+  font-weight: 700;
+}
+
 .trust-badges {
   list-style: none;
   margin: 18px 0 0;
@@ -624,6 +635,34 @@
   border-radius: 2px;
   background: linear-gradient(90deg, var(--primary), #818cf8);
   transition: width 0.5s ease;
+}
+
+/* ── Cart Recommendations ── */
+
+.cart-recommendations {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.cart-recommendations .section-header {
+  margin-bottom: 24px;
+}
+
+.cart-recommendations .section-header h2 {
+  font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.cart-recommendations .section-header p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.cart-rec-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
 }
 
 /* ── Coupon input wrap ── */

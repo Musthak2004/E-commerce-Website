@@ -105,8 +105,8 @@ def create_order(request):
     except Exception as e:
         logger.warning("Failed to send order confirmation email: %s", e)
 
-    messages.success(request, "Order placed successfully!")
-    return redirect("orders:order_detail", order.id)
+    messages.success(request, f"Order #{order.id} created! Redirecting to payment...")
+    return redirect("payments:payment_create", order.id)
 
 
 @login_required

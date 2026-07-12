@@ -15,7 +15,7 @@
     <div class="section-header anim-fadeInUp">
         <div>
             <h2>{% if query %}Results for "{{ query }}"{% else %}Products{% endif %}</h2>
-            <p>{% if query %}Showing results for your search{% else %}Browse our curated collection of premium essentials.{% endif %}</p>
+            <p>{% if query %}{{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }} found{% else %}Browse our curated collection of premium essentials.{% endif %}</p>
         </div>
         {% if user.is_authenticated and user.user_type == "SELLER" %}
             <a href="{% url 'products:product_create' %}" class="btn btn-primary">
@@ -61,7 +61,7 @@
 
                 <div class="shop-filter-search">
                     <i class="fas fa-search"></i>
-                    <input type="text" name="q" placeholder="Search products..." value="{{ query }}" aria-label="Search products">
+                    <input type="text" name="q" placeholder="Search products…" value="{{ query }}" aria-label="Search products"{% if query %} autofocus{% endif %}>
                 </div>
 
                 <div class="shop-filter-field">
@@ -165,8 +165,17 @@
         <div class="empty-state anim-fadeIn">
             <div class="empty-state-icon"><i class="fas fa-{% if query %}search{% else %}box-open{% endif %}"></i></div>
             <h3>{% if query %}No results found{% else %}No products yet{% endif %}</h3>
-            <p>{% if query %}Try a different search term or browse our full collection.{% else %}Check back soon for new arrivals.{% endif %}</p>
+            <p>{% if query %}We couldn't find anything for "{{ query }}". Try a different term or browse our full collection.{% else %}Check back soon for new arrivals.{% endif %}</p>
             {% if query %}
+            <div class="search-suggestions">
+                <p class="search-suggestions-label">Suggestions:</p>
+                <ul class="search-suggestions-list">
+                    <li><a href="{% url 'products:product_list' %}" class="shop-filter-chip">Browse All</a></li>
+                    {% for cat in categories|slice:":4" %}
+                    <li><a href="{% url 'products:product_list' %}?category={{ cat.slug }}" class="shop-filter-chip">{{ cat.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
             <a href="{% url 'products:product_list' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Browse All Products
             </a>
@@ -175,4 +184,19 @@
     {% endif %}
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+{% if query %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var term = {{ query|escapejs }};
+    if (!term) return;
+    var re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    document.querySelectorAll('.product-card-body h3').forEach(function (el) {
+        el.innerHTML = el.textContent.replace(re, '<mark class="search-highlight">$1</mark>');
+    });
+});
+</script>
+{% endif %}
 {% endblock %}

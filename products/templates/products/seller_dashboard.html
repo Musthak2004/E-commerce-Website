@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Seller Dashboard — ShopEase{% endblock %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol>
+    <li><a href="{% url 'home' %}"><i class="fas fa-home"></i></a></li>
+    <li><i class="fas fa-chevron-right breadcrumb-sep"></i><span>Seller Dashboard</span></li>
+  </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-page" data-animate>
+  <div class="dashboard-inner">
+
+    <!-- ── Header ── -->
+    <header class="dashboard-header anim-fadeInUp">
+      <div>
+        <h1>Seller Dashboard</h1>
+        <p>Manage your products and track your sales.</p>
+      </div>
+      <a href="{% url 'products:product_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add Product
+      </a>
+    </header>
+
+    <!-- ── Stats ── -->
+    <div class="dashboard-stats anim-fadeInUp anim-delay-1">
+      <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-products">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">{{ total_products }}</span>
+          <span class="stat-label">Products Listed</span>
+        </div>
+      </div>
+      <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-orders">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">{{ total_orders }}</span>
+          <span class="stat-label">Orders Received</span>
+        </div>
+      </div>
+      <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-items">
+          <i class="fas fa-cube"></i>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">{{ total_items_sold }}</span>
+          <span class="stat-label">Items Sold</span>
+        </div>
+      </div>
+      <div class="dashboard-stat-card">
+        <div class="stat-icon stat-icon-revenue">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-body">
+          <span class="stat-value">${{ total_revenue|floatformat:2 }}</span>
+          <span class="stat-label">Total Revenue</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Products ── -->
+    <section class="dashboard-section anim-fadeInUp">
+      <div class="dashboard-section-header">
+        <h2>Your Products</h2>
+        <div class="dashboard-section-actions">
+          <a href="{% url 'products:product_list' %}?seller=me" class="btn btn-secondary btn-sm">
+            View All
+          </a>
+        </div>
+      </div>
+
+      {% if products %}
+      <div class="dashboard-table-wrap">
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products|slice:":10" %}
+            <tr>
+              <td>
+                <div class="dash-product-cell">
+                  {% if product.image %}
+                    <img src="{{ product.image_url }}" alt="" class="dash-product-thumb" loading="lazy">
+                  {% else %}
+                    <div class="dash-product-thumb dash-thumb-placeholder">
+                      <i class="fas fa-box"></i>
+                    </div>
+                  {% endif %}
+                  <div>
+                    <a href="{% url 'products:product_detail' product.slug %}" class="dash-product-name">
+                      {{ product.name }}
+                    </a>
+                    {% if product.category %}
+                      <span class="dash-product-cat">{{ product.category.name }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+              <td>${{ product.price }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <span class="status-chip {% if product.is_available %}status-active{% else %}status-inactive{% endif %}">
+                  {% if product.is_available %}Active{% else %}Inactive{% endif %}
+                </span>
+              </td>
+              <td>
+                <div class="dash-action-links">
+                  <a href="{% url 'products:product_update' product.slug %}" class="btn-icon" aria-label="Edit product">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                  <a href="{% url 'products:product_detail' product.slug %}" class="btn-icon" aria-label="View product">
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="dashboard-empty">
+        <i class="fas fa-box-open"></i>
+        <h3>No products yet</h3>
+        <p>List your first product to start selling on ShopEase.</p>
+        <a href="{% url 'products:product_create' %}" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Add Your First Product
+        </a>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ── Quick Links ── -->
+    <section class="dashboard-section anim-fadeInUp">
+      <div class="dashboard-section-header">
+        <h2>Quick Actions</h2>
+      </div>
+      <div class="dashboard-quick-links">
+        <a href="{% url 'products:product_create' %}" class="quick-link-card">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add Product</span>
+        </a>
+        <a href="{% url 'orders:order_list' %}" class="quick-link-card">
+          <i class="fas fa-receipt"></i>
+          <span>View Orders</span>
+        </a>
+        <a href="{% url 'products:product_list' %}" class="quick-link-card">
+          <i class="fas fa-store"></i>
+          <span>Browse Shop</span>
+        </a>
+        <a href="{% url 'profile' %}" class="quick-link-card">
+          <i class="fas fa-user-cog"></i>
+          <span>Seller Profile</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -202,7 +202,9 @@ class CreateOrderViewTests(TestCase):
         resp = self.client.post(reverse("orders:create_order"))
         self.assertEqual(Order.objects.count(), 1)
         order = Order.objects.first()
-        self.assertRedirects(resp, reverse("orders:order_detail", args=[order.id]))
+        # Now redirects to payment_create instead of order_detail for seamless flow
+        self.assertRedirects(resp, reverse("payments:payment_create", args=[order.id]),
+                             fetch_redirect_response=False)
         self.assertEqual(order.total_price, Decimal("50.00"))
         self.assertEqual(order.items.count(), 1)
         self.assertEqual(order.items.first().product, self.product)

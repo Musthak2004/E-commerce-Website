@@ -61,7 +61,21 @@
       {% for field in form %}
         <div class="form-group anim-fadeIn">
           <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {% if field.name == "rating" %}
+          <div class="star-rating-widget" role="radiogroup" aria-label="Rating">
+            <input type="hidden" name="rating" id="id_rating" value="{% if form.rating.value %}{{ form.rating.value }}{% else %}5{% endif %}" required>
+            <div class="star-rating-stars">
+              {% for i in "12345" %}
+                <button type="button" class="star-btn" data-value="{{ forloop.counter }}" aria-label="{{ forloop.counter }} star{% if forloop.counter > 1 %}s{% endif %}" tabindex="0">
+                  <i class="{% if forloop.counter <= 5 %}fas{% else %}far{% endif %} fa-star{% if not form.rating.value or forloop.counter > form.rating.value|add:0 %} fa-regular{% endif %}"></i>
+                </button>
+              {% endfor %}
+            </div>
+            <span class="star-rating-label" id="ratingLabel">5 Stars — Excellent</span>
+          </div>
+          {% else %}
           {{ field }}
+          {% endif %}
           {% if field.help_text %}
             <span class="helptext">{{ field.help_text }}</span>
           {% endif %}
@@ -85,4 +99,69 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var container = document.querySelector('.star-rating-widget');
+    if (!container) return;
+    var input = container.querySelector('#id_rating');
+    var stars = container.querySelectorAll('.star-btn');
+    var label = container.querySelector('#ratingLabel');
+
+    var labels = {
+        1: '1 Star — Poor',
+        2: '2 Stars — Fair',
+        3: '3 Stars — Good',
+        4: '4 Stars — Very Good',
+        5: '5 Stars — Excellent',
+    };
+
+    function updateStars(value) {
+        stars.forEach(function (btn) {
+            var val = parseInt(btn.getAttribute('data-value'), 10);
+            var icon = btn.querySelector('i');
+            if (val <= value) {
+                icon.className = 'fas fa-star';
+            } else {
+                icon.className = 'far fa-star';
+            }
+            btn.classList.toggle('active', val <= value);
+        });
+        if (label) label.textContent = labels[value] || '';
+    }
+
+    // Init from current value
+    var currentVal = parseInt(input.value, 10) || 5;
+    updateStars(currentVal);
+
+    // Click handler
+    stars.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var val = parseInt(this.getAttribute('data-value'), 10);
+            input.value = val;
+            updateStars(val);
+        });
+
+        // Hover effects
+        btn.addEventListener('mouseenter', function () {
+            var val = parseInt(this.getAttribute('data-value'), 10);
+            stars.forEach(function (s) {
+                var sv = parseInt(s.getAttribute('data-value'), 10);
+                var icon = s.querySelector('i');
+                if (sv <= val) {
+                    icon.className = 'fas fa-star';
+                } else {
+                    icon.className = 'far fa-star';
+                }
+            });
+        });
+
+        btn.addEventListener('mouseleave', function () {
+            updateStars(parseInt(input.value, 10) || 0);
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -22,6 +22,24 @@
     </div>
 
     <div class="form-card anim-fadeInUp anim-delay-1">
+      <div class="profile-account-info">
+        <div class="profile-account-avatar">
+          {% if user.profile.profile_picture %}
+            <img src="{{ user.profile.profile_picture.url }}" alt="" id="profileAvatarPreview" width="72" height="72">
+          {% else %}
+            <div class="profile-avatar-placeholder" id="profileAvatarPreview">
+              <i class="fas fa-user"></i>
+            </div>
+          {% endif %}
+        </div>
+        <div>
+          <div class="profile-account-email">{{ user.email }}</div>
+          <span class="profile-account-type">{% if user.user_type == "SELLER" %}Seller Account{% else %}Customer Account{% endif %}</span>
+          {% if user.profile.full_name %}
+            <div class="profile-account-name">{{ user.profile.full_name }}</div>
+          {% endif %}
+        </div>
+      </div>
       <form class="styled-form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
 
@@ -84,7 +102,46 @@
           <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save Changes</button>
         </div>
       </form>
+
+      <div class="profile-extra-links">
+        <a href="{% url 'password_reset' %}" class="btn btn-secondary">
+          <i class="fas fa-key"></i> Change Password
+        </a>
+        <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">
+          <i class="fas fa-receipt"></i> My Orders
+        </a>
+      </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var fileInput = document.getElementById('id_profile_picture');
+    var preview = document.getElementById('profileAvatarPreview');
+    if (fileInput && preview) {
+        fileInput.addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = ev.target.result;
+                } else {
+                    var img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.width = 72;
+                    img.height = 72;
+                    img.alt = '';
+                    img.style.cssText = 'width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.08);';
+                    preview.parentNode.replaceChild(img, preview);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -19,20 +19,6 @@
             <a href="{% url 'products:product_list' %}" class="btn btn-primary">{% if user.is_authenticated %}Browse Products{% else %}Explore the Collection{% endif %} <i class="fas fa-arrow-right"></i></a>
             <a href="{% url 'about' %}" class="btn btn-secondary">Our Story <i class="fas fa-book-open"></i></a>
         </div>
-        <div class="hero-stats anim-fadeInUp anim-delay-5">
-            <div class="hero-stat">
-                <strong>12k+</strong>
-                <span>Happy Customers</span>
-            </div>
-            <div class="hero-stat">
-                <strong>500+</strong>
-                <span>Curated Products</span>
-            </div>
-            <div class="hero-stat">
-                <strong>99%</strong>
-                <span>Satisfaction Rate</span>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -136,39 +122,6 @@
 {% endif %}
 
 {% recently_viewed_products 6 %}
-
-<!-- Prompt Assistant -->
-<section class="section">
-    <div class="section-header anim-fadeInUp">
-        <h2>Find your perfect product</h2>
-        <p>Not sure what you're looking for? Try one of these suggestions.</p>
-    </div>
-    <div class="prompt-assistant anim-fadeInUp anim-delay-1" id="promptAssistant">
-        <div class="prompt-assistant-header">
-            <h2>Product assistant</h2>
-            <p>Click a suggestion or type your own query</p>
-        </div>
-
-        <div class="prompt-suggestions">
-            <button class="prompt-suggestion" type="button" data-prompt="Find me a gift under $50">Find me a gift under $50</button>
-            <button class="prompt-suggestion" type="button" data-prompt="What are your best selling items?">What are your best selling items?</button>
-            <button class="prompt-suggestion" type="button" data-prompt="Show me recently added products">Show me recently added products</button>
-            <button class="prompt-suggestion" type="button" data-prompt="I need home decor ideas">I need home decor ideas</button>
-            <button class="prompt-suggestion" type="button" data-prompt="What products are on sale?">What products are on sale?</button>
-        </div>
-
-        <div class="prompt-input-wrap">
-            <textarea placeholder="Type a message or click a suggestion…" rows="2"></textarea>
-            <div class="prompt-input-actions">
-                <button class="prompt-input-btn" type="button" disabled aria-label="Send">
-                    <i class="fas fa-arrow-up"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="prompt-response"></div>
-    </div>
-</section>
 
 <!-- CTA -->
 <section class="cta-section anim-fadeInUp">

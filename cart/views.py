@@ -25,6 +25,7 @@ from .models import (
 )
 
 from products.models import Product
+from products.recommendations import get_frequently_bought_together
 
 
 def _cart_badge_html(request):
@@ -72,6 +73,8 @@ def _cart_summary_context(request, cart):
         "coupon": coupon,
         "discount_amount": discount_amount,
         "total_after_discount": total_after_discount,
+        "remaining_for_free_shipping": max(50 - cart.total_price, 0) if cart else 0,
+        "shipping_progress_percent": min(cart.total_price / 50 * 100, 100) if cart else 0,
     }
 
 
@@ -87,11 +90,20 @@ def add_to_cart(request, product_id):
 
     cart, created = Cart.objects.get_or_create(user=request.user)
 
+    # Support a quantity parameter from the product detail page
+    try:
+        qty = int(request.POST.get("quantity", 1))
+    except (ValueError, TypeError):
+        qty = 1
+    qty = max(1, min(qty, product.stock))
+
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
     if not created:
-        item.quantity += 1
-        item.save()
+        item.quantity = min(item.quantity + qty, product.stock)
+    else:
+        item.quantity = qty
+    item.save()
 
     is_htmx = request.headers.get("HX-Request") == "true"
 
@@ -225,6 +237,16 @@ def cart_detail(request):
     ).first()
 
     ctx = _cart_summary_context(request, cart)
+
+    # Get frequently bought together recommendations based on first cart item
+    recommendations = []
+    if cart and cart.items.exists():
+        first_item = cart.items.first()
+        recs = get_frequently_bought_together(first_item.product_id, max_results=6)
+        # Filter out items already in cart
+        cart_pids = set(cart.items.values_list("product_id", flat=True))
+        recommendations = [p for p in recs if p.id not in cart_pids][:4]
+    ctx["recommendations"] = recommendations
 
     return render(request, "cart/cart_detail.html", ctx)
 

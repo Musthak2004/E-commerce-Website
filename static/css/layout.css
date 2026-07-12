@@ -454,6 +454,21 @@
   font-size: 0.75rem;
 }
 
+.footer-links-mini {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.footer-links-mini a {
+  color: var(--text-secondary);
+  transition: color var(--transition);
+}
+
+.footer-links-mini a:hover {
+  color: var(--text);
+}
+
 .footer-links li { margin-bottom: 8px; }
 
 .footer-links a {

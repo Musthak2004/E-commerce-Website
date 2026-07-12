@@ -14,6 +14,33 @@
 
   </div>
 
+  {% if recommendations %}
+  <section class="cart-recommendations anim-fadeInUp" data-animate>
+    <div class="section-header">
+      <h2>Frequently Bought Together</h2>
+      <p>Customers who bought these items also loved:</p>
+    </div>
+    <div class="product-grid cart-rec-grid">
+      {% for rec in recommendations %}
+        <a href="{% url 'products:product_detail' rec.slug %}" class="product-card" style="--i:{{ forloop.counter0 }}">
+          <div class="product-card-img">
+            {% if rec.image %}
+              <img src="{{ rec.image_url }}" alt="{{ rec.name }}" loading="lazy">
+            {% else %}
+              <i class="fas fa-image placeholder-icon"></i>
+            {% endif %}
+          </div>
+          <div class="product-card-body">
+            <span class="product-category">{{ rec.category.name|default:"General" }}</span>
+            <h3>{{ rec.name }}</h3>
+            <span class="product-price">${{ rec.price }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
 {% else %}
 
   <!-- ── Empty State ── -->

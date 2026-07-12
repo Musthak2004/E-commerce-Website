@@ -139,6 +139,8 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = self.object
         context["extra_images"] = product.images.all()
+        # Reviews visible on the product detail page
+        context["reviews"] = product.reviews.select_related("user").all()[:10]
 
         # --- Recommendations ---
         # 1. Enhanced related products (category/tag based, ordered by rating + sales)

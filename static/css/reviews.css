@@ -142,3 +142,68 @@
   color: var(--text-secondary);
   margin: 0;
 }
+
+/* ── Star Rating Widget ── */
+
+.star-rating-widget {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.star-rating-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted);
+  transition: all 150ms ease;
+  border-radius: 4px;
+}
+
+.star-btn i {
+  transition: all 150ms ease;
+}
+
+.star-btn .fa-star {
+  color: var(--primary-light);
+}
+
+.star-btn .fa-regular.fa-star {
+  color: var(--text-muted);
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+}
+
+.star-btn:hover .fa-star,
+.star-btn.active .fa-star {
+  color: var(--primary);
+}
+
+.star-btn:hover ~ .star-btn .fa-star,
+.star-btn:hover ~ .star-btn .fa-regular.fa-star,
+.star-btn.active ~ .star-btn .fa-regular.fa-star {
+  color: var(--text-muted);
+}
+
+.star-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.star-rating-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 120px;
+}

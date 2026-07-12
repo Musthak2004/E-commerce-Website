@@ -85,9 +85,6 @@
   .cart-row-remove { opacity: 1; }
   .trust-badges { flex-direction: column; }
   .summary-total strong { font-size: 1.2rem; }
-  .prompt-assistant { padding: 18px 16px 16px; }
-  .prompt-suggestions { gap: 4px; }
-  .prompt-suggestion { font-size: 0.75rem; padding: 5px 11px; }
 }
 
 @media (max-width: 480px) {

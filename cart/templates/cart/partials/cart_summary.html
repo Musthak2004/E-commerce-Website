@@ -19,6 +19,26 @@
     </div>
   </dl>
 
+  {% if cart.total_price < 50 %}
+  <!-- ── Free shipping progress ── -->
+  <div class="shipping-progress">
+    <div class="shipping-progress-text">
+      <i class="fas fa-truck"></i>
+      <span>Add <strong>${{ remaining_for_free_shipping|default:"50.00" }}</strong> more for free shipping!</span>
+    </div>
+    <div class="shipping-progress-bar">
+      <div class="shipping-progress-fill" style="width: {{ shipping_progress_percent|default:0 }}%"></div>
+    </div>
+  </div>
+  {% else %}
+  <div class="shipping-progress shipping-progress--reached">
+    <div class="shipping-progress-text">
+      <i class="fas fa-check-circle"></i>
+      <span>You've earned <strong>free shipping</strong>!</span>
+    </div>
+  </div>
+  {% endif %}
+
   <!-- ── Coupon ── -->
   <div class="cart-coupon">
     {% if coupon %}
@@ -43,8 +63,10 @@
     {% else %}
       <form method="post" action="{% url 'coupons:apply_coupon' %}" class="coupon-form">
         {% csrf_token %}
-        <input type="text" name="code" placeholder="Enter coupon code" class="coupon-input" maxlength="50">
-        <button type="submit" class="coupon-btn">Apply</button>
+        <div class="coupon-input-wrap">
+          <input type="text" name="code" placeholder="Enter coupon code" class="coupon-input" maxlength="50" autocomplete="off">
+          <button type="submit" class="coupon-btn">Apply</button>
+        </div>
       </form>
     {% endif %}
   </div>
@@ -65,17 +87,17 @@
 
   <form method="post" action="{% url 'orders:create_order' %}">
     {% csrf_token %}
-    <button type="submit" class="btn-checkout">
+    <button type="submit" class="btn-checkout" id="checkoutBtn">
       <i class="fas fa-lock"></i>
-      Proceed to Checkout
+      <span class="btn-text">Proceed to Checkout</span>
       <i class="fas fa-arrow-right"></i>
     </button>
   </form>
 
   <!-- Trust badges -->
   <ul class="trust-badges">
-    <li><i class="fas fa-shield-halved"></i> Secure Checkout</li>
-    <li><i class="fas fa-rotate-left"></i> Easy Returns</li>
+    <li><i class="fas fa-shield-halved"></i> 256-bit SSL Secure</li>
+    <li><i class="fas fa-rotate-left"></i> 30-Day Easy Returns</li>
     <li><i class="fas fa-headset"></i> 24/7 Support</li>
   </ul>
 

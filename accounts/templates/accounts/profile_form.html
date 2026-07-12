@@ -84,6 +84,15 @@
           <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save Changes</button>
         </div>
       </form>
+
+      <div class="profile-extra-links">
+        <a href="{% url 'password_reset' %}" class="btn btn-secondary">
+          <i class="fas fa-key"></i> Change Password
+        </a>
+        <a href="{% url 'orders:order_list' %}" class="btn btn-secondary">
+          <i class="fas fa-receipt"></i> My Orders
+        </a>
+      </div>
     </div>
   </div>
 </div>

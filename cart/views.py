@@ -72,6 +72,8 @@ def _cart_summary_context(request, cart):
         "coupon": coupon,
         "discount_amount": discount_amount,
         "total_after_discount": total_after_discount,
+        "remaining_for_free_shipping": max(50 - cart.total_price, 0) if cart else 0,
+        "shipping_progress_percent": min(cart.total_price / 50 * 100, 100) if cart else 0,
     }
 
 
@@ -87,11 +89,20 @@ def add_to_cart(request, product_id):
 
     cart, created = Cart.objects.get_or_create(user=request.user)
 
+    # Support a quantity parameter from the product detail page
+    try:
+        qty = int(request.POST.get("quantity", 1))
+    except (ValueError, TypeError):
+        qty = 1
+    qty = max(1, min(qty, product.stock))
+
     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
 
     if not created:
-        item.quantity += 1
-        item.save()
+        item.quantity = min(item.quantity + qty, product.stock)
+    else:
+        item.quantity = qty
+    item.save()
 
     is_htmx = request.headers.get("HX-Request") == "true"
 

@@ -574,3 +574,62 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
 }
+
+/* ── Shipping Progress ── */
+
+.shipping-progress {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.shipping-progress--reached {
+  background: var(--success-bg);
+  border-color: #a7f3d0;
+}
+
+.shipping-progress-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.shipping-progress--reached .shipping-progress-text {
+  color: var(--success-text);
+}
+
+.shipping-progress-text i {
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+.shipping-progress--reached .shipping-progress-text i {
+  color: var(--success);
+}
+
+.shipping-progress-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-light);
+  overflow: hidden;
+}
+
+.shipping-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--primary), #818cf8);
+  transition: width 0.5s ease;
+}
+
+/* ── Coupon input wrap ── */
+
+.coupon-input-wrap {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}

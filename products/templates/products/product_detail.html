@@ -21,7 +21,7 @@
         <div class="product-detail-gallery anim-fadeInUp anim-delay-1">
             {% if product.image %}
                 <div class="product-detail-main-img" id="mainImageContainer">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" id="mainProductImage">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" id="mainProductImage" loading="eager">
                 </div>
             {% else %}
                 <div class="product-detail-main-img placeholder">
@@ -46,6 +46,7 @@
             {% endif %}
             <h1>{{ product.name }}</h1>
             <p class="product-detail-price">${{ product.price }}</p>
+
             {% if product.average_rating %}
             <div class="product-rating product-detail-rating">
               {% for i in "12345" %}
@@ -61,11 +62,22 @@
             <div class="product-detail-meta">
                 <div class="meta-item">
                     <i class="fas fa-box"></i>
-                    <span>{% if product.stock > 0 %}In Stock ({{ product.stock }} available){% else %}Out of Stock{% endif %}</span>
+                    <span>
+                      {% if product.stock > 0 %}
+                        In Stock
+                        {% if product.stock <= 5 %}
+                          <span class="stock-urgency">— Only {{ product.stock }} left!</span>
+                        {% else %}
+                          <span class="stock-count">({{ product.stock }} available)</span>
+                        {% endif %}
+                      {% else %}
+                        Out of Stock
+                      {% endif %}
+                    </span>
                 </div>
                 <div class="meta-item">
                     <i class="fas fa-store"></i>
-                    <span>Sold by {{ product.seller.email }}</span>
+                    <span>Sold by <strong>{{ product.seller.get_full_name|default:product.seller.email }}</strong></span>
                 </div>
             </div>
 
@@ -87,19 +99,34 @@
                 </div>
             {% endif %}
 
-            <div class="product-detail-actions">
+            <div class="product-detail-actions" id="product-actions">
+                {% if product.is_available and product.stock > 0 %}
+                <div class="qty-action-row">
+                    <div class="inline-qty" data-product-id="{{ product.id }}">
+                        <button type="button" class="qty-btn" data-qty-dir="down" aria-label="Decrease quantity">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" class="qty-input" value="1" min="1" max="{{ product.stock }}" readonly>
+                        <button type="button" class="qty-btn" data-qty-dir="up" aria-label="Increase quantity">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <button type="submit"
+                            class="btn btn-primary btn-add-cart"
+                            data-product-id="{{ product.id }}"
+                            data-stock="{{ product.stock }}"
+                            hx-post="{% url 'cart:add_to_cart' product.id %}"
+                            hx-target="#cart-count-badge"
+                            hx-swap="outerHTML"
+                            hx-disabled-elt="this"
+                            hx-vals='{"quantity": 1}'>
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="btn-text">Add to Cart</span>
+                    </button>
+                </div>
+                {% endif %}
                 <button type="submit"
-                        class="btn btn-primary"
-                        {% if not product.is_available or product.stock == 0 %}disabled{% endif %}
-                        hx-post="{% url 'cart:add_to_cart' product.id %}"
-                        hx-target="#cart-count-badge"
-                        hx-swap="outerHTML"
-                        hx-disabled-elt="this">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span class="btn-text">Add to Cart</span>
-                </button>
-                <button type="submit"
-                        class="btn btn-secondary"
+                        class="btn btn-secondary btn-wishlist"
                         hx-post="{% url 'cart:toggle_wishlist' product.id %}"
                         hx-target="#wishlist-count-badge"
                         hx-swap="outerHTML"
@@ -130,6 +157,44 @@
         </div>
     </div>
 </section>
+
+{% if reviews %}
+<section class="section reviews-section" data-animate>
+    <div class="section-header anim-fadeInUp">
+        <div>
+            <h2>Customer Reviews</h2>
+            <p>What people are saying about {{ product.name }}.</p>
+        </div>
+    </div>
+    <div class="reviews-list">
+        {% for review in reviews %}
+        <article class="review-card anim-fadeInUp" style="--i:{{ forloop.counter0 }}">
+            <div class="review-card-header">
+                <div class="review-card-user">
+                    <div class="review-card-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <span class="review-card-name">{{ review.user.get_full_name|default:review.user.email }}</span>
+                        <span class="review-card-date">{{ review.created_at|date:"M j, Y" }}</span>
+                    </div>
+                </div>
+                <div class="review-card-stars">
+                    {% for i in "12345" %}
+                        <i class="fas fa-star{% if forloop.counter > review.rating %} fa-regular{% endif %}" aria-hidden="true"></i>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if review.comment %}
+            <div class="review-card-body">
+                <p>{{ review.comment }}</p>
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
 
 {% if related_products %}
 <section class="section related-section">
@@ -162,9 +227,44 @@
 
 {% frequently_bought_together product %}
 
+{% recently_viewed_products 4 %}
+
+<div class="sticky-cart-bar" id="stickyCartBar">
+    <span class="sticky-cart-price">${{ product.price }}</span>
+    {% if product.is_available and product.stock > 0 %}
+    <div class="qty-action-row">
+        <div class="inline-qty" data-product-id="{{ product.id }}">
+            <button type="button" class="qty-btn" data-qty-dir="down" aria-label="Decrease quantity">
+                <i class="fas fa-minus"></i>
+            </button>
+            <input type="number" class="qty-input" value="1" min="1" max="{{ product.stock }}" readonly>
+            <button type="button" class="qty-btn" data-qty-dir="up" aria-label="Increase quantity">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <button type="submit"
+                class="btn btn-primary"
+                data-product-id="{{ product.id }}"
+                data-stock="{{ product.stock }}"
+                hx-post="{% url 'cart:add_to_cart' product.id %}"
+                hx-target="#cart-count-badge"
+                hx-swap="outerHTML"
+                hx-disabled-elt="this"
+                hx-vals='{"quantity": 1}'>
+            <i class="fas fa-shopping-bag"></i> Add to Cart
+        </button>
+    </div>
+    {% else %}
+    <button class="btn btn-secondary" disabled>Out of Stock</button>
+    {% endif %}
+</div>
+
+{% endblock %}
+
 {% block extra_js %}
 <script>
 (function() {
+    /* ── Thumbnail gallery ── */
     var thumbs = document.querySelectorAll('#productThumbnails .thumb');
     var mainImg = document.getElementById('mainProductImage');
     if (thumbs.length && mainImg) {
@@ -176,8 +276,48 @@
             });
         });
     }
+
+    /* ── Quantity selector + dynamic hx-vals ── */
+    var qtyContainers = document.querySelectorAll('.inline-qty');
+    var addBtns = document.querySelectorAll('.btn-add-cart, .sticky-cart-bar .btn-primary');
+    var maxStock = 99;
+
+    qtyContainers.forEach(function(qtyContainer) {
+        var qtyInput = qtyContainer.querySelector('.qty-input');
+        var firstBtn = document.querySelector('[data-stock]');
+        if (firstBtn) maxStock = parseInt(firstBtn.getAttribute('data-stock'), 10) || 99;
+
+        function updateAllHxVals(val) {
+            qtyInput.value = val;
+            addBtns.forEach(function(btn) {
+                btn.setAttribute('hx-vals', JSON.stringify({quantity: val}));
+            });
+        }
+
+        qtyContainer.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-qty-dir]');
+            if (!btn) return;
+            var dir = btn.getAttribute('data-qty-dir');
+            var current = parseInt(qtyInput.value, 10) || 1;
+            var next = dir === 'up' ? current + 1 : current - 1;
+            next = Math.max(1, Math.min(next, maxStock));
+            updateAllHxVals(next);
+        });
+    });
+
+    /* ── Sticky cart bar visibility ── */
+    var stickyBar = document.getElementById('stickyCartBar');
+    if (stickyBar) {
+        var productActions = document.getElementById('product-actions');
+        function updateStickyBar() {
+            if (!productActions) return;
+            var rect = productActions.getBoundingClientRect();
+            stickyBar.classList.toggle('is-visible', rect.bottom < 0);
+        }
+        window.addEventListener('scroll', updateStickyBar, { passive: true });
+        updateStickyBar();
+    }
+})();
 })();
 </script>
-{% endblock %}
-
 {% endblock %}

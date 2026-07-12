@@ -7,12 +7,15 @@ from .views import (
     ProductUpdateView,
     ProductDeleteView,
 )
+from .seller_dashboard import seller_dashboard
 
 app_name = "products"
 
 urlpatterns = [
 
     path("", ProductListView.as_view(), name="product_list"),
+
+    path("dashboard/", seller_dashboard, name="seller_dashboard"),
 
     path("create/", ProductCreateView.as_view(), name="product_create"),
 

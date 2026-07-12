@@ -258,6 +258,26 @@
     });
 
     /* ═══════════════════════════════════════════════
+       BUTTON RIPPLE EFFECT
+       ═══════════════════════════════════════════════ */
+
+    document.querySelectorAll('.btn:not(.btn-icon)').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            var existing = this.querySelector('.btn-ripple');
+            if (existing) existing.remove();
+            var ripple = document.createElement('span');
+            ripple.className = 'btn-ripple';
+            var rect = this.getBoundingClientRect();
+            var size = Math.max(rect.width, rect.height);
+            var x = (e.clientX || rect.left + rect.width / 2) - rect.left - size / 2;
+            var y = (e.clientY || rect.top + rect.height / 2) - rect.top - size / 2;
+            ripple.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + x + 'px;top:' + y + 'px';
+            this.appendChild(ripple);
+            setTimeout(function () { if (ripple.parentNode) ripple.remove(); }, 600);
+        });
+    });
+
+    /* ═══════════════════════════════════════════════
        FORM SUBMIT LOADING STATE
        ═══════════════════════════════════════════════ */
 

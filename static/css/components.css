@@ -81,6 +81,29 @@
 
 .btn .fa-spinner { animation: spin 0.8s linear infinite; }
 
+/* ── Button Ripple ── */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-anim 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes ripple-anim {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
 /* ── Messages & Alerts ── */
 
 .messages {

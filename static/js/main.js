@@ -72,19 +72,53 @@
        SEARCH OVERLAY
        ═══════════════════════════════════════════════ */
 
+    function openSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.classList.add('open');
+        if (searchInput) {
+            setTimeout(function () { searchInput.focus(); searchInput.select(); }, 120);
+        }
+    }
+
+    function closeSearch() {
+        if (!searchOverlay) return;
+        searchOverlay.classList.remove('open');
+        if (searchInput) searchInput.blur();
+    }
+
     if (searchToggle && searchOverlay) {
-        searchToggle.addEventListener('click', function () {
-            searchOverlay.classList.add('open');
-            if (searchInput) {
-                setTimeout(function () { searchInput.focus(); }, 100);
-            }
-        });
+        searchToggle.addEventListener('click', openSearch);
     }
 
     if (searchClose && searchOverlay) {
-        searchClose.addEventListener('click', function () {
-            searchOverlay.classList.remove('open');
+        searchClose.addEventListener('click', closeSearch);
+    }
+
+    // Close search by clicking the overlay backdrop (outside the inner area)
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', function (e) {
+            if (e.target === searchOverlay) closeSearch();
         });
+    }
+
+    // Keyboard shortcut: '/' opens search (unless in an input/textarea)
+    document.addEventListener('keydown', function (e) {
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            var tag = e.target.tagName;
+            if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT' && !e.target.isContentEditable) {
+                e.preventDefault();
+                openSearch();
+            }
+        }
+    });
+
+    // Persist search query in the overlay field on page load (from URL)
+    if (searchInput) {
+        var urlParams = new URLSearchParams(window.location.search);
+        var urlQuery = urlParams.get('q');
+        if (urlQuery) {
+            searchInput.value = urlQuery;
+        }
     }
 
     /* ═══════════════════════════════════════════════

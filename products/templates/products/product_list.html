@@ -168,11 +168,11 @@
             <p>{% if query %}We couldn't find anything for "{{ query }}". Try a different term or browse our full collection.{% else %}Check back soon for new arrivals.{% endif %}</p>
             {% if query %}
             <div class="search-suggestions">
-                <p class="text-muted" style="margin-bottom:10px;font-size:0.82rem;">Suggestions:</p>
-                <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:20px;">
-                    <li><a href="{% url 'products:product_list' %}" class="shop-filter-chip" style="text-decoration:none;">Browse All</a></li>
+                <p class="search-suggestions-label">Suggestions:</p>
+                <ul class="search-suggestions-list">
+                    <li><a href="{% url 'products:product_list' %}" class="shop-filter-chip">Browse All</a></li>
                     {% for cat in categories|slice:":4" %}
-                    <li><a href="{% url 'products:product_list' %}?category={{ cat.slug }}" class="shop-filter-chip" style="text-decoration:none;">{{ cat.name }}</a></li>
+                    <li><a href="{% url 'products:product_list' %}?category={{ cat.slug }}" class="shop-filter-chip">{{ cat.name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -198,13 +198,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
-<style>
-.search-highlight {
-    background: #fef08a;
-    color: #1e293b;
-    padding: 0 2px;
-    border-radius: 2px;
-}
 </style>
 {% endif %}
 {% endblock %}

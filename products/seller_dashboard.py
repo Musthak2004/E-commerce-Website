@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum, Q, Prefetch
+from django.db.models import Sum
 from django.shortcuts import render
 
 from orders.models import OrderItem
@@ -27,20 +27,6 @@ def seller_dashboard(request):
     total_orders = seller_order_items.values("order").distinct().count()
     total_items_sold = seller_order_items.aggregate(total=Sum("quantity"))["total"] or 0
 
-    # Revenue from seller's products (only from confirmed/delivered orders)
-    revenue_data = seller_order_items.filter(
-        order__status__in=["CONFIRMED", "SHIPPED", "DELIVERED"]
-    ).aggregate(
-        total=Sum(
-            # Price at time of purchase * quantity
-            # Use F expression: sum of (item.price * item.quantity)
-            # Django doesn't have F in aggregate, so we annotate
-            # Actually we can compute via annotate then aggregate
-            None
-        )
-    )
-
-    # Better revenue calculation
     from django.db.models import F, Value, DecimalField
     from django.db.models.functions import Coalesce
 

@@ -9,7 +9,6 @@ from django.core.paginator import Paginator
 from django.db.models import (
     Count,
     OuterRef,
-    Q,
     Subquery,
     Value,
 )
@@ -39,26 +38,17 @@ RATE_LIMIT_MAX = 30
 RATE_LIMIT_WINDOW = 60
 
 
-def _base_context(request):
-    """Build shared context for all chat templates."""
-    unread_total = 0
-    if request.user.is_authenticated:
-        unread_total = Message.objects.filter(
-            conversation__in=Conversation.objects.filter(
-                Q(buyer=request.user) | Q(seller=request.user),
-            ),
-            is_read=False,
-        ).exclude(
-            sender=request.user,
-        ).count()
-    return {"unread_total": unread_total}
+def _require_participant(conv, user):
+    """Raise PermissionDenied if *user* is not a participant in *conv*."""
+    if user not in (conv.buyer, conv.seller):
+        raise PermissionDenied("You are not a participant in this conversation.")
 
 
 @login_required
 def inbox(request):
 
-    conversations = Conversation.objects.filter(
-        Q(buyer=request.user) | Q(seller=request.user),
+    conversations = Conversation.for_user(
+        request.user,
     ).select_related(
         "buyer", "seller", "product",
     )
@@ -96,10 +86,10 @@ def inbox(request):
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    context = _base_context(request)
-    context["conversations"] = page_obj.object_list
-    context["page_obj"] = page_obj
-    context["is_paginated"] = page_obj.has_other_pages()
+    context = {
+        "conversations": page_obj,
+        "page_obj": page_obj,
+    }
 
     return render(request, "chat/inbox.html", context)
 
@@ -129,20 +119,17 @@ def conversation_detail(request, conversation_id):
 
     conv = get_object_or_404(Conversation, pk=conversation_id)
 
-    if request.user not in (conv.buyer, conv.seller):
-        raise PermissionDenied("You are not a participant in this conversation.")
+    _require_participant(conv, request.user)
 
     # Fetch newest 50 messages in ascending order
-    messages_qs = conv.messages.order_by("-created_at")[:MESSAGE_PAGE_SIZE]
+    messages_qs = conv.messages.select_related(
+        "sender",
+    ).order_by("-created_at")[:MESSAGE_PAGE_SIZE]
     messages_list = list(messages_qs)
     messages_list.reverse()
 
     # Mark received messages as read
-    conv.messages.filter(
-        is_read=False,
-    ).exclude(
-        sender=request.user,
-    ).update(is_read=True)
+    conv.mark_messages_read(request.user)
 
     form = MessageForm()
 
@@ -154,13 +141,14 @@ def conversation_detail(request, conversation_id):
     has_older = bool(messages_list and first_message and messages_list[0].id != first_message.id)
     first_message_id = messages_list[0].id if messages_list else 0
 
-    context = _base_context(request)
-    context["conversation"] = conv
-    context["messages"] = messages_list
-    context["form"] = form
-    context["other_user"] = other_user
-    context["has_older"] = has_older
-    context["first_message_id"] = first_message_id
+    context = {
+        "conversation": conv,
+        "messages": messages_list,
+        "form": form,
+        "other_user": other_user,
+        "has_older": has_older,
+        "first_message_id": first_message_id,
+    }
 
     return render(request, "chat/conversation.html", context)
 
@@ -171,8 +159,7 @@ def send_message(request, conversation_id):
 
     conv = get_object_or_404(Conversation, pk=conversation_id)
 
-    if request.user not in (conv.buyer, conv.seller):
-        raise PermissionDenied("You are not a participant in this conversation.")
+    _require_participant(conv, request.user)
 
     # Rate limiting
     if not request.user.is_superuser:
@@ -222,8 +209,7 @@ def poll_messages(request, conversation_id):
 
     conv = get_object_or_404(Conversation, pk=conversation_id)
 
-    if request.user not in (conv.buyer, conv.seller):
-        raise PermissionDenied("You are not a participant in this conversation.")
+    _require_participant(conv, request.user)
 
     try:
         after = int(request.GET.get("after", 0))
@@ -235,11 +221,14 @@ def poll_messages(request, conversation_id):
         id__gt=after,
     ).exclude(
         sender=request.user,
+    ).select_related(
+        "sender",
     ).order_by("created_at")[:MESSAGE_PAGE_SIZE]
 
-    context = _base_context(request)
-    context["conversation"] = conv
-    context["messages"] = list(messages_qs)
+    context = {
+        "conversation": conv,
+        "messages": list(messages_qs),
+    }
 
     return render(request, "chat/partials/message_list.html", context)
 
@@ -250,15 +239,9 @@ def mark_read(request, conversation_id):
 
     conv = get_object_or_404(Conversation, pk=conversation_id)
 
-    if request.user not in (conv.buyer, conv.seller):
-        raise PermissionDenied("You are not a participant in this conversation.")
+    _require_participant(conv, request.user)
 
-    Message.objects.filter(
-        conversation=conv,
-        is_read=False,
-    ).exclude(
-        sender=request.user,
-    ).update(is_read=True)
+    conv.mark_messages_read(request.user)
 
     return HttpResponse("")
 
@@ -269,8 +252,7 @@ def older_messages(request, conversation_id):
 
     conv = get_object_or_404(Conversation, pk=conversation_id)
 
-    if request.user not in (conv.buyer, conv.seller):
-        raise PermissionDenied("You are not a participant in this conversation.")
+    _require_participant(conv, request.user)
 
     # Determine the "before" message ID
     before = request.GET.get("before")
@@ -290,15 +272,18 @@ def older_messages(request, conversation_id):
     older = list(
         conv.messages.filter(
             id__lt=before,
+        ).select_related(
+            "sender",
         ).order_by("-created_at")[:MESSAGE_PAGE_SIZE]
     )
     older.reverse()  # Ascending order for the template
 
     has_more = len(older) >= MESSAGE_PAGE_SIZE
 
-    context = _base_context(request)
-    context["conversation"] = conv
-    context["messages"] = older
+    context = {
+        "conversation": conv,
+        "messages": older,
+    }
 
     response = render(request, "chat/partials/message_list.html", context)
     response["X-Has-More"] = "true" if has_more else "false"

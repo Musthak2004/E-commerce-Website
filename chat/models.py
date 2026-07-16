@@ -3,6 +3,9 @@ from django.conf import settings
 from django.db.models import UniqueConstraint, Q
 
 
+MESSAGE_MAX_LENGTH = 2000
+
+
 class Conversation(models.Model):
     buyer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -24,6 +27,19 @@ class Conversation(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)  # D16: touched on new message for cachalot
+
+    @classmethod
+    def for_user(cls, user):
+        """Return conversations involving the given user as buyer or seller."""
+        return cls.objects.filter(Q(buyer=user) | Q(seller=user))
+
+    def mark_messages_read(self, user):
+        """Mark all unread messages not sent by *user* as read in this conversation."""
+        return self.messages.filter(
+            is_read=False,
+        ).exclude(
+            sender=user,
+        ).update(is_read=True)
 
     class Meta:
         constraints = [
@@ -55,7 +71,7 @@ class Message(models.Model):
         on_delete=models.SET_NULL,
         related_name="sent_messages"
     )
-    body = models.TextField(max_length=2000)  # DoS protection
+    body = models.TextField(max_length=MESSAGE_MAX_LENGTH)  # DoS protection
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 

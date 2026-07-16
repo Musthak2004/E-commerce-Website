@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Message
+from .models import Message, MESSAGE_MAX_LENGTH
 
 
 class MessageForm(forms.ModelForm):
@@ -12,7 +12,7 @@ class MessageForm(forms.ModelForm):
                 "rows": 2,
                 "placeholder": "Type your message...",
                 "class": "chat-input",
-                "maxlength": 2000,
+                "maxlength": MESSAGE_MAX_LENGTH,
             })
         }
 
@@ -20,6 +20,8 @@ class MessageForm(forms.ModelForm):
         body = self.cleaned_data.get("body", "").strip()
         if not body:
             raise forms.ValidationError("Message cannot be empty.")
-        if len(body) > 2000:
-            raise forms.ValidationError("Message is too long (max 2000 characters).")
+        if len(body) > MESSAGE_MAX_LENGTH:
+            raise forms.ValidationError(
+                f"Message is too long (max {MESSAGE_MAX_LENGTH} characters)."
+            )
         return body

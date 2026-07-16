@@ -15,5 +15,5 @@ def touch_conversation_on_message(sender, instance, **kwargs):
 @receiver(post_save, sender=Product)
 def reassign_conversation_seller(sender, instance, **kwargs):
     """D23: Keep Conversation.seller in sync when Product.seller changes"""
-    if instance.seller is not None:
-        Conversation.objects.filter(product=instance).exclude(seller=instance.seller).update(seller=instance.seller)
+    # Product.seller has null=False constraint, so instance.seller is never None
+    Conversation.objects.filter(product=instance).exclude(seller=instance.seller).update(seller=instance.seller)

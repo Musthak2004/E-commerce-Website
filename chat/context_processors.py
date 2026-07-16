@@ -1,5 +1,3 @@
-from django.db.models import Q
-
 from .models import Conversation, Message
 
 
@@ -9,9 +7,7 @@ def chat_unread_count(request):
         return {"unread_chat_count": None}
 
     count = Message.objects.filter(
-        conversation__in=Conversation.objects.filter(
-            Q(buyer=request.user) | Q(seller=request.user),
-        ),
+        conversation__in=Conversation.for_user(request.user),
         is_read=False,
     ).exclude(
         sender=request.user,

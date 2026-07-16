@@ -12,5 +12,7 @@ package-lock.json
 package.json
 .gstack
 .claude/worktrees//
+MESSAGE_PAGE_SIZE,
+password
 
 .claude/

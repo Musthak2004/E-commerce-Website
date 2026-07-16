@@ -187,9 +187,12 @@ def send_message(request, conversation_id):
     message.conversation = conv
     message.save()
 
+    # Return the full message list so HTMX replaces #messages entirely,
+    # removing the empty-state placeholder on the first send.
+    all_messages = conv.messages.select_related("sender").order_by("created_at")[:MESSAGE_PAGE_SIZE]
     html = render_to_string(
-        "chat/partials/message_bubble.html",
-        {"message": message, "request": request},
+        "chat/partials/message_list.html",
+        {"conversation": conv, "messages": list(all_messages)},
         request=request,
     )
     response = HttpResponse(html)
@@ -225,9 +228,13 @@ def poll_messages(request, conversation_id):
         "sender",
     ).order_by("created_at")[:MESSAGE_PAGE_SIZE]
 
+    messages_list = list(messages_qs)
+    if not messages_list:
+        return HttpResponse()  # Nothing new — HTMX skips empty swaps
+
     context = {
         "conversation": conv,
-        "messages": list(messages_qs),
+        "messages": messages_list,
     }
 
     return render(request, "chat/partials/message_list.html", context)
@@ -277,6 +284,9 @@ def older_messages(request, conversation_id):
         ).order_by("-created_at")[:MESSAGE_PAGE_SIZE]
     )
     older.reverse()  # Ascending order for the template
+
+    if not older:
+        return HttpResponse()  # No older messages — HTMX skips empty swaps
 
     has_more = len(older) >= MESSAGE_PAGE_SIZE
 

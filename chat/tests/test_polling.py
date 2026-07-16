@@ -291,7 +291,7 @@ class OlderMessagesTests(TestCase):
         self.assertContains(response, "Msg 3")
 
     def test_older_no_more_messages(self):
-        """D27: No more messages returns empty response with X-Has-More: false."""
+        """D27: No more messages returns empty response so HTMX skips swap."""
         msg = Message.objects.create(
             conversation=self.conv, sender=self.seller, body="Only"
         )
@@ -301,7 +301,7 @@ class OlderMessagesTests(TestCase):
             {"before": msg.id}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["X-Has-More"], "false")
+        self.assertEqual(response.content, b"")
 
     def test_older_missing_before_defaults_to_last(self):
         """D28: Missing before param defaults gracefully."""

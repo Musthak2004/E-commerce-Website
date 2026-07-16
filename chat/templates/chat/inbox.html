@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Messages - ShopEase{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="section chat-inbox-section">
+  <div class="section-header">
+    <h1>Messages</h1>
+  </div>
+
+  <div class="inbox-container">
+    {% if conversations %}
+      <div class="inbox-list">
+        {% for conv in conversations %}
+          <a href="{% url 'chat:detail' conv.id %}" class="inbox-item {% if conv.unread_count %}unread{% endif %}">
+            <div class="inbox-item-avatar">
+              {% if request.user == conv.buyer %}
+                <div class="avatar">
+                  {{ conv.seller.get_full_name|default:conv.seller.email|first|upper|default:"?" }}
+                </div>
+              {% else %}
+                <div class="avatar">
+                  {{ conv.buyer.get_full_name|default:conv.buyer.email|first|upper|default:"?" }}
+                </div>
+              {% endif %}
+            </div>
+            <div class="inbox-item-content">
+              <div class="inbox-item-header">
+                <span class="inbox-item-name">
+                  {% if request.user == conv.buyer %}
+                    {{ conv.seller.get_full_name|default:"Unknown User"|default:conv.seller.email }}
+                  {% else %}
+                    {{ conv.buyer.get_full_name|default:"Unknown User"|default:conv.buyer.email }}
+                  {% endif %}
+                </span>
+                <span class="inbox-item-time">{{ conv.last_message_at|timesince|default:"" }}</span>
+              </div>
+              <div class="inbox-item-preview">
+                <span class="inbox-item-text">
+                  {% if request.user == conv.buyer %}
+                    {{ conv.seller.get_full_name|default:"Unknown"|first|upper|default:"?" }}:
+                  {% else %}
+                    {{ conv.buyer.get_full_name|default:"Unknown"|first|upper|default:"?" }}:
+                  {% endif %}
+                  {{ conv.last_message_text|default:"No messages yet"|truncatechars:60 }}
+                </span>
+                {% if conv.unread_count %}
+                  <span class="badge unread-badge">{{ conv.unread_count }}</span>
+                {% endif %}
+              </div>
+              {% if conv.product %}
+                <div class="inbox-item-product">
+                  <i class="fas fa-tag"></i> {{ conv.product.name }}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+
+      {% if conversations.has_other_pages %}
+        <div class="pagination">
+          {% if conversations.has_previous %}
+            <a href="?page={{ conversations.previous_page_number }}" class="btn btn-outline">&laquo; Previous</a>
+          {% endif %}
+          <span class="page-info">Page {{ conversations.number }} of {{ conversations.paginator.num_pages }}</span>
+          {% if conversations.has_next %}
+            <a href="?page={{ conversations.next_page_number }}" class="btn btn-outline">Next &raquo;</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-comments empty-icon"></i>
+        <h2>No conversations yet</h2>
+        <p>Start chatting with sellers by browsing products and clicking "Chat with Seller".</p>
+        <a href="{% url 'products:product_list' %}" class="btn btn-primary">Browse Products</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

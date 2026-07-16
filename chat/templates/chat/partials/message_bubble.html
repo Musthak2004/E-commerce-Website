@@ -1,0 +1,22 @@
+{% if message.sender_id == request.user.id %}
+  <div class="message message-out">
+    <div class="message-bubble">
+      <p class="message-body">{{ message.body|linebreaksbr }}</p>
+      <span class="message-time">{{ message.created_at|time:"g:i A" }}</span>
+    </div>
+  </div>
+{% else %}
+  <div class="message message-in">
+    <div class="message-bubble">
+      <div class="message-sender">
+        {% if message.sender %}
+          {{ message.sender.get_full_name|default:message.sender.email }}
+        {% else %}
+          <em>Deleted User</em>
+        {% endif %}
+      </div>
+      <p class="message-body">{{ message.body|linebreaksbr }}</p>
+      <span class="message-time">{{ message.created_at|time:"g:i A" }}</span>
+    </div>
+  </div>
+{% endif %}

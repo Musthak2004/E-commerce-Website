@@ -37,7 +37,9 @@ urlpatterns = [
     path("reviews/", include("reviews.urls")),
     path("coupons/", include("coupons.urls")),
     path("api/", include("api.urls")),
+    path("chat/", include("chat.urls")),
     path("", include("pages.urls")),
+
 ]
 
 if settings.DEBUG:

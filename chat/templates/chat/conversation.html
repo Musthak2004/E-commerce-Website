@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chat - ShopEase{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="section chat-section">
+  <div class="chat-header">
+    <a href="{% url 'chat:inbox' %}" class="chat-back-link">
+      <i class="fas fa-arrow-left"></i> Back to Messages
+    </a>
+    <div class="chat-header-info">
+      <h2>Chat with {{ other_user.get_full_name|default:other_user.email }}</h2>
+      {% if conversation.product %}
+        <p class="chat-product-info">
+          Regarding: <a href="{{ conversation.product.get_absolute_url }}">{{ conversation.product.name }}</a>
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="chat-messages" id="messages-container">
+    <div id="older-messages-trigger">
+      {% if has_older %}
+        <button class="btn btn-outline btn-sm load-older-btn"
+                hx-get="{% url 'chat:older' conversation.id %}?before={{ first_message_id }}"
+                hx-target="#messages-container"
+                hx-swap="beforebegin"
+                hx-trigger="click">
+          <i class="fas fa-chevron-up"></i> Load older messages
+        </button>
+      {% endif %}
+    </div>
+
+    <div id="messages">
+      {% include "chat/partials/message_list.html" with messages=messages %}
+    </div>
+
+    <!-- Poll for new messages -->
+    <div hx-get="{% url 'chat:poll' conversation.id %}?after={{ last_message_id }}"
+         hx-trigger="every 3s [lastRequestCompleted]"
+         hx-swap="beforeend"
+         hx-target="#messages"
+         hx-indicator="#chat-spinner">
+    </div>
+
+    <!-- Mark-read trigger — fires after poll receives new messages -->
+    <div id="chat-spinner" class="htmx-indicator">
+      <span class="spinner"></span>
+    </div>
+  </div>
+
+  <div class="chat-send-form">
+    <div id="send-form-errors" class="form-errors"></div>
+    <form hx-post="{% url 'chat:send' conversation.id %}"
+          hx-target="#messages"
+          hx-swap="innerHTML"
+          hx-target-error="#send-form-errors"
+          hx-swap-error="innerHTML"
+          hx-on::after-request="if(event.detail.successful) this.reset();">
+      {% csrf_token %}
+      {{ form.body }}
+      <button type="submit" class="btn btn-primary btn-send" hx-disabled-elt="this">
+        <i class="fas fa-paper-plane"></i> Send
+      </button>
+    </form>
+  </div>
+</section>
+{% endblock %}

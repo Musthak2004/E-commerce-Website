@@ -147,10 +147,19 @@
                 </div>
             {% endif %}
 
-            {% if user.is_authenticated and user != product.seller %}
+            {% if user.is_authenticated and user != product.seller and product.seller %}
             <div class="product-review-links">
                 <a href="{% url 'reviews:review_create' product.id %}" class="btn btn-secondary">
                     <i class="fas fa-star"></i> Write a Review
+                </a>
+                <a href="{% url 'chat:start' product.id %}" class="btn btn-secondary">
+                    <i class="fas fa-comment"></i> Chat with Seller
+                </a>
+            </div>
+            {% elif not user.is_authenticated and product.seller %}
+            <div class="product-review-links">
+                <a href="{% url 'login' %}?next={% url 'chat:start' product.id %}" class="btn btn-secondary">
+                    <i class="fas fa-comment"></i> Chat with Seller
                 </a>
             </div>
             {% endif %}

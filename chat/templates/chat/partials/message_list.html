@@ -1,0 +1,9 @@
+{% for message in messages %}
+  {% include "chat/partials/message_bubble.html" %}
+{% empty %}
+  {% if not hide_empty %}
+    <div class="chat-empty-state">
+      <p>No messages yet. Send a message to start the conversation!</p>
+    </div>
+  {% endif %}
+{% endfor %}

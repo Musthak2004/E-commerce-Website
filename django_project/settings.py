@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "reviews.apps.ReviewsConfig",
     "coupons.apps.CouponsConfig",
     "api.apps.ApiConfig",
+    "chat.apps.ChatConfig",
 ]
 
 if DEBUG:
@@ -66,6 +67,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "cart.context_processors.cart_counts",
+                "chat.context_processors.chat_unread_count",
             ],
         },
     },

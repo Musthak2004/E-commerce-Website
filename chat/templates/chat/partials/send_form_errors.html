@@ -1,0 +1,14 @@
+{% if form.non_field_errors %}
+  <div class="errorlist">
+    {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+{% if form.body.errors %}
+  <ul class="errorlist">
+    {% for error in form.body.errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

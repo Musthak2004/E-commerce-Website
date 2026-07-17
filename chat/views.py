@@ -140,6 +140,7 @@ def conversation_detail(request, conversation_id):
     first_message = conv.messages.order_by("created_at").first()
     has_older = bool(messages_list and first_message and messages_list[0].id != first_message.id)
     first_message_id = messages_list[0].id if messages_list else 0
+    last_message_id = messages_list[-1].id if messages_list else 0
 
     context = {
         "conversation": conv,
@@ -148,6 +149,7 @@ def conversation_detail(request, conversation_id):
         "other_user": other_user,
         "has_older": has_older,
         "first_message_id": first_message_id,
+        "last_message_id": last_message_id,
     }
 
     return render(request, "chat/conversation.html", context)
@@ -187,12 +189,14 @@ def send_message(request, conversation_id):
     message.conversation = conv
     message.save()
 
-    # Return the full message list so HTMX replaces #messages entirely,
-    # removing the empty-state placeholder on the first send.
-    all_messages = conv.messages.select_related("sender").order_by("created_at")[:MESSAGE_PAGE_SIZE]
+    # Return the newest MESSAGE_PAGE_SIZE messages so HTMX replaces #messages entirely,
+    # removing the empty-state placeholder on the first send, and the new message is visible.
+    all_messages_qs = conv.messages.select_related("sender").order_by("-created_at")[:MESSAGE_PAGE_SIZE]
+    all_messages = list(all_messages_qs)
+    all_messages.reverse()
     html = render_to_string(
         "chat/partials/message_list.html",
-        {"conversation": conv, "messages": list(all_messages)},
+        {"conversation": conv, "messages": all_messages},
         request=request,
     )
     response = HttpResponse(html)

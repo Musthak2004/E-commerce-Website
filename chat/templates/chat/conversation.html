@@ -41,7 +41,7 @@
     </div>
 
     <!-- Poll for new messages -->
-    <div hx-get="{% url 'chat:poll' conversation.id %}?after={{ messages.last.id|default:0 }}"
+    <div hx-get="{% url 'chat:poll' conversation.id %}?after={{ last_message_id }}"
          hx-trigger="every 3s [lastRequestCompleted]"
          hx-swap="beforeend"
          hx-target="#messages"

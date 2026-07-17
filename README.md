@@ -7,12 +7,12 @@
     <img src="https://img.shields.io/badge/DRF-3.17.1-A30000?logo=django&logoColor=white" alt="DRF">
     <img src="https://img.shields.io/badge/Stripe-15.3.0-008CDD?logo=stripe&logoColor=white" alt="Stripe">
     <img src="https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white" alt="SQLite">
-    <img src="https://img.shields.io/badge/380_tests-passing-22C55E" alt="Tests">
+    <img src="https://img.shields.io/badge/451_tests-passing-22C55E" alt="Tests">
     <img src="https://img.shields.io/badge/UI-Design_System-F59E0B" alt="Design System">
   </p>
 </div>
 
-A Django e-commerce platform featuring user authentication, product management, shopping cart, order processing, Stripe payment integration, coupon discounts, product reviews, wishlist, email verification, and a REST API — all wrapped in a warm gold-themed UI with subtle animations and responsive design.
+A Django e-commerce platform featuring user authentication, product management, shopping cart, order processing, Stripe payment integration, coupon discounts, product reviews, wishlist, email verification, live chat messenger, and a REST API — all wrapped in a warm gold-themed UI with subtle animations and responsive design.
 
 ---
 
@@ -54,6 +54,13 @@ A Django e-commerce platform featuring user authentication, product management, 
 - **Linked access** — Review forms accessible from both product detail pages and order history
 - **Aggregated ratings** — Average rating and review count computed as model properties
 
+### Live Chat
+- **Buyer-seller messaging** — HTMX-powered live chat with 3-second polling for near-real-time conversation
+- **Inbox** — Paginated inbox with last-message preview, unread count badge, and per-conversation detail
+- **Rate-limited sending** — 30 messages per minute per user with client + server validation
+- **Product-scoped conversations** — Messages tied to a specific product with data preservation on user/product deletion
+- **Read-only admin** — Staff can view conversations and messages but not edit them
+
 ### REST API
 - **Read-only product endpoint** — Django REST Framework `ReadOnlyModelViewSet` with pagination
 - **Nested serializers** — Category, tags, average rating, and review count included in responses
@@ -74,7 +81,7 @@ A Django e-commerce platform featuring user authentication, product management, 
 - **Responsive** — 375px mobile through desktop with systematic breakpoints
 - **Accessibility** — Skip-to-content link, focus-visible outlines, `aria-label`/`aria-expanded` controls, `aria-live` regions for dynamic content, `prefers-reduced-motion` support, keyboard navigation
 - **Print styles** — Clean print output hiding navigation, overlays, and interactive elements
-- **No JavaScript framework** — Vanilla JS (~340 lines) in IIFE pattern; lightweight and dependency-free
+- **No JavaScript framework** — Vanilla JS (~300 lines) in IIFE pattern; lightweight and dependency-free
 
 ---
 
@@ -83,7 +90,7 @@ A Django e-commerce platform featuring user authentication, product management, 
 | Category | Technologies |
 |----------|-------------|
 | **Backend** | Django 6.0.6, Python 3.13, Django REST Framework 3.17.1 |
-| **Frontend** | HTML5, CSS3 (~4,500 lines with custom properties, animations), Vanilla JS, Font Awesome 6.5.1 |
+| **Frontend** | HTML5, CSS3 (~6,400 lines across 14 files, custom properties, animations), Vanilla JS, Font Awesome 6.5.1 |
 | **Typography** | Playfair Display (headings) + Outfit (body) — Google Fonts |
 | **Database** | SQLite (development); compatible with PostgreSQL (production) |
 | **Auth** | `django.contrib.auth` + custom `AbstractUser`; email-based `USERNAME_FIELD` |
@@ -138,6 +145,10 @@ Cart → Create Order (atomic, stock validation, coupon apply)
      → Stripe webhook → Payment confirmed → Order confirmed
 
 Product detail / Order detail → Review form → Review created → Rating aggregated
+
+Product detail "Chat with Seller" → Conversation created
+     → HTMX polling (3s) → Message sent → Recipient sees in inbox
+     → Inbox with unread badge → Conversation view → Mark as read
 ```
 
 ### Design Decisions
@@ -148,7 +159,8 @@ Product detail / Order detail → Review form → Review created → Rating aggr
 - **Email verification**: Token-based (`uidb64` + token) with `django.utils.http` helpers; required before ordering
 - **Coupon application**: Session-based (no database writes until order creation); normalized to uppercase
 - **External image URLs**: Products can use remote image URLs (e.g., Unsplash); the `image_url` property handles both local and remote sources
-- **CSS architecture**: Single consolidated stylesheet with custom property tokens; inline template styles centralized into main `style.css` for maintainability
+- **Chat data preservation**: Conversation and Message FKs use `SET_NULL` — surviving participants retain their history even if the other user or product is deleted
+- **CSS modularization**: Styles split from a single monolithic stylesheet into per-component files (14 files total) for maintainability
 
 ---
 
@@ -228,7 +240,7 @@ The database (`db.sqlite3`) is pre-seeded with test data including categories, p
 
 ## Running Tests
 
-The project has **380 tests** across ten test suites:
+The project has **451 tests** across eleven test suites:
 
 | App | Tests | Coverage Highlights |
 |-----|-------|--------------------|
@@ -241,6 +253,7 @@ The project has **380 tests** across ten test suites:
 | pages | 31 | Models, forms, views (home/about/contact/newsletter), admin dashboard staff-only |
 | reviews | 26 | Review model, form validation, duplicate-review prevention, detail view |
 | api | 13 | Product list/retrieve, pagination, authentication, serializer field completeness |
+| chat | 71 | Models, views, auth, polling, edge cases, HTMX integration |
 | django_project | 2 | Custom error handlers (403, 404) |
 
 ```bash
@@ -254,6 +267,7 @@ python manage.py test --parallel --verbosity=2
 python manage.py test accounts --verbosity=2
 python manage.py test products --verbosity=2
 python manage.py test orders --verbosity=2
+python manage.py test chat --verbosity=2
 ```
 
 ---
@@ -367,7 +381,17 @@ Returns a single product by slug.
 │   ├── urls.py             # Root URLConf + custom error handlers
 │   └── wsgi.py             # .env auto-loading, PythonAnywhere-ready
 │
-├── templates/              # 29 templates (all extend base.html)
+├── chat/                   # Live chat messenger
+│   ├── models.py           # Conversation, Message with SET_NULL preservation
+│   ├── views.py            # Inbox, conversation detail, HTMX polling, mark-read
+│   ├── forms.py            # MessageForm with 2000-char limit
+│   ├── context_processors.py   # Unread conversation count
+│   ├── signals.py          # Cache invalidation on new message
+│   ├── urls.py             # Inbox, conversation, polling, mark-read, send
+│   ├── admin.py            # Read-only admin for conversations and messages
+│   └── tests.py            # 71 tests across 5 test files
+│
+├── templates/              # 45 templates (all extend base.html)
 │   ├── base.html           # Skip-link, nav (auth/badges), search overlay, footer
 │   ├── home.html           # Hero, categories, stats
 │   ├── about.html          # Company info
@@ -377,8 +401,8 @@ Returns a single product by slug.
 │   └── includes/
 │
 ├── static/
-│   ├── css/style.css       # ~4,500 lines — design system, animations, responsive, print
-│   └── js/main.js          # ~340 lines vanilla JS — nav, search, toasts, animations
+│   ├── css/                # 14 CSS files (6,406 lines total) — design system, components, responsive, animations
+│   └── js/main.js          # ~300 lines vanilla JS — nav, search, toasts, animations, chat polling
 │
 ├── .env.example            # Environment variable template
 ├── AGENTS.md               # AI agent guide

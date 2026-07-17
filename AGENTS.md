@@ -40,6 +40,7 @@ No linters, formatters, or pre-commit hooks are configured.
 - **`payments/`** — payment processing (Stripe Checkout, webhooks, OneToOne to Order); 32 tests
 - **`reviews/`** — product reviews (ForeignKey to User+Product, UniqueConstraint); 26 tests
 - **`api/`** — REST API (DRF read-only product endpoint with pagination); 13 tests
+- **`chat/`** — Live chat messenger with HTMX polling, Conversation/Message models, rate limiting; 71 tests
 - **`templates/`** — project-level templates (`base.html`, registration templates, admin dashboard, breadcrumbs include)
 - **`static/`** — single CSS stylesheet (`css/style.css`, ~2500 lines) and JS (`js/main.js`, 203 lines); uses Font Awesome 6.5.1
 

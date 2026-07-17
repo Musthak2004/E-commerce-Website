@@ -20,6 +20,7 @@ python manage.py test products --verbosity=2
 python manage.py test orders --verbosity=2
 python manage.py test cart --verbosity=2
 python manage.py test api --verbosity=2
+python manage.py test chat --verbosity=2
 
 # Migrations
 python manage.py makemigrations <app>
@@ -34,7 +35,7 @@ No linters, formatters, or pre-commit hooks are configured.
 
 ## Architecture overview
 
-Django 6.0.6 e-commerce platform with 10 apps: **accounts**, **products**, **cart**, **orders**, **payments**, **coupons**, **reviews**, **api**, **pages**, and the config project **django_project**. SQLite dev database pre-seeded with test data.
+Django 6.0.6 e-commerce platform with 11 apps: **accounts**, **products**, **cart**, **orders**, **payments**, **coupons**, **reviews**, **api**, **pages**, **chat**, and the config project **django_project**. SQLite dev database pre-seeded with test data.
 
 ### Auth model
 
@@ -83,6 +84,7 @@ ProductImage (ForeignKey → Product)
 | `coupons:` | `/coupons/` | apply, remove |
 | `reviews:` | `/reviews/` | create (by product_id), detail (pk) |
 | `api:` | `/api/` | products list, detail (slug) |
+| `chat:` | `/chat/` | inbox, conversation, poll, mark_read, send |
 | `accounts:` | `/accounts/` | signup, verify, profile |
 | `auth:` | `/accounts/` | login, logout, password reset |
 | (pages) | `/` | home, about, contact, newsletter |
@@ -91,18 +93,20 @@ ProductImage (ForeignKey → Product)
 
 - **Product CRUD**: Django class-based views (`ListView`, `DetailView`, `CreateView`, `UpdateView`, `DeleteView`) with `LoginRequiredMixin` + custom `SellerRequiredMixin` (enforces `user_type == "SELLER"`). Update/delete filter queryset by `seller=self.request.user` for ownership enforcement.
 - **Cart, Orders, Coupons, Newsletter**: Function-based views with `@login_required` / `@require_POST` decorators.
+- **Chat**: Function-based views for inbox, conversation detail, HTMX polling (`GET`-only), mark-read (`POST`), and send (`POST`), with cache-based rate limiting (30/min/user).
 - **Reviews, Pages**: Mix of CBVs and FBVs.
 - **API**: DRF `ReadOnlyModelViewSet` with `PageNumberPagination` (12/page, max 48), throttled (100/hr anon, 1000/hr auth).
 - **Error handlers**: Custom `handler404`, `handler500`, `handler403`, `handler400` in `django_project/urls.py` rendering `templates/errors/`.
 
 ### Template architecture
 
-All 29 templates extend `base.html` (nav with auth badges + cart/wishlist counts, search overlay, footer). Template structure patterns:
+All 45 templates extend `base.html` (nav with auth badges + cart/wishlist/unread counts, search overlay, footer). Template structure patterns:
 - **Product list**: `section.section > .section-header + .shop-toolbar + .product-grid > a.product-card`
 - **Product detail**: `section.product-detail-section > .product-detail > .product-detail-gallery + .product-detail-info`
 - **Forms**: `section.form-page > .form-card > .styled-form > .form-group`
 - **Auth**: `div.auth-page > .auth-card > .auth-card-inner`
 - **Cart**: `section.cart-section > .cart-container > .cart-items + .cart-summary`
+- **Chat**: Inbox: `section.inbox-section > .inbox-list > a.conversation-card`; Conversation: `section.chat-section > .chat-messages + .chat-form`
 - **Animation**: `anim-fadeInUp`, `anim-fadeIn`, `anim-delay-N` classes; `data-animate` attribute on sections triggers IntersectionObserver-based reveal in JS.
 
 ### Context processor
@@ -111,7 +115,7 @@ All 29 templates extend `base.html` (nav with auth badges + cart/wishlist counts
 
 ### Design system (CSS)
 
-Single `static/css/style.css` (~4500 lines) with CSS custom properties (`--accent`, `--bg-card`, `--radius`, `--shadow`, etc.). No CSS framework. Vanilla JS in IIFE pattern (~340 lines). Font Awesome 6.5.1 for icons. Responsive breakpoints from 375px. `prefers-reduced-motion` support.
+14 CSS files in `static/css/` (~6400 lines total) with CSS custom properties (`--accent`, `--bg-card`, `--radius`, `--shadow`, etc.). Split into per-component files (products, cart, chat, auth, reviews, animations, etc.). No CSS framework. Vanilla JS in IIFE pattern (~300 lines). Font Awesome 6.5.1 for icons. Responsive breakpoints from 375px. `prefers-reduced-motion` support.
 
 ### Environment config
 
@@ -126,6 +130,9 @@ Single `static/css/style.css` (~4500 lines) with CSS custom properties (`--accen
 - **Seller ownership**: `ProductUpdateView` and `ProductDeleteView` override `get_queryset` to filter by `seller=self.request.user` (not just `test_func`).
 - **Review uniqueness**: enforced by `UniqueConstraint(fields=["user", "product"])` at DB level PLUS an explicit `exists()` check in `ReviewCreateView.form_valid`.
 - **`.env` file uses `DEBUG=False` as default** — for local dev you must edit it to `DEBUG=True`. The repo `.env.example` has `DEBUG=False`.
+- **Chat rate limiting**: 30 messages per minute per user via cache. Tests need `CACHES` configured properly or rate-limit checks will fail.
+- **Chat null-safe templates**: `conversation.html` renders safely when a sender or buyer/seller user is deleted (FK `SET_NULL`). Test with deleted users and deleted product conversations.
+- **Chat context processor**: `chat.context_processors.unread_count` is registered globally. Requires database access on every page render for authenticated users.
 
 ## Skill routing
 
